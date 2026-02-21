@@ -1,0 +1,11 @@
+name,email,department,rollNumber
+Alice Johnson,alice@example.com,MERN,MERN2024010
+Bob Williams,bob@example.com,MERN,MERN2024011
+Charlie Davis,charlie@example.com,MEAN,MEAN2024010
+Diana Miller,diana@example.com,JAVA_FS,JAVA2024010
+Edward Brown,edward@example.com,SDET_JAVA,SDET2024010
+Fiona Garcia,fiona@example.com,SDET_PYTHON,SDET2024011
+George Martinez,george@example.com,MERN,MERN2024012
+Hannah Robinson,hannah@example.com,MEAN,MEAN2024011
+Ian Thompson,ian@example.com,JAVA_FS,JAVA2024011
+Julia White,julia@example.com,SDET_JAVA,SDET2024012
