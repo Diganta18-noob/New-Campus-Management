@@ -38,7 +38,11 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import SaveIcon from "@mui/icons-material/Save";
 import AddIcon from "@mui/icons-material/Add";
 import { useBatches, useCreateDailyUpdate, useDailyUpdates } from "../../hooks";
-import { EmptyState, LoadingSpinner, ConfirmDialog } from "../common";
+import {
+  EmptyState,
+  LoadingSpinner,
+  ConfirmDialog,
+} from "../../components/common";
 import { useAppSelector } from "../../store/hooks";
 
 const CHALLENGE_SEVERITIES = [

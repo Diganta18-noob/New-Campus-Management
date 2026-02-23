@@ -31,7 +31,11 @@ import {
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import SaveIcon from "@mui/icons-material/Save";
 import { useBatches, useMarkAttendance } from "../../hooks";
-import { LoadingSpinner, EmptyState, ConfirmDialog } from "../common";
+import {
+  LoadingSpinner,
+  EmptyState,
+  ConfirmDialog,
+} from "../../components/common";
 import { useAppSelector } from "../../store/hooks";
 
 const ATTENDANCE_STATUSES = [

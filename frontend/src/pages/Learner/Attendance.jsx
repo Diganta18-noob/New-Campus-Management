@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useBatches, useAttendanceByLearner } from "../../hooks";
-import { EmptyState, LoadingSpinner } from "../common";
+import { EmptyState, LoadingSpinner } from "../../components/common";
 import { useAppSelector } from "../../store/hooks";
 import {
   BarChart,

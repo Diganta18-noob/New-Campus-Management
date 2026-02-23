@@ -18,18 +18,16 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  RatingGroup,
 } from "@mui/material";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import AlertIcon from "@mui/icons-material/Alert";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {
   useBatches,
   useAttendanceByLearner,
   useDailyUpdates,
 } from "../../hooks";
-import { EmptyState, LoadingSpinner } from "../common";
+import { EmptyState, LoadingSpinner } from "../../components/common";
 import { useAppSelector } from "../../store/hooks";
 import {
   LineChart,
