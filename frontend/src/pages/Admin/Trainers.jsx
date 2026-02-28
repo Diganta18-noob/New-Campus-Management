@@ -15,12 +15,10 @@ import {
     Card,
     CardContent,
     Grid,
-    InputAdornment,
 } from '@mui/material'
 import { 
     Add as AddIcon, 
-    Close as CloseIcon, 
-    Search as SearchIcon,
+    Close as CloseIcon,
     Email as EmailIcon,
     Phone as PhoneIcon,
     School as SchoolIcon,
@@ -37,7 +35,6 @@ const Trainers = () => {
     const [loading, setLoading] = useState(true)
     const [openModal, setOpenModal] = useState(false)
     const [selectedTrainer, setSelectedTrainer] = useState(null) // For viewing details
-    const [searchTerm, setSearchTerm] = useState('')
     
     // For creating new trainer
     const [addModalOpen, setAddModalOpen] = useState(false)
@@ -211,12 +208,6 @@ const Trainers = () => {
         }
     ]
 
-    const filteredTrainers = trainers.filter(t => 
-        t.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.email.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -239,24 +230,9 @@ const Trainers = () => {
             </div>
 
             <Paper elevation={0} className="p-6 rounded-2xl border border-gray-100">
-                <div className="flex justify-between mb-4">
-                    <TextField
-                        size="small"
-                        placeholder="Search trainers..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon className="text-gray-400" />
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
-                </div>
                 <DataTable
                     columns={columns}
-                    data={filteredTrainers}
+                    data={trainers}
                     loading={loading}
                     rowHeight={80} // Taller rows for batch chips
                 />

@@ -30,12 +30,12 @@ import { selectUser, logout } from "../../store/slices/authSlice";
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: DashboardIcon },
-  { path: "/departments", label: "Departments", icon: SchoolIcon },
-  { path: "/classrooms", label: "Classrooms", icon: ClassroomIcon },
-  { path: "/batches", label: "Batches", icon: BatchIcon },
-  { path: "/students", label: "Users Management", icon: PeopleIcon },
-  { path: "/trainers", label: "Trainers", icon: TrainerIcon },
-  { path: "/tas", label: "Teaching Assistants", icon: TAIcon },
+  { path: "/departments", label: "Departments", icon: SchoolIcon, roles: ["ADMIN", "MANAGER"] },
+  { path: "/classrooms", label: "Classrooms", icon: ClassroomIcon, roles: ["ADMIN", "MANAGER"] },
+  { path: "/batches", label: "Batches", icon: BatchIcon, roles: ["ADMIN", "MANAGER"] },
+  { path: "/students", label: "Users Management", icon: PeopleIcon, roles: ["ADMIN"] },
+  { path: "/trainers", label: "Trainers", icon: TrainerIcon, roles: ["ADMIN", "MANAGER"] },
+  { path: "/tas", label: "Teaching Assistants", icon: TAIcon, roles: ["ADMIN", "MANAGER"] },
 ];
 
 const Sidebar = ({ collapsed, onToggle }) => {
@@ -100,7 +100,9 @@ const Sidebar = ({ collapsed, onToggle }) => {
       {/* Navigation */}
       <nav className="flex-1 py-4 px-3">
         <ul className="space-y-1">
-          {navItems.map((item) => {
+          {navItems
+            .filter((item) => !item.roles || item.roles.includes(user?.role))
+            .map((item) => {
             const Icon = item.icon;
             return (
               <li key={item.path}>

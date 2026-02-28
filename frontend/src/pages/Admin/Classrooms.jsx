@@ -9,7 +9,6 @@ import {
     DialogActions,
     TextField,
     IconButton,
-    InputAdornment,
     MenuItem,
     Chip,
     Alert,
@@ -22,7 +21,7 @@ import {
     ListItemText,
     Box
 } from '@mui/material'
-import { Add as AddIcon, Close as CloseIcon, Search as SearchIcon, LocationOn as LocationIcon } from '@mui/icons-material'
+import { Add as AddIcon, Close as CloseIcon, LocationOn as LocationIcon } from '@mui/icons-material'
 import DataTable from '../../components/ui/DataTable'
 import { classroomsAPI } from '../../services/api'
 
@@ -44,7 +43,6 @@ const Classrooms = () => {
     const [loading, setLoading] = useState(true)
     const [openModal, setOpenModal] = useState(false)
     const [editingId, setEditingId] = useState(null)
-    const [searchTerm, setSearchTerm] = useState('')
     const [formData, setFormData] = useState({
         name: '',
         code: '',
@@ -224,12 +222,6 @@ const Classrooms = () => {
         }
     ]
 
-    const filteredClassrooms = classrooms.filter(item => 
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.location.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -252,29 +244,9 @@ const Classrooms = () => {
             </div>
 
             <Paper elevation={0} className="p-6 rounded-2xl border border-gray-100">
-                <div className="flex items-center justify-between mb-4">
-                    <Typography variant="h6" className="font-semibold text-gray-800">
-                        Classroom List
-                    </Typography>
-                    <TextField
-                        size="small"
-                        placeholder="Search classrooms..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon className="text-gray-400" />
-                                </InputAdornment>
-                            ),
-                        }}
-                        className="w-64"
-                    />
-                </div>
-                
                 <DataTable
                     columns={columns}
-                    data={filteredClassrooms}
+                    data={classrooms}
                     onEdit={handleEdit}
                     loading={loading}
                 />

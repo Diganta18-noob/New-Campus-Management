@@ -50,7 +50,7 @@ function App() {
           <Route
             path="departments"
             element={
-              <RoleBasedRoute allowedRoles={["ADMIN"]}>
+              <RoleBasedRoute allowedRoles={["ADMIN", "MANAGER"]}>
                 <Departments />
               </RoleBasedRoute>
             }
@@ -58,7 +58,7 @@ function App() {
           <Route
             path="batches"
             element={
-              <RoleBasedRoute allowedRoles={["ADMIN"]}>
+              <RoleBasedRoute allowedRoles={["ADMIN", "MANAGER"]}>
                 <Batches />
               </RoleBasedRoute>
             }
@@ -74,7 +74,7 @@ function App() {
           <Route
             path="trainers"
             element={
-              <RoleBasedRoute allowedRoles={["ADMIN"]}>
+              <RoleBasedRoute allowedRoles={["ADMIN", "MANAGER"]}>
                 <Trainers />
               </RoleBasedRoute>
             }
@@ -82,7 +82,7 @@ function App() {
           <Route
             path="tas"
             element={
-              <RoleBasedRoute allowedRoles={["ADMIN"]}>
+              <RoleBasedRoute allowedRoles={["ADMIN", "MANAGER"]}>
                 <TAs />
               </RoleBasedRoute>
             }
@@ -109,7 +109,7 @@ function App() {
           <Route
             path="attendance/history"
             element={
-              <RoleBasedRoute allowedRoles={["TRAINER", "TA", "ADMIN"]}>
+              <RoleBasedRoute allowedRoles={["TRAINER", "TA", "ADMIN", "MANAGER"]}>
                 <AttendanceHistory />
               </RoleBasedRoute>
             }
