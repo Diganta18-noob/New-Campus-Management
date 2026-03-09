@@ -200,3 +200,67 @@ export const useDashboardStats = (options = {}) => {
     ...options.queryConfig,
   });
 };
+
+// ============= TOPICS QUERIES =============
+
+export const useTopics = (options = {}) => {
+  return useQuery({
+    queryKey: ['topics', options],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (options.page) params.append('page', options.page);
+      if (options.limit) params.append('limit', options.limit);
+      if (options.search) params.append('search', options.search);
+      if (options.batch) params.append('batch', options.batch);
+
+      const response = await api.get(`/topics?${params.toString()}`);
+      return response.data;
+    },
+    ...options.queryConfig,
+  });
+};
+
+export const useTopicById = (id, options = {}) => {
+  return useQuery({
+    queryKey: ['topics', id],
+    queryFn: async () => {
+      const response = await api.get(`/topics/${id}`);
+      return response.data;
+    },
+    enabled: !!id,
+    ...options.queryConfig,
+  });
+};
+
+// ============= AUDIT LOGS QUERIES =============
+
+export const useAuditLogs = (options = {}) => {
+  return useQuery({
+    queryKey: ['audit-logs', options],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (options.page) params.append('page', options.page);
+      if (options.limit) params.append('limit', options.limit);
+      if (options.entity) params.append('entity', options.entity);
+      if (options.action) params.append('action', options.action);
+      if (options.startDate) params.append('startDate', options.startDate);
+      if (options.endDate) params.append('endDate', options.endDate);
+
+      const response = await api.get(`/audit?${params.toString()}`);
+      return response.data;
+    },
+    ...options.queryConfig,
+  });
+};
+
+export const useAuditStats = (options = {}) => {
+  return useQuery({
+    queryKey: ['audit-logs', 'stats'],
+    queryFn: async () => {
+      const response = await api.get('/audit/stats');
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000,
+    ...options.queryConfig,
+  });
+};

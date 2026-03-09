@@ -17,8 +17,8 @@ const Dashboard = () => {
     const statsCards = [
         { title: 'Total Departments', value: stats.totalDepartments, icon: SchoolIcon, color: 'primary' },
         { title: 'Total Batches', value: stats.totalBatches, icon: MenuBookIcon, color: 'success' },
-        { title: 'Total Teachers', value: stats.totalTeachers, icon: PersonIcon, color: 'warning' },
-        { title: 'Total Students', value: stats.totalStudents, icon: PeopleIcon, color: 'info' },
+        { title: 'Total Trainers', value: stats.totalTeachers, icon: PersonIcon, color: 'warning' },
+        { title: 'Total Learners', value: stats.totalStudents, icon: PeopleIcon, color: 'info' },
     ]
 
     const recentActivity = [

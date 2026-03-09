@@ -134,6 +134,21 @@ export const dashboardAPI = {
   getStats: () => api.get("/dashboard"),
 };
 
+// Topics/Courses API
+export const topicsAPI = {
+  getAll: (params) => api.get("/topics", { params }),
+  getById: (id) => api.get(`/topics/${id}`),
+  create: (data) => api.post("/topics", data),
+  update: (id, data) => api.put(`/topics/${id}`, data),
+  delete: (id) => api.delete(`/topics/${id}`),
+};
+
+// Audit Logs API
+export const auditAPI = {
+  getAll: (params) => api.get("/audit", { params }),
+  getStats: () => api.get("/audit/stats"),
+};
+
 // Health Check
 export const healthCheck = () => api.get("/health");
 
@@ -145,5 +160,7 @@ export default {
   attendance: attendanceAPI,
   dailyUpdates: dailyUpdatesAPI,
   dashboard: dashboardAPI,
+  topics: topicsAPI,
+  audit: auditAPI,
   healthCheck,
 };

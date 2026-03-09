@@ -92,6 +92,7 @@ export const DataProvider = ({ children }) => {
     // Stats for dashboard
     const getStats = () => ({
         totalDepartments: data.departments.length,
+        totalBatches: data.batches.length,
         totalTeachers: data.teachers.length,
         totalStudents: data.students.length,
     })
