@@ -6,7 +6,6 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "build": "npm install --prefix ../frontend && npm run build --prefix ../frontend",
     "init:admin": "node src/utils/initAdmin.js",
     "test": "jest"
   },
