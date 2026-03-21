@@ -20,8 +20,8 @@ import {
   DashboardCard,
   AttendanceGaugeCard,
   ListCard,
-} from "./DashboardWidgets";
-import { LoadingSpinner, EmptyState } from "../common";
+} from "../../components/dashboards/DashboardWidgets";
+import { LoadingSpinner, EmptyState } from "../../components/common";
 import { useAppSelector } from "../../store/hooks";
 
 export const LearnerDashboard = () => {

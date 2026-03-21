@@ -20,8 +20,11 @@ import AnalyticsIcon from "@mui/icons-material/Analytics";
 import GroupIcon from "@mui/icons-material/Group";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import { useBatches, useAttendance, useDailyUpdates } from "../../hooks";
-import { StatCard, ListCard } from "./DashboardWidgets";
-import { LoadingSpinner, EmptyState } from "../common";
+import {
+  StatCard,
+  ListCard,
+} from "../../components/dashboards/DashboardWidgets";
+import { LoadingSpinner, EmptyState } from "../../components/common";
 import { useAppSelector } from "../../store/hooks";
 import {
   LineChart,

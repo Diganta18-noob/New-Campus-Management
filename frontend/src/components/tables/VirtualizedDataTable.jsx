@@ -11,7 +11,7 @@ import {
   IconButton,
   Checkbox,
 } from "@mui/material";
-import { FixedSizeList as List } from "react-window";
+import { List } from "react-window";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { EmptyState, LoadingSpinner } from "../common";

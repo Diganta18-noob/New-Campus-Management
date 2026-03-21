@@ -27,7 +27,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import FeedbackIcon from "@mui/icons-material/Feedback";
 import { useBatches, useDailyUpdates } from "../../hooks";
-import { EmptyState, LoadingSpinner } from "../common";
+import { EmptyState, LoadingSpinner } from "../../components/common";
 import { useAppSelector } from "../../store/hooks";
 
 export const ManagerDailyUpdates = () => {

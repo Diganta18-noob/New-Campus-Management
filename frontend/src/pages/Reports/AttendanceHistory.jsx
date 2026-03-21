@@ -30,7 +30,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useBatches, useAttendance } from "../../hooks";
-import { SimpleDataTable, EmptyState, LoadingSpinner } from "../common";
+import {
+  SimpleDataTable,
+  EmptyState,
+  LoadingSpinner,
+} from "../../components/common";
 import { useAppSelector } from "../../store/hooks";
 
 const ATTENDANCE_STATUSES = [

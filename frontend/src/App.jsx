@@ -16,6 +16,8 @@ import Trainers from "./pages/Admin/Trainers";
 import TAs from "./pages/Admin/TAs";
 import Profile from "./pages/Profile";
 import Classrooms from "./pages/Admin/Classrooms";
+import TopicsManagement from "./pages/Admin/TopicsManagement";
+import AuditLogs from "./pages/Admin/AuditLogs";
 import AttendanceMarking from "./pages/Trainer/AttendanceMarking";
 import AttendanceHistory from "./pages/Reports/AttendanceHistory";
 import LearnerAttendance from "./pages/Learner/Attendance";
@@ -24,7 +26,14 @@ import ManagerDailyUpdates from "./pages/Manager/DailyUpdates";
 import LearnerPerformance from "./pages/Learner/Performance";
 
 // Roles that can access the dashboard
-const DASHBOARD_ROLES = ["ADMIN", "MANAGER", "TEAM_LEADER", "TRAINER", "TA"];
+const DASHBOARD_ROLES = [
+  "ADMIN",
+  "MANAGER",
+  "TEAM_LEADER",
+  "TRAINER",
+  "TA",
+  "LEARNER",
+];
 
 function App() {
   return (
@@ -50,7 +59,7 @@ function App() {
           <Route
             path="departments"
             element={
-              <RoleBasedRoute allowedRoles={["ADMIN"]}>
+              <RoleBasedRoute allowedRoles={["ADMIN", "MANAGER"]}>
                 <Departments />
               </RoleBasedRoute>
             }
@@ -58,7 +67,7 @@ function App() {
           <Route
             path="batches"
             element={
-              <RoleBasedRoute allowedRoles={["ADMIN"]}>
+              <RoleBasedRoute allowedRoles={["ADMIN", "MANAGER"]}>
                 <Batches />
               </RoleBasedRoute>
             }
@@ -74,7 +83,7 @@ function App() {
           <Route
             path="trainers"
             element={
-              <RoleBasedRoute allowedRoles={["ADMIN"]}>
+              <RoleBasedRoute allowedRoles={["ADMIN", "MANAGER"]}>
                 <Trainers />
               </RoleBasedRoute>
             }
@@ -82,12 +91,32 @@ function App() {
           <Route
             path="tas"
             element={
-              <RoleBasedRoute allowedRoles={["ADMIN"]}>
+              <RoleBasedRoute allowedRoles={["ADMIN", "MANAGER"]}>
                 <TAs />
               </RoleBasedRoute>
             }
           />
           <Route path="profile" element={<Profile />} />
+
+          {/* Topics/Courses Routes */}
+          <Route
+            path="topics"
+            element={
+              <RoleBasedRoute allowedRoles={["ADMIN", "MANAGER"]}>
+                <TopicsManagement />
+              </RoleBasedRoute>
+            }
+          />
+
+          {/* Audit Logs Route */}
+          <Route
+            path="audit-logs"
+            element={
+              <RoleBasedRoute allowedRoles={["ADMIN"]}>
+                <AuditLogs />
+              </RoleBasedRoute>
+            }
+          />
 
           {/* Attendance Routes */}
           <Route
@@ -109,7 +138,9 @@ function App() {
           <Route
             path="attendance/history"
             element={
-              <RoleBasedRoute allowedRoles={["TRAINER", "TA", "ADMIN"]}>
+              <RoleBasedRoute
+                allowedRoles={["TRAINER", "TA", "ADMIN", "MANAGER"]}
+              >
                 <AttendanceHistory />
               </RoleBasedRoute>
             }

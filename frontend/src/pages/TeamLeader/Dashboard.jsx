@@ -14,8 +14,11 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import GroupIcon from "@mui/icons-material/Group";
 import { useBatches, useDailyUpdates } from "../../hooks";
-import { StatCard, ListCard } from "./DashboardWidgets";
-import { LoadingSpinner, EmptyState } from "../common";
+import {
+  StatCard,
+  ListCard,
+} from "../../components/dashboards/DashboardWidgets";
+import { LoadingSpinner, EmptyState } from "../../components/common";
 import { useAppSelector } from "../../store/hooks";
 
 export const TeamLeaderDashboard = () => {

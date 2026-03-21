@@ -20,8 +20,16 @@ import ScheduleIcon from "@mui/icons-material/Schedule";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import PersonIcon from "@mui/icons-material/Person";
 import { useBatches, useAttendance, useCreateDailyUpdate } from "../../hooks";
-import { StatCard, DashboardCard, ListCard } from "./DashboardWidgets";
-import { LoadingSpinner, EmptyState, ConfirmDialog } from "../common";
+import {
+  StatCard,
+  DashboardCard,
+  ListCard,
+} from "../../components/dashboards/DashboardWidgets";
+import {
+  LoadingSpinner,
+  EmptyState,
+  ConfirmDialog,
+} from "../../components/common";
 import { useAppSelector } from "../../store/hooks";
 
 export const TrainerDashboard = () => {

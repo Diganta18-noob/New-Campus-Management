@@ -14,6 +14,11 @@ import {
   MenuBook as SubjectIcon,
   SupervisorAccount as TrainerIcon,
   Assistant as TAIcon,
+  EventNote as AttendanceIcon,
+  RateReview as DailyUpdateIcon,
+  Topic as TopicIcon,
+  History as AuditIcon,
+  BarChart as PerformanceIcon,
 } from "@mui/icons-material";
 import {
   IconButton,
@@ -30,12 +35,25 @@ import { selectUser, logout } from "../../store/slices/authSlice";
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: DashboardIcon },
-  { path: "/departments", label: "Departments", icon: SchoolIcon },
-  { path: "/classrooms", label: "Classrooms", icon: ClassroomIcon },
-  { path: "/batches", label: "Batches", icon: BatchIcon },
-  { path: "/students", label: "Users Management", icon: PeopleIcon },
-  { path: "/trainers", label: "Trainers", icon: TrainerIcon },
-  { path: "/tas", label: "Teaching Assistants", icon: TAIcon },
+  // Admin & Manager
+  { path: "/departments", label: "Departments", icon: SchoolIcon, roles: ["ADMIN", "MANAGER"] },
+  { path: "/classrooms", label: "Classrooms", icon: ClassroomIcon, roles: ["ADMIN", "MANAGER"] },
+  { path: "/batches", label: "Batches", icon: BatchIcon, roles: ["ADMIN", "MANAGER"] },
+  { path: "/topics", label: "Topics / Courses", icon: TopicIcon, roles: ["ADMIN", "MANAGER"] },
+  { path: "/students", label: "Users Management", icon: PeopleIcon, roles: ["ADMIN"] },
+  { path: "/trainers", label: "Trainers", icon: TrainerIcon, roles: ["ADMIN", "MANAGER"] },
+  { path: "/tas", label: "Teaching Assistants", icon: TAIcon, roles: ["ADMIN", "MANAGER"] },
+  // Trainer & TA
+  { path: "/attendance", label: "Mark Attendance", icon: AttendanceIcon, roles: ["TRAINER", "TA"] },
+  { path: "/daily-updates", label: "Daily Updates", icon: DailyUpdateIcon, roles: ["TRAINER", "TA"] },
+  // Manager & Team Leader
+  { path: "/attendance/history", label: "Attendance Reports", icon: AttendanceIcon, roles: ["ADMIN", "MANAGER", "TEAM_LEADER"] },
+  { path: "/daily-updates/review", label: "Review Updates", icon: DailyUpdateIcon, roles: ["MANAGER", "TEAM_LEADER"] },
+  // Learner
+  { path: "/my-attendance", label: "My Attendance", icon: AttendanceIcon, roles: ["LEARNER"] },
+  { path: "/performance", label: "My Performance", icon: PerformanceIcon, roles: ["LEARNER"] },
+  // Admin only
+  { path: "/audit-logs", label: "Audit Logs", icon: AuditIcon, roles: ["ADMIN"] },
 ];
 
 const Sidebar = ({ collapsed, onToggle }) => {
@@ -100,7 +118,9 @@ const Sidebar = ({ collapsed, onToggle }) => {
       {/* Navigation */}
       <nav className="flex-1 py-4 px-3">
         <ul className="space-y-1">
-          {navItems.map((item) => {
+          {navItems
+            .filter((item) => !item.roles || item.roles.includes(user?.role))
+            .map((item) => {
             const Icon = item.icon;
             return (
               <li key={item.path}>
