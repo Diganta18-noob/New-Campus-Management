@@ -5,7 +5,7 @@ const helmet = require("helmet");
 const dotenv = require("dotenv");
 const rateLimit = require("express-rate-limit");
 const logger = require("./utils/logger");
-
+const path = require("path");
 dotenv.config();
 
 const app = express();
@@ -105,13 +105,24 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
-app.use("*", (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
+// Serve frontend in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(
+      path.resolve(__dirname, "../frontend", "dist", "index.html"),
+    );
   });
-});
+} else {
+  // 404 handler for development
+  app.use("*", (req, res) => {
+    res.status(404).json({
+      success: false,
+      message: "Route not found",
+    });
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
