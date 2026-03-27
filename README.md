@@ -35,13 +35,11 @@
 
 <div align="center">
 
-<a href="./docs/tech-stack-flow.html">
-  <img src="./docs/tech-stack-preview.png" alt="Tech Stack Flow — Click to open interactive version" width="700"/>
-</a>
+<img src="./docs/tech-stack-preview.png" alt="Campus Management — Tech Stack Architecture Flow" width="700"/>
 
 <br/>
 
-> 🖱️ **[Click here to open the interactive version →](./docs/tech-stack-flow.html)**
+> 🖱️ **[Download the interactive version →](./docs/tech-stack-flow.html)** *(open locally in browser for animated data flow)*
 > 
 > *Click any node to explore details · Animated data flow connectors · Dark mode support*
 
