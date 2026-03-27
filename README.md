@@ -33,57 +33,19 @@
 
 ## 🏗️ Architecture — Tech Stack Flow
 
-```mermaid
-graph TB
-    subgraph CLIENT["🖥️ CLIENT"]
-        Browser["🌐 Browser"]
-    end
+<div align="center">
 
-    subgraph FRONTEND["⚛️ FRONTEND — Vercel"]
-        React["⚛️ React 18"]
-        Vite["⚡ Vite"]
-        Router["🔀 React Router v6"]
-        Redux["🔄 Redux Toolkit"]
-        MUI["🎨 Material UI v5"]
-        TW["💨 Tailwind CSS"]
-        XLSX["📊 SheetJS"]
-    end
+<a href="./docs/tech-stack-flow.html">
+  <img src="./docs/tech-stack-preview.png" alt="Tech Stack Flow — Click to open interactive version" width="700"/>
+</a>
 
-    subgraph BACKEND["🟢 BACKEND — Render"]
-        Express["📡 Express.js"]
-        JWT["🔐 JWT Auth"]
-        CORS["🌐 CORS"]
-        Controllers["⚙️ Controllers"]
-        Middleware["🛡️ Middleware"]
-        AuditLog["📋 Audit Logger"]
-    end
+<br/>
 
-    subgraph DATABASE["🗄️ DATABASE — MongoDB Atlas"]
-        Mongoose["🍃 Mongoose ODM"]
-        MongoDB["☁️ MongoDB Atlas"]
-    end
+> 🖱️ **[Click here to open the interactive version →](./docs/tech-stack-flow.html)**
+> 
+> *Click any node to explore details · Animated data flow connectors · Dark mode support*
 
-    Browser -->|"HTTPS • HTML/JS"| React
-    React --> Vite
-    React --> Router
-    React --> Redux
-    React --> MUI
-    React --> TW
-    React --> XLSX
-    Redux -->|"Axios • REST API"| Express
-    Express --> JWT
-    Express --> CORS
-    Express --> Controllers
-    Express --> Middleware
-    Express --> AuditLog
-    Controllers -->|"Mongoose ODM"| Mongoose
-    Mongoose --> MongoDB
-
-    style CLIENT fill:#f5f5f5,stroke:#333,stroke-width:2px
-    style FRONTEND fill:#EEF2FF,stroke:#4F46E5,stroke-width:2px
-    style BACKEND fill:#F0FDF4,stroke:#16A34A,stroke-width:2px
-    style DATABASE fill:#FFF7ED,stroke:#EA580C,stroke-width:2px
-```
+</div>
 
 > **🟢 Render** backend (cold start ~30s) · **🔵 Vercel** frontend (instant) · **🟤 MongoDB Atlas** cloud cluster
 
