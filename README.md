@@ -35,17 +35,15 @@
 
 <div align="center">
 
-<img src="./docs/tech-stack-preview.png" alt="Campus Management — Tech Stack Architecture Flow" width="700"/>
-
-<br/>
-
-> 🖱️ **[Download the interactive version →](./docs/tech-stack-flow.html)** *(open locally in browser for animated data flow)*
-> 
-> *Click any node to explore details · Animated data flow connectors · Dark mode support*
+<picture>
+  <img src="./docs/tech-stack-flow.svg" alt="Campus Management — Animated Tech Stack Architecture Flow" width="720"/>
+</picture>
 
 </div>
 
-> **🟢 Render** backend (cold start ~30s) · **🔵 Vercel** frontend (instant) · **🟤 MongoDB Atlas** cloud cluster
+> 💡 *The diagram above is animated — flowing data dots, pulsing status indicators, and glowing nodes!*
+> 
+> 📥 **[Download the fully interactive version →](./docs/tech-stack-flow.html)** *(open in browser for click-to-explore details + dark mode)*
 
 ---
 
