@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import * as XLSX from 'xlsx';
 import {
   Typography,
   Button,
@@ -303,98 +304,140 @@ const UsersManagement = () => {
     }
   };
 
-  // CSV Upload Handler
+  // Parse rows (from CSV lines or Excel JSON) into user objects
+  const parseRows = (headers, rows) => {
+    const usersToImport = [];
+    const uniqueCohorts = new Set();
+
+    for (const row of rows) {
+      // row can be an array (CSV) or an object (Excel)
+      const user = {
+        role: selectedRole === "ALL" ? "LEARNER" : selectedRole,
+      };
+
+      headers.forEach((header, index) => {
+        const value = Array.isArray(row)
+          ? (row[index] || '').toString().trim()
+          : (row[header] || row[Object.keys(row).find(k => k.toLowerCase().trim() === header)] || '').toString().trim();
+
+        if (header.includes("first")) user.firstName = value;
+        else if (header.includes("last")) user.lastName = value;
+        else if (header === "email") user.email = value;
+        else if (header.includes("roll")) user.rollNumber = value;
+        else if (header === "phone") user.phone = value;
+        else if (header === "username") user.username = value;
+        else if (header.includes("cohort")) user.cohortId = value;
+      });
+
+      if (user.firstName && user.email) {
+        if (!user.username) {
+          user.username = user.email.split("@")[0];
+        }
+        if (!user.lastName) user.lastName = ".";
+        if (user.cohortId) {
+          uniqueCohorts.add(user.cohortId);
+        }
+        usersToImport.push(user);
+      }
+    }
+    return { usersToImport, uniqueCohorts };
+  };
+
+  const importUsers = async (usersToImport, uniqueCohorts) => {
+    if (usersToImport.length === 0) {
+      showSnackbar("No valid records found in file", "error");
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await usersAPI.bulkCreate({ users: usersToImport });
+      const cohortInfo =
+        uniqueCohorts.size > 0
+          ? ` (${uniqueCohorts.size} cohort group(s))`
+          : "";
+      showSnackbar(
+        res.message ||
+          `Successfully imported ${usersToImport.length} users${cohortInfo}!`,
+      );
+      fetchData();
+    } catch (error) {
+      console.error("Import error:", error);
+      showSnackbar(error.message || "Error importing users", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // CSV / Excel Upload Handler
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const text = e.target.result;
-      const lines = text.split("\n").filter((line) => line.trim());
+    const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
 
-      if (lines.length < 2) {
-        showSnackbar("CSV file is empty or invalid", "error");
-        return;
-      }
+    if (isExcel) {
+      // Parse Excel using SheetJS
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: '' });
 
-      const headers = lines[0]
-        .toLowerCase()
-        .split(",")
-        .map((h) => h.trim());
-
-      const usersToImport = [];
-      const uniqueCohorts = new Set();
-
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(",").map((v) => v.trim());
-        if (values.length < 3) continue;
-
-        const user = {
-          role: selectedRole === "ALL" ? "LEARNER" : selectedRole,
-        };
-
-        headers.forEach((header, index) => {
-          if (header.includes("first")) user.firstName = values[index];
-          else if (header.includes("last")) user.lastName = values[index];
-          else if (header === "email") user.email = values[index];
-          else if (header.includes("roll")) user.rollNumber = values[index];
-          else if (header === "phone") user.phone = values[index];
-          else if (header === "username") user.username = values[index];
-          else if (header.includes("cohort")) user.cohortId = values[index];
-        });
-
-        if (user.firstName && user.email) {
-          if (!user.username) {
-            user.username = user.email.split("@")[0];
-          }
-          if (!user.lastName) user.lastName = ".";
-
-          if (user.cohortId) {
-            uniqueCohorts.add(user.cohortId);
+          if (jsonData.length === 0) {
+            showSnackbar("Excel file is empty or invalid", "error");
+            return;
           }
 
-          usersToImport.push(user);
+          const headers = Object.keys(jsonData[0]).map(h => h.toLowerCase().trim());
+          const { usersToImport, uniqueCohorts } = parseRows(headers, jsonData);
+          await importUsers(usersToImport, uniqueCohorts);
+        } catch (err) {
+          console.error('Excel parse error:', err);
+          showSnackbar('Error parsing Excel file', 'error');
         }
-      }
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      // Parse CSV
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const text = e.target.result;
+        const lines = text.split("\n").filter((line) => line.trim());
 
-      if (usersToImport.length === 0) {
-        showSnackbar("No valid records found in CSV", "error");
-        return;
-      }
+        if (lines.length < 2) {
+          showSnackbar("CSV file is empty or invalid", "error");
+          return;
+        }
 
-      try {
-        setLoading(true);
-        const res = await usersAPI.bulkCreate({ users: usersToImport });
-        const cohortInfo =
-          uniqueCohorts.size > 0
-            ? ` (${uniqueCohorts.size} cohort group(s))`
-            : "";
-        showSnackbar(
-          res.message ||
-            `Successfully imported ${usersToImport.length} users${cohortInfo}!`,
-        );
-        fetchData();
-      } catch (error) {
-        console.error("Import error:", error);
-        showSnackbar(error.message || "Error importing users", "error");
-      } finally {
-        setLoading(false);
-      }
-    };
-    reader.readAsText(file);
+        const headers = lines[0]
+          .toLowerCase()
+          .split(",")
+          .map((h) => h.trim());
+
+        const rows = lines.slice(1).map(line => line.split(",").map(v => v.trim())).filter(r => r.length >= 3);
+        const { usersToImport, uniqueCohorts } = parseRows(headers, rows);
+        await importUsers(usersToImport, uniqueCohorts);
+      };
+      reader.readAsText(file);
+    }
+
     event.target.value = "";
   };
 
   const handleDownloadTemplate = () => {
-    const csvContent =
-      "firstname,lastname,email,rollnumber,phone,cohortid\nJohn,Doe,john@example.com,J001,1234567890,BATCH-2025-A\nJane,Smith,jane@example.com,J002,9876543210,BATCH-2025-A\nMark,Wilson,mark@example.com,J003,5555555555,BATCH-2025-B";
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "users_bulk_import_template.csv";
-    a.click();
+    // Create an Excel template with SheetJS
+    const templateData = [
+      { firstname: 'John', lastname: 'Doe', email: 'john@example.com', rollnumber: 'J001', phone: '1234567890', cohortid: 'BATCH-2025-A' },
+      { firstname: 'Jane', lastname: 'Smith', email: 'jane@example.com', rollnumber: 'J002', phone: '9876543210', cohortid: 'BATCH-2025-A' },
+      { firstname: 'Mark', lastname: 'Wilson', email: 'mark@example.com', rollnumber: 'J003', phone: '5555555555', cohortid: 'BATCH-2025-B' },
+    ];
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Users');
+    XLSX.writeFile(wb, 'users_bulk_import_template.xlsx');
   };
 
   if (loading && !users.length) {
@@ -442,7 +485,7 @@ const UsersManagement = () => {
       <Paper elevation={0} className="p-6 rounded-2xl border border-gray-100">
         <div className="flex items-center justify-between mb-4">
           <Typography variant="h6" className="font-semibold text-gray-800">
-            Bulk Import Users
+            Bulk Import Learners
           </Typography>
           <Button
             size="small"
@@ -450,25 +493,29 @@ const UsersManagement = () => {
             onClick={handleDownloadTemplate}
             className="text-primary-500"
           >
-            Download Template CSV
+            Download Template (.xlsx)
           </Button>
         </div>
 
         <Alert severity="info" className="mb-4 rounded-lg">
           <Typography variant="body2" className="mb-2">
-            <strong>CSV Format:</strong> firstname, lastname, email, rollnumber,
+            <strong>Accepted formats:</strong> CSV (.csv) or Excel (.xlsx)
+          </Typography>
+          <Typography variant="body2" className="mb-2">
+            <strong>Columns:</strong> firstname, lastname, email, rollnumber,
             phone, cohortid
           </Typography>
           <Typography variant="body2" className="text-gray-700">
             Use <strong>cohortid</strong> to group users for easy batch
-            assignment. Currently selected role: <strong>{selectedRole}</strong>
+            assignment. Currently selected role: <strong>{selectedRole}</strong>.
+            Default password: <strong>Default@123</strong>
           </Typography>
         </Alert>
 
         <input
           ref={fileInputRef}
           type="file"
-          accept=".csv"
+          accept=".csv,.xlsx,.xls"
           onChange={handleFileUpload}
           className="hidden"
         />
@@ -478,7 +525,7 @@ const UsersManagement = () => {
         >
           <UploadIcon className="text-gray-400 text-5xl mb-3" />
           <Typography variant="body1" className="text-gray-600 mb-1">
-            Drag and drop your CSV file here
+            Drag and drop your CSV or Excel (.xlsx) file here
           </Typography>
           <Typography variant="body2" className="text-gray-400">
             or click to browse

@@ -63,6 +63,10 @@ const userSchema = new mongoose.Schema({
   lockUntil: {
     type: Date
   },
+  requiresPasswordReset: {
+    type: Boolean,
+    default: false
+  },
   lastLogin: {
     type: Date
   },

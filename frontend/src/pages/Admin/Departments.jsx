@@ -14,9 +14,12 @@ import {
     Snackbar,
     CircularProgress,
     Box,
+    ToggleButtonGroup,
+    ToggleButton,
 } from '@mui/material'
 import { Add as AddIcon, Close as CloseIcon } from '@mui/icons-material'
 import DataTable from '../../components/ui/DataTable'
+import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import { departmentsAPI } from '../../services/api'
 
 const Departments = () => {
@@ -25,6 +28,7 @@ const Departments = () => {
     const [openModal, setOpenModal] = useState(false)
     const [editingId, setEditingId] = useState(null)
     const [submitting, setSubmitting] = useState(false)
+    const [filterStatus, setFilterStatus] = useState('ACTIVE')
     const [formData, setFormData] = useState({
         name: '',
         code: '',
@@ -34,6 +38,11 @@ const Departments = () => {
         open: false,
         message: '',
         severity: 'success'
+    })
+    const [confirmDialog, setConfirmDialog] = useState({
+        open: false,
+        row: null,
+        loading: false,
     })
 
     // Fetch departments on component mount
@@ -68,21 +77,10 @@ const Departments = () => {
         setSnackbar({ ...snackbar, open: false })
     }
 
-    // Generate unique code: coursebatchMonthYear (e.g., mern1dec25, azure1feb26)
+    // Generate code directly from the department name
     const generateCode = (name) => {
         if (!name) return ''
-        const date = new Date()
-        const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
-        const month = monthNames[date.getMonth()]
-        const year = String(date.getFullYear()).slice(-2)
-        // Extract course abbreviation from name (first word, lowercase)
-        const courseCode = name.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '')
-        // Count existing batches with same course to get batch number
-        const existingBatches = departments.filter(d =>
-            d.code?.toLowerCase().startsWith(courseCode)
-        ).length
-        const batchNum = existingBatches + 1
-        return `${courseCode}${batchNum}${month}${year}`.toUpperCase()
+        return name.trim().toUpperCase().replace(/\s+/g, '_')
     }
 
     const columns = [
@@ -185,16 +183,23 @@ const Departments = () => {
         }
     }
 
-    const handleDelete = async (row) => {
-        if (window.confirm(`Are you sure you want to delete "${row.name}"?`)) {
-            try {
-                await departmentsAPI.delete(row._id || row.id)
-                showSnackbar('Department deleted successfully')
-                fetchDepartments() // Refresh the list
-            } catch (error) {
-                console.error('Error deleting department:', error)
-                showSnackbar(error.message || 'Error deleting department', 'error')
-            }
+    const handleDelete = (row) => {
+        setConfirmDialog({ open: true, row, loading: false })
+    }
+
+    const confirmDelete = async () => {
+        const row = confirmDialog.row
+        if (!row) return
+        try {
+            setConfirmDialog(prev => ({ ...prev, loading: true }))
+            await departmentsAPI.delete(row._id || row.id)
+            showSnackbar('Department deactivated successfully')
+            fetchDepartments()
+        } catch (error) {
+            console.error('Error deleting department:', error)
+            showSnackbar(error.message || 'Error deleting department', 'error')
+        } finally {
+            setConfirmDialog({ open: false, row: null, loading: false })
         }
     }
 
@@ -233,12 +238,27 @@ const Departments = () => {
                 elevation={0}
                 className="p-6 rounded-2xl border border-gray-100"
             >
-                <Typography variant="h6" className="font-semibold text-gray-800 mb-4">
-                    Department List
-                </Typography>
+                <div className="flex items-center justify-between mb-4">
+                    <Typography variant="h6" className="font-semibold text-gray-800">
+                        Department List
+                    </Typography>
+                    <ToggleButtonGroup
+                        value={filterStatus}
+                        exclusive
+                        onChange={(e, val) => { if (val !== null) setFilterStatus(val) }}
+                        size="small"
+                    >
+                        <ToggleButton value="ACTIVE" sx={{ textTransform: 'none', px: 2 }}>
+                            Active
+                        </ToggleButton>
+                        <ToggleButton value="INACTIVE" sx={{ textTransform: 'none', px: 2 }}>
+                            Inactive
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                </div>
                 <DataTable
                     columns={columns}
-                    data={departments}
+                    data={departments.filter(d => (d.status || 'ACTIVE') === filterStatus)}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                 />
@@ -324,6 +344,18 @@ const Departments = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* Confirm Delete Dialog */}
+            <ConfirmDialog
+                open={confirmDialog.open}
+                onClose={() => setConfirmDialog({ open: false, row: null, loading: false })}
+                onConfirm={confirmDelete}
+                title="Delete Department"
+                message={`Are you sure you want to deactivate "${confirmDialog.row?.name || ''}"? This will mark the department as inactive.`}
+                confirmText="Delete"
+                severity="error"
+                loading={confirmDialog.loading}
+            />
 
             {/* Snackbar for notifications */}
             <Snackbar

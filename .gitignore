@@ -24,3 +24,14 @@ dist-ssr
 *.sw?
 .env
 package-lock.json
+
+# GSD and Agent related files
+.agent/
+.gemini/
+.gsd/
+adapters/
+docs/
+scripts/
+PROJECT_RULES.md
+GSD-STYLE.md
+model_capabilities.yaml

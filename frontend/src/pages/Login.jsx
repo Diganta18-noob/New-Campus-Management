@@ -17,7 +17,7 @@ import {
     VisibilityOff,
 } from '@mui/icons-material'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
-import { login, selectAuthLoading, selectAuthError, selectIsAuthenticated, clearError } from '../store/slices/authSlice'
+import { login, selectAuthLoading, selectAuthError, selectIsAuthenticated, selectRequiresPasswordReset, clearError } from '../store/slices/authSlice'
 
 const Login = () => {
     const navigate = useNavigate()
@@ -50,12 +50,17 @@ const Login = () => {
         setLoginError('')
 
         try {
-            await dispatch(login({
-                email: formData.email, // Backend expects email
+            const result = await dispatch(login({
+                email: formData.email,
                 password: formData.password,
             })).unwrap()
 
-            navigate('/dashboard')
+            // Check if user needs to reset their default password
+            if (result?.requiresPasswordReset) {
+                navigate('/reset-password')
+            } else {
+                navigate('/dashboard')
+            }
         } catch (error) {
             setLoginError(error || 'Login failed. Please check your credentials.')
         }

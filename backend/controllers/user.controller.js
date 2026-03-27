@@ -193,7 +193,8 @@ const bulkCreateUsers = async (req, res) => {
                     ...userData,
                     username,
                     role: userData.role || 'LEARNER',
-                    password: userData.password || 'Default@123'
+                    password: userData.password || 'Default@123',
+                    requiresPasswordReset: true
                 });
 
                 createdUsers.push(user);
