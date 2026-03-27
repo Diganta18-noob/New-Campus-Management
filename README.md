@@ -1,72 +1,182 @@
-# 🎓 New Campus Management System
+<div align="center">
 
-A full-stack campus management platform built with **React + Node.js + MongoDB** for managing students, departments, attendance, and more.
+<!-- Animated Typing Header -->
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=700&size=35&pause=1000&color=4F46E5&center=true&vCenter=true&random=false&width=600&height=70&lines=%F0%9F%8E%93+Campus+Management+System;Built+with+React+%2B+Node.js;Full-Stack+Monorepo+Architecture" alt="Typing SVG" />
 
-[![Frontend](https://img.shields.io/badge/Frontend-Vercel-black?logo=vercel)](https://vercel.com)
-[![Backend](https://img.shields.io/badge/Backend-Render-46E3B7?logo=render)](https://render.com)
-[![Database](https://img.shields.io/badge/Database-MongoDB-47A248?logo=mongodb)](https://www.mongodb.com)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<br/>
+
+<!-- Tech Stack Badges - Animated -->
+<img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
+<img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
+<img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
+<img src="https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white" />
+<img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" />
+<img src="https://img.shields.io/badge/Redux-764ABC?style=for-the-badge&logo=redux&logoColor=white" />
+<img src="https://img.shields.io/badge/MUI-007FFF?style=for-the-badge&logo=mui&logoColor=white" />
+<img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" />
+
+<br/><br/>
+
+<!-- Deployment & Status Badges -->
+[![Frontend](https://img.shields.io/badge/Frontend-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com)
+[![Backend](https://img.shields.io/badge/Backend-Render-46E3B7?style=flat-square&logo=render)](https://render.com)
+[![Database](https://img.shields.io/badge/Database-MongoDB_Atlas-47A248?style=flat-square&logo=mongodb)](https://www.mongodb.com)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+
+<br/>
+
+*A full-stack campus management platform for managing students, departments, attendance, and more.*
+
+</div>
+
+---
+
+## 🏗️ Architecture — Tech Stack Flow
+
+```mermaid
+graph TB
+    subgraph CLIENT["🖥️ CLIENT"]
+        Browser["🌐 Browser"]
+    end
+
+    subgraph FRONTEND["⚛️ FRONTEND — Vercel"]
+        React["⚛️ React 18"]
+        Vite["⚡ Vite"]
+        Router["🔀 React Router v6"]
+        Redux["🔄 Redux Toolkit"]
+        MUI["🎨 Material UI v5"]
+        TW["💨 Tailwind CSS"]
+        XLSX["📊 SheetJS"]
+    end
+
+    subgraph BACKEND["🟢 BACKEND — Render"]
+        Express["📡 Express.js"]
+        JWT["🔐 JWT Auth"]
+        CORS["🌐 CORS"]
+        Controllers["⚙️ Controllers"]
+        Middleware["🛡️ Middleware"]
+        AuditLog["📋 Audit Logger"]
+    end
+
+    subgraph DATABASE["🗄️ DATABASE — MongoDB Atlas"]
+        Mongoose["🍃 Mongoose ODM"]
+        MongoDB["☁️ MongoDB Atlas"]
+    end
+
+    Browser -->|"HTTPS • HTML/JS"| React
+    React --> Vite
+    React --> Router
+    React --> Redux
+    React --> MUI
+    React --> TW
+    React --> XLSX
+    Redux -->|"Axios • REST API"| Express
+    Express --> JWT
+    Express --> CORS
+    Express --> Controllers
+    Express --> Middleware
+    Express --> AuditLog
+    Controllers -->|"Mongoose ODM"| Mongoose
+    Mongoose --> MongoDB
+
+    style CLIENT fill:#f5f5f5,stroke:#333,stroke-width:2px
+    style FRONTEND fill:#EEF2FF,stroke:#4F46E5,stroke-width:2px
+    style BACKEND fill:#F0FDF4,stroke:#16A34A,stroke-width:2px
+    style DATABASE fill:#FFF7ED,stroke:#EA580C,stroke-width:2px
+```
+
+> **🟢 Render** backend (cold start ~30s) · **🔵 Vercel** frontend (instant) · **🟤 MongoDB Atlas** cloud cluster
 
 ---
 
 ## ✨ Features
 
-### 🔐 Authentication & Security
-- JWT-based login/signup with role-based access control
-- **6 roles:** Admin, Manager, Team Leader, Trainer, TA, Learner
-- Account lockout after 5 failed login attempts (15-min cooldown)
-- Force password reset on first login for bulk-created students
+<table>
+<tr>
+<td>
 
-### 👥 User & Department Management
-- Full CRUD for users with role assignment
-- Department management with **auto-generated codes** (name → code)
-- **Soft delete** with Active/Inactive toggle filter
-- Styled **MUI Confirmation Dialog** (no more ugly browser popups!)
+### 🔐 Auth & Security
+- JWT login/signup with **6 roles**
+- Account lockout (5 attempts → 15min)
+- Force password reset on first login
+- Protected & role-based routes
 
-### 📤 Bulk Student Upload
-- Upload students via **Excel (.xlsx)** or **CSV** files
+</td>
+<td>
+
+### 👥 User Management
+- Full CRUD with role assignment
+- Auto-generated department codes
+- Soft delete (Active/Inactive filter)
+- MUI Confirmation Dialogs
+
+</td>
+</tr>
+<tr>
+<td>
+
+### 📤 Bulk Upload
+- Excel (`.xlsx`) & CSV support
 - Auto-generates username from email
-- Default password: `Default@123` (forced reset on first login)
-- Download a pre-filled `.xlsx` template with one click
-- Cohort grouping support for batch assignment
+- Default password: `Default@123`
+- One-click template download
 
-### 📊 Attendance & Performance
-- Trainer/TA attendance marking per batch
+</td>
+<td>
+
+### 📊 Attendance & Reports
+- Trainer/TA attendance marking
 - Attendance history & reports
 - Learner performance tracking
-- Daily updates system for Trainers and Managers
+- Daily updates system
 
-### 🏫 Academic Management
-- Batch management with learner assignment
-- Classroom management
-- Topics/Courses management
-- Audit logs for admin oversight
+</td>
+</tr>
+</table>
 
 ---
 
 ## 🧱 Tech Stack
 
-### Frontend
-| Layer | Technology |
-|---|---|
-| Framework | React 18 (Vite) |
-| UI Library | Material UI (MUI v5) |
-| Styling | Tailwind CSS |
-| State | Redux Toolkit + React Query |
-| HTTP Client | Axios |
-| Routing | React Router DOM v6 |
-| Excel Parsing | SheetJS (xlsx) |
-| Deployment | Vercel |
+<table>
+<tr>
+<th align="center">Frontend</th>
+<th align="center">Backend</th>
+<th align="center">DevOps</th>
+</tr>
+<tr>
+<td>
 
-### Backend
-| Layer | Technology |
-|---|---|
-| Runtime | Node.js |
-| Framework | Express.js |
-| Database | MongoDB (Mongoose ODM) |
-| Auth | JWT (jsonwebtoken) + bcryptjs |
-| Logging | Custom audit logger |
-| Deployment | Render |
+<img src="https://img.shields.io/badge/React_18-61DAFB?style=flat-square&logo=react&logoColor=black" /><br/>
+<img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/MUI_v5-007FFF?style=flat-square&logo=mui&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/Redux_Toolkit-764ABC?style=flat-square&logo=redux&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/React_Router_v6-CA4245?style=flat-square&logo=reactrouter&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/SheetJS-1D6F42?style=flat-square&logo=microsoftexcel&logoColor=white" />
+
+</td>
+<td>
+
+<img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/Express.js-000000?style=flat-square&logo=express&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/Mongoose-880000?style=flat-square&logo=mongoose&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/bcrypt-003A70?style=flat-square&logo=letsencrypt&logoColor=white" />
+
+</td>
+<td>
+
+<img src="https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/Render-46E3B7?style=flat-square&logo=render&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/MongoDB_Atlas-47A248?style=flat-square&logo=mongodb&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white" /><br/>
+<img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white" />
+
+</td>
+</tr>
+</table>
 
 ---
 
@@ -74,40 +184,37 @@ A full-stack campus management platform built with **React + Node.js + MongoDB**
 
 ```
 New-Campus-Management/
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── auth/          ← ProtectedRoute, RoleBasedRoute
-│   │   │   ├── layout/        ← MainLayout, Sidebar
-│   │   │   ├── ui/            ← DataTable, ConfirmDialog
-│   │   │   └── common/        ← ErrorBoundary
-│   │   ├── pages/
-│   │   │   ├── Admin/         ← Departments, Users, Batches, etc.
-│   │   │   ├── Trainer/       ← Attendance, DailyUpdates
-│   │   │   ├── Learner/       ← Attendance, Performance
-│   │   │   ├── Manager/       ← DailyUpdates review
-│   │   │   ├── Reports/       ← AttendanceHistory
-│   │   │   ├── Login.jsx
-│   │   │   ├── Signup.jsx
-│   │   │   └── ResetPassword.jsx
-│   │   ├── store/
-│   │   │   └── slices/        ← authSlice (Redux)
-│   │   ├── services/          ← Axios API calls
-│   │   └── App.jsx
-│   ├── .env                   ← VITE_API_URL
-│   └── vite.config.js
+├── 📁 frontend/
+│   ├── 📁 src/
+│   │   ├── 📁 components/
+│   │   │   ├── 🔒 auth/          ← ProtectedRoute, RoleBasedRoute
+│   │   │   ├── 📐 layout/        ← MainLayout, Sidebar
+│   │   │   ├── 🧩 ui/            ← DataTable, ConfirmDialog
+│   │   │   └── ⚠️ common/        ← ErrorBoundary
+│   │   ├── 📁 pages/
+│   │   │   ├── 👑 Admin/         ← Departments, Users, Batches
+│   │   │   ├── 🎓 Trainer/       ← Attendance, DailyUpdates
+│   │   │   ├── 📚 Learner/       ← Attendance, Performance
+│   │   │   ├── 📊 Manager/       ← DailyUpdates review
+│   │   │   ├── 📈 Reports/       ← AttendanceHistory
+│   │   │   ├── 🔑 Login.jsx
+│   │   │   ├── 📝 Signup.jsx
+│   │   │   └── 🔄 ResetPassword.jsx
+│   │   ├── 📁 store/slices/      ← authSlice (Redux)
+│   │   ├── 📁 services/          ← Axios API calls
+│   │   └── ⚛️ App.jsx
+│   └── ⚡ vite.config.js
 │
-├── backend/
-│   ├── routes/                ← Express route definitions
-│   ├── controllers/           ← Business logic
-│   ├── models/                ← Mongoose schemas
-│   ├── middleware/            ← Auth middleware
-│   ├── utils/                 ← Logger utilities
-│   ├── .env                   ← MONGO_URI, JWT_SECRET, PORT
-│   └── server.js
+├── 📁 backend/
+│   ├── 🛣️ routes/                ← Express route definitions
+│   ├── ⚙️ controllers/           ← Business logic
+│   ├── 🍃 models/                ← Mongoose schemas
+│   ├── 🛡️ middleware/            ← Auth middleware
+│   ├── 🔧 utils/                 ← Logger utilities
+│   └── 🚀 server.js
 │
-├── MASTER_PROMPT.md           ← AI session context file
-└── .gitignore
+├── 📋 MASTER_PROMPT.md           ← AI session context
+└── 📖 README.md
 ```
 
 ---
@@ -115,9 +222,10 @@ New-Campus-Management/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **Node.js** v18+
-- **MongoDB** (local or [MongoDB Atlas](https://www.mongodb.com/atlas))
-- **Git**
+
+<img src="https://img.shields.io/badge/Node.js-v18+-339933?style=flat-square&logo=nodedotjs&logoColor=white" />
+<img src="https://img.shields.io/badge/MongoDB-Required-47A248?style=flat-square&logo=mongodb&logoColor=white" />
+<img src="https://img.shields.io/badge/Git-Required-F05032?style=flat-square&logo=git&logoColor=white" />
 
 ### 1. Clone the Repository
 ```bash
@@ -141,10 +249,8 @@ PORT=5000
 CORS_ORIGIN=http://localhost:5173
 ```
 
-Start the backend:
 ```bash
-npm run dev
-# Server runs on http://localhost:5000
+npm run dev       # 🟢 Server runs on http://localhost:5000
 ```
 
 ### 3. Setup Frontend
@@ -158,91 +264,135 @@ Create `frontend/.env`:
 VITE_API_URL=http://localhost:5000
 ```
 
-Start the frontend:
 ```bash
-npm run dev
-# App runs on http://localhost:5173
+npm run dev       # 🔵 App runs on http://localhost:5173
 ```
 
 ---
 
 ## 🔑 Default Credentials
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | *(create via signup)* | *(your password)* |
-| Bulk Students | *(from Excel upload)* | `Default@123` |
+| Role | Email | Password | Notes |
+|------|-------|----------|-------|
+| 👑 Admin | *(create via signup)* | *(your password)* | Full access |
+| 📚 Bulk Students | *(from Excel upload)* | `Default@123` | Forced password reset |
 
-> **Note:** Bulk-uploaded students are forced to change their password on first login.
+> ⚠️ **Bulk-uploaded students must change their password on first login.**
 
 ---
 
-## 📤 Bulk Student Upload Guide
+## 📤 Bulk Student Upload
 
-1. Navigate to **Users Management** page
-2. Click **"Download Template (.xlsx)"** to get the format
-3. Fill in student data:
+```mermaid
+flowchart LR
+    A["📥 Download\nTemplate (.xlsx)"] --> B["✏️ Fill Student\nData"]
+    B --> C["📤 Upload File\n(.xlsx or .csv)"]
+    C --> D["⚙️ Backend\nProcessing"]
+    D --> E["✅ Accounts\nCreated"]
+    E --> F["🔐 Student Logs In\n(Default@123)"]
+    F --> G["🔄 Force\nPassword Reset"]
+    G --> H["🎉 Dashboard\nAccess"]
+
+    style A fill:#DBEAFE,stroke:#3B82F6
+    style B fill:#FEF3C7,stroke:#F59E0B
+    style C fill:#D1FAE5,stroke:#10B981
+    style D fill:#EDE9FE,stroke:#8B5CF6
+    style E fill:#D1FAE5,stroke:#10B981
+    style F fill:#FEE2E2,stroke:#EF4444
+    style G fill:#FEF3C7,stroke:#F59E0B
+    style H fill:#D1FAE5,stroke:#10B981
+```
+
+### Excel Template Format
 
 | firstname | lastname | email | rollnumber | phone | cohortid |
 |-----------|----------|-------|------------|-------|----------|
 | Alice | Demo | alice@example.com | D001 | 1234567890 | BATCH-2026-A |
-
-4. Drag & drop the file into the upload zone (accepts `.xlsx` and `.csv`)
-5. Students are created with role `LEARNER` and password `Default@123`
+| Bob | Test | bob@example.com | D002 | 9876543210 | BATCH-2026-A |
 
 ---
 
 ## 🌐 Deployment
 
+```mermaid
+graph LR
+    subgraph GitHub["📦 GitHub Repo"]
+        Code["🗂️ Source Code"]
+    end
+
+    subgraph Vercel["▲ Vercel"]
+        FE["⚛️ React Frontend"]
+    end
+
+    subgraph Render["🟢 Render"]
+        BE["📡 Express Backend"]
+    end
+
+    subgraph Atlas["☁️ MongoDB Atlas"]
+        DB["🗄️ Database"]
+    end
+
+    Code -->|"Auto Deploy"| FE
+    Code -->|"Auto Deploy"| BE
+    FE -->|"API Calls"| BE
+    BE -->|"Mongoose"| DB
+
+    style GitHub fill:#f5f5f5,stroke:#333
+    style Vercel fill:#000,stroke:#fff,color:#fff
+    style Render fill:#F0FDF4,stroke:#46E3B7
+    style Atlas fill:#FFF7ED,stroke:#47A248
+```
+
 ### Frontend → Vercel
-1. Connect your GitHub repo to [Vercel](https://vercel.com)
-2. Set root directory to `frontend`
-3. Add env variable: `VITE_API_URL=https://your-backend.onrender.com`
+1. Connect GitHub repo to [Vercel](https://vercel.com)
+2. Set root directory: `frontend`
+3. Add env: `VITE_API_URL=https://your-backend.onrender.com`
 
 ### Backend → Render
-1. Create a new **Web Service** on [Render](https://render.com)
-2. Set root directory to `backend`
-3. Build command: `npm install`
-4. Start command: `node server.js`
-5. Add environment variables from `backend/.env`
+1. Create **Web Service** on [Render](https://render.com)
+2. Set root directory: `backend`
+3. Build: `npm install` · Start: `node server.js`
+4. Add all env vars from `backend/.env`
 
-> ⚠️ Render free tier spins down after inactivity (~30s cold start on first request).
+> ⚠️ Render free tier spins down after inactivity (~30s cold start).
 
 ---
 
 ## 🐛 Troubleshooting
 
 | Problem | Solution |
-|---------|----------|
-| API calls failing | Check if Render backend is awake (cold start ~30s) |
-| CORS errors | Ensure `CORS_ORIGIN` in backend `.env` matches your frontend URL |
-| Login not working | Verify `VITE_API_URL` points to correct backend URL |
-| MongoDB connection error | Check `MONGO_URI` is valid and IP is whitelisted in Atlas |
-| JWT errors | Ensure `JWT_SECRET` matches and token hasn't expired |
-| `npm run dev` fails | Run `npm install` first in both `/frontend` and `/backend` |
+|:--------|:---------|
+| 🔴 API calls failing | Check if Render backend is awake (cold start ~30s) |
+| 🟡 CORS errors | Ensure `CORS_ORIGIN` matches your frontend URL |
+| 🔴 Login not working | Verify `VITE_API_URL` points to correct backend |
+| 🟡 MongoDB error | Check `MONGO_URI` is valid, IP whitelisted in Atlas |
+| 🔴 JWT errors | Ensure `JWT_SECRET` matches and token hasn't expired |
+| 🟡 `npm run dev` fails | Run `npm install` first in both directories |
 
 ---
 
 ## 🗺️ Roadmap
 
-- [ ] Real-time notifications (Socket.IO)
-- [ ] Fee payment module
-- [ ] Timetable / schedule management
-- [ ] Export data as PDF/CSV
-- [ ] Email notifications (Nodemailer)
-- [ ] Migrate to TypeScript
-- [ ] Unit tests (Jest + Supertest)
-- [ ] Docker containerization
+| Feature | Status |
+|---------|--------|
+| 🔔 Real-time notifications (Socket.IO) | 🔲 Planned |
+| 💰 Fee payment module | 🔲 Planned |
+| 📅 Timetable / schedule management | 🔲 Planned |
+| 📄 Export data as PDF/CSV | 🔲 Planned |
+| 📧 Email notifications (Nodemailer) | 🔲 Planned |
+| 🔷 Migrate to TypeScript | 🔲 Planned |
+| 🧪 Unit tests (Jest + Supertest) | 🔲 Planned |
+| 🐳 Docker containerization | 🔲 Planned |
 
 ---
 
 ## 🤝 Contributing
 
-1. Fork the repo
-2. Create your feature branch (`git checkout -b feature/awesome-feature`)
-3. Commit your changes (`git commit -m 'feat: add awesome feature'`)
-4. Push to the branch (`git push origin feature/awesome-feature`)
-5. Open a Pull Request
+1. **Fork** the repo
+2. **Branch:** `git checkout -b feature/awesome-feature`
+3. **Commit:** `git commit -m 'feat: add awesome feature'`
+4. **Push:** `git push origin feature/awesome-feature`
+5. **PR:** Open a Pull Request
 
 ---
 
@@ -252,6 +402,10 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
-<p align="center">
-  Built with ❤️ by <a href="https://github.com/Diganta18-noob">Diganta Biswas</a>
-</p>
+<div align="center">
+
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=500&size=18&pause=1000&color=6B7280&center=true&vCenter=true&random=false&width=400&height=30&lines=Built+with+%E2%9D%A4%EF%B8%8F+by+Diganta+Biswas" alt="Footer" />
+
+[![GitHub](https://img.shields.io/badge/GitHub-Diganta18--noob-181717?style=for-the-badge&logo=github)](https://github.com/Diganta18-noob)
+
+</div>
