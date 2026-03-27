@@ -36,14 +36,16 @@
 <div align="center">
 
 <picture>
-  <img src="./docs/tech-stack-flow.svg" alt="Campus Management — Animated Tech Stack Architecture Flow" width="720"/>
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/tech-stack-flow-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./docs/tech-stack-flow-light.svg">
+  <img src="./docs/tech-stack-flow-light.svg" alt="Campus Management — Animated Tech Stack Architecture Flow" width="720"/>
 </picture>
 
 </div>
 
-> 💡 *The diagram above is animated — flowing data dots, pulsing status indicators, and glowing nodes!*
+> 💡 *The diagram above is animated and auto-adapts to your GitHub theme — try switching between light and dark mode!*
 > 
-> 📥 **[Download the fully interactive version →](./docs/tech-stack-flow.html)** *(open in browser for click-to-explore details + dark mode)*
+> 📥 **[Download the fully interactive version →](./docs/tech-stack-flow.html)** *(open in browser for click-to-explore details)*
 
 ---
 
