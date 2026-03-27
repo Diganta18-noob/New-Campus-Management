@@ -82,6 +82,7 @@ const initialState = {
     loading: true, // Start as true to check auth on mount
     error: null,
     isAuthenticated: false,
+    requiresPasswordReset: false,
 };
 
 const authSlice = createSlice({
@@ -96,6 +97,13 @@ const authSlice = createSlice({
             state.isAuthenticated = false;
             state.loading = false;
             state.error = null;
+            state.requiresPasswordReset = false;
+        },
+        clearPasswordResetFlag: (state) => {
+            state.requiresPasswordReset = false;
+            if (state.user) {
+                state.user.requiresPasswordReset = false;
+            }
         },
     },
     extraReducers: (builder) => {
@@ -110,6 +118,7 @@ const authSlice = createSlice({
                 state.user = action.payload;
                 state.isAuthenticated = true;
                 state.error = null;
+                state.requiresPasswordReset = action.payload?.requiresPasswordReset || false;
             })
             .addCase(login.rejected, (state, action) => {
                 state.loading = false;
@@ -140,6 +149,7 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.user = action.payload;
                 state.isAuthenticated = !!action.payload;
+                state.requiresPasswordReset = action.payload?.requiresPasswordReset || false;
             })
             .addCase(checkAuth.rejected, (state) => {
                 state.loading = false;
@@ -157,18 +167,25 @@ const authSlice = createSlice({
             .addCase(changePassword.pending, (state) => {
                 state.error = null;
             })
+            .addCase(changePassword.fulfilled, (state) => {
+                state.requiresPasswordReset = false;
+                if (state.user) {
+                    state.user.requiresPasswordReset = false;
+                }
+            })
             .addCase(changePassword.rejected, (state, action) => {
                 state.error = action.payload;
             });
     },
 });
 
-export const { clearError, resetAuth } = authSlice.actions;
+export const { clearError, resetAuth, clearPasswordResetFlag } = authSlice.actions;
 
 // Selectors
 export const selectUser = (state) => state.auth.user;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectAuthLoading = (state) => state.auth.loading;
 export const selectAuthError = (state) => state.auth.error;
+export const selectRequiresPasswordReset = (state) => state.auth.requiresPasswordReset;
 
 export default authSlice.reducer;

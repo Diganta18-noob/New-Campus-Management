@@ -7,6 +7,7 @@ import {
 import { ErrorBoundary } from "./components/common";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ResetPassword from "./pages/ResetPassword";
 import Unauthorized from "./pages/Unauthorized";
 import RoleBasedDashboard from "./pages/RoleBasedDashboard";
 import UsersManagement from "./pages/Admin/UsersManagement";
@@ -43,6 +44,16 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
+
+        {/* Password Reset - requires auth but not role */}
+        <Route
+          path="/reset-password"
+          element={
+            <ProtectedRoute>
+              <ResetPassword />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Protected Routes - Accessible by ADMIN, MANAGER, TEAM_LEADER, TRAINER, TA */}
         <Route

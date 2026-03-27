@@ -93,6 +93,7 @@ const login = async (req, res) => {
         lastName: user.lastName,
         role: user.role,
         assignedBatches: user.assignedBatches,
+        requiresPasswordReset: user.requiresPasswordReset || false,
       }
     });
   } catch (error) {
@@ -266,8 +267,9 @@ const changePassword = async (req, res) => {
       });
     }
 
-    // Update password
+    // Update password and clear force-reset flag
     user.password = newPassword;
+    user.requiresPasswordReset = false;
     await user.save();
 
     auditLogger.info('Password changed', {

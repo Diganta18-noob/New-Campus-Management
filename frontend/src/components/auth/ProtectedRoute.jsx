@@ -1,12 +1,13 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '../../store/hooks';
-import { selectUser, selectIsAuthenticated, selectAuthLoading } from '../../store/slices/authSlice';
+import { selectUser, selectIsAuthenticated, selectAuthLoading, selectRequiresPasswordReset } from '../../store/slices/authSlice';
 import { CircularProgress, Box } from '@mui/material';
 
 // Protected Route - requires authentication
 export const ProtectedRoute = ({ children }) => {
     const isAuthenticated = useAppSelector(selectIsAuthenticated);
     const loading = useAppSelector(selectAuthLoading);
+    const requiresPasswordReset = useAppSelector(selectRequiresPasswordReset);
     const location = useLocation();
 
     if (loading) {
@@ -18,8 +19,12 @@ export const ProtectedRoute = ({ children }) => {
     }
 
     if (!isAuthenticated) {
-        // Redirect to login while saving the attempted location
         return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
+    // If password reset is required and we're not already on the reset page
+    if (requiresPasswordReset && location.pathname !== '/reset-password') {
+        return <Navigate to="/reset-password" replace />;
     }
 
     return children;
@@ -57,6 +62,7 @@ export const RoleBasedRoute = ({ children, allowedRoles = [] }) => {
     const user = useAppSelector(selectUser);
     const isAuthenticated = useAppSelector(selectIsAuthenticated);
     const loading = useAppSelector(selectAuthLoading);
+    const requiresPasswordReset = useAppSelector(selectRequiresPasswordReset);
     const location = useLocation();
 
     if (loading) {
@@ -69,6 +75,11 @@ export const RoleBasedRoute = ({ children, allowedRoles = [] }) => {
 
     if (!isAuthenticated) {
         return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
+    // If password reset is required, redirect to reset page
+    if (requiresPasswordReset) {
+        return <Navigate to="/reset-password" replace />;
     }
 
     // Check if user's role is in allowed roles
