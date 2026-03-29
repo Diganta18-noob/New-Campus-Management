@@ -364,7 +364,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 <div align="center">
 
-<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=500&size=18&pause=1000&color=6B7280&center=true&vCenter=true&random=false&width=400&height=30&lines=Built+with+%E2%9D%A4%EF%B8%8F+by+Diganta+Biswas" alt="Footer" />
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=500&size=18&pause=1000&color=6B7280&center=true&vCenter=true&random=false&width=400&height=30&lines=Built+with+%E2%9D%A4%EF%B8%8F+by+Diganta" alt="Footer" />
 
 [![GitHub](https://img.shields.io/badge/GitHub-Diganta18--noob-181717?style=for-the-badge&logo=github)](https://github.com/Diganta18-noob)
 
