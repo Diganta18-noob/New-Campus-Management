@@ -69,6 +69,7 @@ export const usersAPI = {
   getAll: (params) => api.get("/users", { params }),
   getById: (id) => api.get(`/users/${id}`),
   create: (userData) => api.post("/users", userData),
+  bulkCreate: (data) => api.post("/users/bulk", data),
   update: (id, userData) => api.put(`/users/${id}`, userData),
   updateStatus: (id, status) => api.patch(`/users/${id}/status`, { status }),
   resetPassword: (id) => api.post(`/users/${id}/reset-password`),
