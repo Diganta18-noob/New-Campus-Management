@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- Animated Typing Header -->
-<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=700&size=35&pause=1000&color=4F46E5&center=true&vCenter=true&random=false&width=600&height=70&lines=%F0%9F%8E%93+Campus+Management+System;Built+with+React+%2B+Node.js;Full-Stack+Monorepo+Architecture" alt="Typing SVG" />
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=700&size=35&pause=1000&color=4F46E5&center=true&vCenter=true&random=false&width=800&height=70&lines=%F0%9F%8E%93+Campus+Management+System;Built+with+React+%2B+Node.js;Full-Stack+Monorepo+Architecture" alt="Typing SVG" />
 
 <br/>
 
