@@ -33,4 +33,5 @@ adapters/
 scripts/
 PROJECT_RULES.md
 GSD-STYLE.md
-model_capabilities.yaml
+model_capabilities.yaml
+MASTER_PROMPT.md

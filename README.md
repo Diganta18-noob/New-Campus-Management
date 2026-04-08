@@ -35,19 +35,17 @@
 
 <div align="center">
 
-<a href="./docs/tech-stack-flow.html">
-  <img src="./docs/tech-stack-preview.png" alt="Tech Stack Flow — Click to open interactive version" width="700"/>
-</a>
-
-<br/>
-
-> 🖱️ **[Click here to open the interactive version →](./docs/tech-stack-flow.html)**
-> 
-> *Click any node to explore details · Animated data flow connectors · Dark mode support*
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/tech-stack-flow-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./docs/tech-stack-flow-light.svg">
+  <img src="./docs/tech-stack-flow-light.svg" alt="Campus Management — Animated Tech Stack Architecture Flow" width="720"/>
+</picture>
 
 </div>
 
-> **🟢 Render** backend (cold start ~30s) · **🔵 Vercel** frontend (instant) · **🟤 MongoDB Atlas** cloud cluster
+> 💡 *The diagram above is animated and auto-adapts to your GitHub theme — try switching between light and dark mode!*
+> 
+> 📥 **[Download the fully interactive version →](./docs/tech-stack-flow.html)** *(open in browser for click-to-explore details)*
 
 ---
 
@@ -366,7 +364,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 <div align="center">
 
-<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=500&size=18&pause=1000&color=6B7280&center=true&vCenter=true&random=false&width=400&height=30&lines=Built+with+%E2%9D%A4%EF%B8%8F+by+Diganta+Biswas" alt="Footer" />
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=500&size=18&pause=1000&color=6B7280&center=true&vCenter=true&random=false&width=400&height=30&lines=Built+with+%E2%9D%A4%EF%B8%8F+by+Diganta" alt="Footer" />
 
 [![GitHub](https://img.shields.io/badge/GitHub-Diganta18--noob-181717?style=for-the-badge&logo=github)](https://github.com/Diganta18-noob)
 

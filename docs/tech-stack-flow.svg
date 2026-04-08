@@ -1,0 +1,314 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <style>
+      /* ── Base ── */
+      .bg{fill:#ffffff}
+      .title{font-size:11px;font-weight:600;fill:#5F5E5A;letter-spacing:1.2px}
+      .badge{fill:#F1EFE8;stroke:#ddd;stroke-width:.5;rx:10}
+      .badge-text{font-size:9px;fill:#5F5E5A}
+      .label{font-size:9px;fill:#888780;text-anchor:end;letter-spacing:.5px}
+      .hint{font-size:9px;fill:#888;text-anchor:middle}
+      .pipe{stroke:#ccc;stroke-width:1.5}
+
+      /* ── Node base ── */
+      .node{rx:7;ry:7;stroke-width:.8}
+      .node-text{font-size:11px;font-weight:500}
+
+      /* ── Blue (Frontend) ── */
+      .n-blue{fill:#E6F1FB;stroke:#378ADD}
+      .t-blue{fill:#0C447C}
+
+      /* ── Green (Backend) ── */
+      .n-green{fill:#EAF3DE;stroke:#3B6D11}
+      .t-green{fill:#27500A}
+
+      /* ── Teal (Database) ── */
+      .n-teal{fill:#E1F5EE;stroke:#0F6E56}
+      .t-teal{fill:#085041}
+
+      /* ── Amber (Auth) ── */
+      .n-amber{fill:#FAEEDA;stroke:#BA7517}
+      .t-amber{fill:#633806}
+
+      /* ── Gray (Infra) ── */
+      .n-gray{fill:#F1EFE8;stroke:#5F5E5A}
+      .t-gray{fill:#2C2C2A}
+
+      /* ── Deploy tags ── */
+      .deploy{rx:4;ry:4;stroke-width:.6}
+      .deploy-text{font-size:9px;font-weight:500}
+
+      /* ── Protocol labels ── */
+      .proto-bg{fill:#fff;stroke:#e0e0e0;stroke-width:.5;rx:3}
+      .proto-text{font-size:9px;fill:#888780}
+
+      /* ── Detail panel ── */
+      .detail-bg{fill:#F1EFE8;stroke:#e0e0e0;stroke-width:.5;rx:7}
+      .detail-text{font-size:11px;fill:#5F5E5A}
+      .detail-bold{font-size:11px;fill:#1a1a18;font-weight:600}
+
+      /* ── Status dots ── */
+      .status-text{font-size:9.5px;fill:#5F5E5A}
+
+      /* ── Legend ── */
+      .leg-text{font-size:9px;fill:#5F5E5A}
+
+      /* ── Animated dots ── */
+      @keyframes flow-down-1{
+        0%{opacity:0;transform:translateY(0)}
+        10%{opacity:1}
+        80%{opacity:1}
+        100%{opacity:0;transform:translateY(42px)}
+      }
+      @keyframes flow-down-2{
+        0%{opacity:0;transform:translateY(0)}
+        10%{opacity:1}
+        80%{opacity:1}
+        100%{opacity:0;transform:translateY(42px)}
+      }
+      @keyframes flow-down-3{
+        0%{opacity:0;transform:translateY(0)}
+        10%{opacity:1}
+        80%{opacity:1}
+        100%{opacity:0;transform:translateY(42px)}
+      }
+      @keyframes flow-up-1{
+        0%{opacity:0;transform:translateY(0)}
+        10%{opacity:1}
+        80%{opacity:1}
+        100%{opacity:0;transform:translateY(-42px)}
+      }
+      @keyframes flow-up-2{
+        0%{opacity:0;transform:translateY(0)}
+        10%{opacity:1}
+        80%{opacity:1}
+        100%{opacity:0;transform:translateY(-42px)}
+      }
+      @keyframes flow-up-3{
+        0%{opacity:0;transform:translateY(0)}
+        10%{opacity:1}
+        80%{opacity:1}
+        100%{opacity:0;transform:translateY(-42px)}
+      }
+      @keyframes pulse{
+        0%,100%{opacity:1}
+        50%{opacity:.35}
+      }
+
+      .dot-d1{animation:flow-down-1 1.8s ease-in-out infinite}
+      .dot-d2{animation:flow-down-2 1.8s ease-in-out infinite .3s}
+      .dot-d3{animation:flow-down-3 1.8s ease-in-out infinite .6s}
+      .dot-u1{animation:flow-up-1 2.2s ease-in-out infinite .9s}
+      .dot-u2{animation:flow-up-2 2.2s ease-in-out infinite 1.2s}
+      .dot-u3{animation:flow-up-3 2.2s ease-in-out infinite 1.8s}
+      .pulse{animation:pulse 2s ease-in-out infinite}
+
+      /* ── Hover glow ── */
+      @keyframes glow-blue{0%,100%{filter:drop-shadow(0 0 0px transparent)}50%{filter:drop-shadow(0 0 4px #378ADD88)}}
+      @keyframes glow-green{0%,100%{filter:drop-shadow(0 0 0px transparent)}50%{filter:drop-shadow(0 0 4px #3B6D1188)}}
+      @keyframes glow-teal{0%,100%{filter:drop-shadow(0 0 0px transparent)}50%{filter:drop-shadow(0 0 4px #0F6E5688)}}
+      @keyframes glow-amber{0%,100%{filter:drop-shadow(0 0 0px transparent)}50%{filter:drop-shadow(0 0 4px #BA751788)}}
+
+      .glow-b{animation:glow-blue 3s ease-in-out infinite}
+      .glow-g{animation:glow-green 3s ease-in-out infinite .5s}
+      .glow-t{animation:glow-teal 3s ease-in-out infinite 1s}
+      .glow-a{animation:glow-amber 3s ease-in-out infinite 1.5s}
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect class="bg" width="720" height="520" rx="12"/>
+
+  <!-- Title Row -->
+  <text class="title" x="40" y="32">CAMPUS MANAGEMENT — TECH STACK FLOW</text>
+  <rect class="badge" x="370" y="19" width="95" height="18"/>
+  <text class="badge-text" x="418" y="31" text-anchor="middle">v1.0 · Monorepo</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!--              CLIENT LAYER               -->
+  <!-- ════════════════════════════════════════ -->
+  <text class="label" x="78" y="75">CLIENT</text>
+
+  <!-- Browser node -->
+  <g class="glow-b">
+    <rect class="node n-gray" x="92" y="60" width="110" height="32"/>
+    <rect x="102" y="68" width="14" height="10" rx="2" fill="none" stroke="#2C2C2A" stroke-width="1"/>
+    <line x1="102" y1="71" x2="116" y2="71" stroke="#2C2C2A" stroke-width=".8"/>
+    <circle cx="105" cy="69.5" r=".8" fill="#2C2C2A"/>
+    <circle cx="108" cy="69.5" r=".8" fill="#2C2C2A"/>
+    <text class="node-text t-gray" x="124" y="80">Browser</text>
+  </g>
+  <text class="hint" x="320" y="80" text-anchor="start" font-size="9" fill="#888">→ User visits app on Vercel URL</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!--           CONNECTOR 1 (down)            -->
+  <!-- ════════════════════════════════════════ -->
+  <line class="pipe" x1="147" y1="92" x2="147" y2="140"/>
+  <!-- Animated dot going DOWN -->
+  <circle class="dot-d1" cx="147" cy="94" r="3" fill="#378ADD"/>
+  <!-- Animated dot going UP -->
+  <circle class="dot-u1" cx="147" cy="136" r="2.5" fill="#5F5E5A"/>
+  <!-- Protocol label -->
+  <rect class="proto-bg" x="170" y="106" width="85" height="16"/>
+  <text class="proto-text" x="212" y="117" text-anchor="middle">HTTPS · HTML/JS</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!--            FRONTEND LAYER               -->
+  <!-- ════════════════════════════════════════ -->
+  <text class="label" x="78" y="162">FRONTEND</text>
+
+  <!-- React -->
+  <g class="glow-b">
+    <rect class="node n-blue" x="92" y="146" width="90" height="32"/>
+    <circle cx="107" cy="162" r="2" fill="#0C447C"/>
+    <ellipse cx="107" cy="162" rx="8" ry="3.5" fill="none" stroke="#0C447C" stroke-width=".8"/>
+    <ellipse cx="107" cy="162" rx="8" ry="3.5" fill="none" stroke="#0C447C" stroke-width=".8" transform="rotate(60 107 162)"/>
+    <ellipse cx="107" cy="162" rx="8" ry="3.5" fill="none" stroke="#0C447C" stroke-width=".8" transform="rotate(120 107 162)"/>
+    <text class="node-text t-blue" x="122" y="166">React</text>
+  </g>
+
+  <!-- Vite -->
+  <g class="glow-b">
+    <rect class="node n-blue" x="192" y="146" width="80" height="32"/>
+    <text class="t-blue" x="207" y="167" font-size="13" font-weight="700" font-style="italic">⚡</text>
+    <text class="node-text t-blue" x="222" y="166">Vite</text>
+  </g>
+
+  <!-- React Router -->
+  <g class="glow-b">
+    <rect class="node n-blue" x="282" y="146" width="120" height="32"/>
+    <text class="t-blue" x="297" y="166" font-size="11">→</text>
+    <text class="node-text t-blue" x="312" y="166">React Router</text>
+  </g>
+
+  <!-- Vercel deploy tag -->
+  <rect class="deploy n-gray" x="590" y="150" width="75" height="24"/>
+  <text class="deploy-text t-gray" x="627" y="166" text-anchor="middle">▲ Vercel</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!--           CONNECTOR 2 (down)            -->
+  <!-- ════════════════════════════════════════ -->
+  <line class="pipe" x1="147" y1="178" x2="147" y2="226"/>
+  <circle class="dot-d2" cx="147" cy="180" r="3" fill="#3B6D11"/>
+  <circle class="dot-u2" cx="147" cy="222" r="2.5" fill="#378ADD"/>
+  <rect class="proto-bg" x="170" y="192" width="72" height="16"/>
+  <text class="proto-text" x="206" y="203" text-anchor="middle">Axios · REST</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!--            BACKEND LAYER                -->
+  <!-- ════════════════════════════════════════ -->
+  <text class="label" x="78" y="248">BACKEND</text>
+
+  <!-- Node.js -->
+  <g class="glow-g">
+    <rect class="node n-green" x="92" y="232" width="95" height="32"/>
+    <polygon points="112,240 120,244 120,252 112,256 104,252 104,244" fill="none" stroke="#27500A" stroke-width=".9"/>
+    <text class="node-text t-green" x="126" y="252">Node.js</text>
+  </g>
+
+  <!-- Express -->
+  <g class="glow-g">
+    <rect class="node n-green" x="197" y="232" width="95" height="32"/>
+    <line x1="210" y1="244" x2="222" y2="244" stroke="#27500A" stroke-width="1" stroke-linecap="round"/>
+    <line x1="210" y1="248" x2="218" y2="248" stroke="#27500A" stroke-width="1" stroke-linecap="round"/>
+    <line x1="210" y1="252" x2="220" y2="252" stroke="#27500A" stroke-width="1" stroke-linecap="round"/>
+    <text class="node-text t-green" x="228" y="252">Express</text>
+  </g>
+
+  <!-- JWT Auth -->
+  <g class="glow-a">
+    <rect class="node n-amber" x="302" y="232" width="95" height="32"/>
+    <rect x="314" y="239" width="10" height="12" rx="2" fill="none" stroke="#633806" stroke-width=".9"/>
+    <line x1="317" y1="244" x2="321" y2="244" stroke="#633806" stroke-width=".7"/>
+    <line x1="317" y1="247" x2="321" y2="247" stroke="#633806" stroke-width=".7"/>
+    <text class="node-text t-amber" x="330" y="252">JWT Auth</text>
+  </g>
+
+  <!-- CORS -->
+  <g class="glow-g">
+    <rect class="node n-green" x="407" y="232" width="80" height="32"/>
+    <circle cx="422" cy="248" r="6" fill="none" stroke="#27500A" stroke-width=".9"/>
+    <line x1="422" y1="242" x2="422" y2="254" stroke="#27500A" stroke-width=".6"/>
+    <ellipse cx="422" cy="248" rx="3" ry="6" fill="none" stroke="#27500A" stroke-width=".6"/>
+    <text class="node-text t-green" x="434" y="252">CORS</text>
+  </g>
+
+  <!-- Render deploy tag -->
+  <rect class="deploy n-green" x="590" y="236" width="75" height="24"/>
+  <circle cx="602" cy="248" r="3.5" fill="#3B6D11"/>
+  <text class="deploy-text t-green" x="632" y="252" text-anchor="middle">Render</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!--           CONNECTOR 3 (down)            -->
+  <!-- ════════════════════════════════════════ -->
+  <line class="pipe" x1="147" y1="264" x2="147" y2="312"/>
+  <circle class="dot-d3" cx="147" cy="266" r="3" fill="#0F6E56"/>
+  <circle class="dot-u3" cx="147" cy="308" r="2.5" fill="#0F6E56"/>
+  <rect class="proto-bg" x="170" y="278" width="85" height="16"/>
+  <text class="proto-text" x="212" y="289" text-anchor="middle">Mongoose ODM</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!--           DATABASE LAYER                -->
+  <!-- ════════════════════════════════════════ -->
+  <text class="label" x="78" y="334">DATABASE</text>
+
+  <!-- MongoDB Atlas -->
+  <g class="glow-t">
+    <rect class="node n-teal" x="92" y="318" width="130" height="32"/>
+    <path d="M118,325 C118,325 114,329 114,334 C114,337 115.5,339 118,340 C120.5,339 122,337 122,334 C122,329 118,325 118,325Z" fill="none" stroke="#085041" stroke-width=".9"/>
+    <line x1="118" y1="340" x2="118" y2="336" stroke="#085041" stroke-width=".9"/>
+    <text class="node-text t-teal" x="128" y="338">MongoDB Atlas</text>
+  </g>
+
+  <!-- Mongoose -->
+  <g class="glow-t">
+    <rect class="node n-teal" x="232" y="318" width="105" height="32"/>
+    <rect x="244" y="327" width="10" height="8" fill="none" stroke="#085041" stroke-width=".9"/>
+    <line x1="247" y1="327" x2="247" y2="324" stroke="#085041" stroke-width=".8"/>
+    <line x1="251" y1="327" x2="251" y2="324" stroke="#085041" stroke-width=".8"/>
+    <text class="node-text t-teal" x="260" y="338">Mongoose</text>
+  </g>
+
+  <text class="hint" x="350" y="338" text-anchor="start" font-size="9" fill="#888">Cloud Atlas · Free tier</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!--            DETAIL PANEL                 -->
+  <!-- ════════════════════════════════════════ -->
+  <rect class="detail-bg" x="40" y="370" width="640" height="52"/>
+  <text class="detail-bold" x="56" y="392">Full-stack Monorepo</text>
+  <text class="detail-text" x="185" y="392">— React SPA → Express REST API → MongoDB Atlas.</text>
+  <text class="detail-text" x="56" y="409">JWT auth with 6 roles · Bulk upload with forced password reset · Deployed on Vercel + Render.</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!--            STATUS BAR                   -->
+  <!-- ════════════════════════════════════════ -->
+  <circle class="pulse" cx="48" cy="445" r="3.5" fill="#3B6D11"/>
+  <text class="status-text" x="58" y="449">Render backend (cold start ~30s)</text>
+
+  <circle class="pulse" cx="268" cy="445" r="3.5" fill="#185FA5"/>
+  <text class="status-text" x="278" y="449">Vercel frontend (instant)</text>
+
+  <circle class="pulse" cx="448" cy="445" r="3.5" fill="#0F6E56"/>
+  <text class="status-text" x="458" y="449">MongoDB Atlas cluster</text>
+
+  <!-- ════════════════════════════════════════ -->
+  <!--              LEGEND                     -->
+  <!-- ════════════════════════════════════════ -->
+  <circle cx="48" cy="472" r="4" fill="#378ADD"/>
+  <text class="leg-text" x="58" y="476">Frontend</text>
+
+  <circle cx="118" cy="472" r="4" fill="#3B6D11"/>
+  <text class="leg-text" x="128" y="476">Backend</text>
+
+  <circle cx="188" cy="472" r="4" fill="#0F6E56"/>
+  <text class="leg-text" x="198" y="476">Database</text>
+
+  <circle cx="260" cy="472" r="4" fill="#BA7517"/>
+  <text class="leg-text" x="270" y="476">Auth</text>
+
+  <circle cx="310" cy="472" r="4" fill="#5F5E5A"/>
+  <text class="leg-text" x="320" y="476">Infra</text>
+
+  <!-- Footer -->
+  <text class="hint" x="360" y="505">Diganta18-noob / New-Campus-Management · github.com</text>
+</svg>
