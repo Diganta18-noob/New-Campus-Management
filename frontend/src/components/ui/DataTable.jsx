@@ -28,9 +28,17 @@ const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
         : data
 
     return (
-        <Paper elevation={0} className="rounded-2xl border border-gray-100 overflow-hidden">
+        <Paper
+            elevation={0}
+            sx={{
+                borderRadius: '16px',
+                border: '1px solid',
+                borderColor: 'divider',
+                overflow: 'hidden',
+            }}
+        >
             {searchable && (
-                <div className="p-4 border-b border-gray-100">
+                <div className="p-4" style={{ borderBottom: '1px solid var(--divider-color, #e0e0e0)' }}>
                     <TextField
                         size="small"
                         placeholder="Search..."
@@ -40,7 +48,7 @@ const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <SearchIcon className="text-gray-400" />
+                                    <SearchIcon sx={{ color: 'text.disabled' }} />
                                 </InputAdornment>
                             ),
                         }}
@@ -50,17 +58,27 @@ const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
             <TableContainer>
                 <Table>
                     <TableHead>
-                        <TableRow className="bg-gray-50">
+                        <TableRow
+                            sx={{
+                                bgcolor: (theme) =>
+                                    theme.palette.mode === 'dark'
+                                        ? 'rgba(30, 41, 59, 0.8)'
+                                        : '#f9fafb',
+                            }}
+                        >
                             {columns.map((column) => (
                                 <TableCell
                                     key={column.field}
-                                    className="font-semibold text-gray-700"
+                                    sx={{
+                                        fontWeight: 600,
+                                        color: 'text.secondary',
+                                    }}
                                 >
                                     {column.headerName}
                                 </TableCell>
                             ))}
                             {(onEdit || onDelete) && (
-                                <TableCell className="font-semibold text-gray-700">Actions</TableCell>
+                                <TableCell sx={{ fontWeight: 600, color: 'text.secondary' }}>Actions</TableCell>
                             )}
                         </TableRow>
                     </TableHead>
@@ -69,7 +87,7 @@ const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
                             <TableRow>
                                 <TableCell
                                     colSpan={columns.length + (onEdit || onDelete ? 1 : 0)}
-                                    className="text-center py-8 text-gray-500"
+                                    sx={{ textAlign: 'center', py: 4, color: 'text.disabled' }}
                                 >
                                     {searchQuery ? 'No results found' : 'No data available'}
                                 </TableCell>
@@ -78,7 +96,15 @@ const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
                             filteredData.map((row, index) => (
                                 <TableRow
                                     key={row.id || index}
-                                    className="hover:bg-gray-50 transition-colors"
+                                    sx={{
+                                        '&:hover': {
+                                            bgcolor: (theme) =>
+                                                theme.palette.mode === 'dark'
+                                                    ? 'rgba(30, 41, 59, 0.5)'
+                                                    : '#f9fafb',
+                                        },
+                                        transition: 'background-color 0.15s',
+                                    }}
                                 >
                                     {columns.map((column) => (
                                         <TableCell key={column.field}>
@@ -92,7 +118,7 @@ const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
                                                     <IconButton
                                                         size="small"
                                                         onClick={() => onEdit(row)}
-                                                        className="text-primary-500 hover:bg-primary-50"
+                                                        sx={{ color: 'primary.main' }}
                                                     >
                                                         <EditIcon fontSize="small" />
                                                     </IconButton>
@@ -101,7 +127,7 @@ const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
                                                     <IconButton
                                                         size="small"
                                                         onClick={() => onDelete(row)}
-                                                        className="text-red-500 hover:bg-red-50"
+                                                        sx={{ color: 'error.main' }}
                                                     >
                                                         <DeleteIcon fontSize="small" />
                                                     </IconButton>

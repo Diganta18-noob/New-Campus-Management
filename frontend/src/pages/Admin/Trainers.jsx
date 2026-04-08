@@ -212,10 +212,10 @@ const Trainers = () => {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <Typography variant="h4" className="font-bold text-gray-800">
+                    <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
                         Trainers
                     </Typography>
-                    <Typography variant="body2" className="text-gray-500 mt-1">
+                    <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
                         Manage trainers, view allocations and performance
                     </Typography>
                 </div>
@@ -229,7 +229,7 @@ const Trainers = () => {
                 </Button>
             </div>
 
-            <Paper elevation={0} className="p-6 rounded-2xl border border-gray-100">
+            <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
                 <DataTable
                     columns={columns}
                     data={trainers}

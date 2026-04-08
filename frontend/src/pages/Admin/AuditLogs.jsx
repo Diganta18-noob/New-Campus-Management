@@ -181,16 +181,16 @@ const AuditLogs = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <Typography variant="h4" className="font-bold text-gray-800">
+        <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
           Audit Logs
         </Typography>
-        <Typography variant="body2" className="text-gray-500 mt-1">
+        <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
           Track all system actions — users, batches, topics, and attendance changes
         </Typography>
       </div>
 
       {/* Filters */}
-      <Paper elevation={0} className="p-4 rounded-2xl border border-gray-100">
+      <Paper elevation={0} sx={{ p: 2, borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
         <div className="flex items-center gap-2 mb-3">
           <FilterIcon className="text-gray-500" />
           <Typography variant="subtitle2" className="font-semibold text-gray-700">
@@ -283,7 +283,7 @@ const AuditLogs = () => {
           icon={AuditIcon}
         />
       ) : (
-        <Paper elevation={0} className="rounded-2xl border border-gray-100 overflow-hidden">
+        <Paper elevation={0} sx={{ borderRadius: '16px', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
           <TableContainer>
             <Table>
               <TableHead>

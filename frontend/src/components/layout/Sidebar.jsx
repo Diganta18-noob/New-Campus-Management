@@ -19,6 +19,9 @@ import {
   Topic as TopicIcon,
   History as AuditIcon,
   BarChart as PerformanceIcon,
+  LightMode as LightModeIcon,
+  DarkMode as DarkModeIcon,
+  BrightnessAuto as BrightnessAutoIcon,
 } from "@mui/icons-material";
 import {
   IconButton,
@@ -28,10 +31,14 @@ import {
   ListItemIcon,
   Divider,
   Typography,
-  Button,
+  ButtonBase,
+  Tooltip,
+  Box,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectUser, logout } from "../../store/slices/authSlice";
+import { useThemeMode } from "../../context/ThemeContext";
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: DashboardIcon },
@@ -60,6 +67,9 @@ const Sidebar = ({ collapsed, onToggle }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+  const { themeMode, cycleThemeMode } = useThemeMode();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
 
   // Menu State
   const [anchorEl, setAnchorEl] = useState(null);
@@ -79,18 +89,40 @@ const Sidebar = ({ collapsed, onToggle }) => {
     navigate("/login");
   };
 
+  const themeLabel =
+    themeMode.charAt(0).toUpperCase() + themeMode.slice(1);
+
+  const ThemeIcon =
+    themeMode === "light"
+      ? LightModeIcon
+      : themeMode === "dark"
+        ? DarkModeIcon
+        : BrightnessAutoIcon;
+
   return (
-    <aside
-      className={`fixed left-0 top-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 z-50 flex flex-col ${
-        collapsed ? "w-20" : "w-64"
-      }`}
+    <Box
+      component="aside"
+      sx={{
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        height: '100vh',
+        bgcolor: 'background.paper',
+        borderRight: 1,
+        borderColor: 'divider',
+        transition: 'all 0.3s',
+        zIndex: 50,
+        display: 'flex',
+        flexDirection: 'column',
+        width: collapsed ? 80 : 256
+      }}
     >
       {/* Logo Section */}
       <div
-        className={`flex items-center p-4 border-b border-gray-100 ${collapsed ? "justify-center" : "justify-between"}`}
+        className={`flex items-center p-4 border-b ${isDark ? 'border-gray-800' : 'border-gray-100'} ${collapsed ? "justify-center" : "justify-between"}`}
       >
         {collapsed ? (
-          <IconButton size="small" onClick={onToggle} className="text-gray-500">
+          <IconButton size="small" onClick={onToggle} className={isDark ? "text-gray-300" : "text-gray-500"}>
             <MenuIcon />
           </IconButton>
         ) : (
@@ -100,14 +132,14 @@ const Sidebar = ({ collapsed, onToggle }) => {
                 <span className="text-white font-bold text-lg">A</span>
               </div>
               <div>
-                <h1 className="font-bold text-gray-800 text-lg">AttendEase</h1>
-                <p className="text-xs text-gray-500">Classroom Management</p>
+                <h1 className={`font-bold text-lg ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>AttendEase</h1>
+                <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Classroom Management</p>
               </div>
             </div>
             <IconButton
               size="small"
               onClick={onToggle}
-              className="text-gray-500"
+              className={isDark ? "text-gray-300" : "text-gray-500"}
             >
               <ChevronLeftIcon />
             </IconButton>
@@ -130,7 +162,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
                     `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                       isActive
                         ? "bg-primary-500 text-white shadow-lg shadow-primary-500/30"
-                        : "text-gray-600 hover:bg-gray-100"
+                        : `${isDark ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-600 hover:bg-gray-100'}`
                     } ${collapsed ? "justify-center" : ""}`
                   }
                 >
@@ -145,45 +177,84 @@ const Sidebar = ({ collapsed, onToggle }) => {
         </ul>
       </nav>
 
+      <Box sx={{ px: 1.5, pb: 1.5 }}>
+        <Tooltip title={`Theme: ${themeLabel}`} placement="right">
+          <ButtonBase
+            onClick={cycleThemeMode}
+            sx={{
+              width: '100%',
+              borderRadius: '12px',
+              transition: 'all 0.2s',
+              border: '1px solid',
+              borderColor: isDark ? 'rgba(55,65,81,1)' : 'rgba(229,231,235,1)',
+              '&:hover': {
+                bgcolor: isDark ? 'rgba(31,41,55,1)' : 'rgba(243,244,246,1)',
+              },
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              minWidth: collapsed ? 0 : undefined,
+              px: collapsed ? 0 : 1.5,
+              py: 1,
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%', color: isDark ? 'rgba(229,231,235,1)' : 'rgba(55,65,81,1)' }}>
+              <ThemeIcon fontSize="small" />
+              {!collapsed && (
+                <>
+                  <span style={{ fontWeight: 500 }}>Theme</span>
+                  <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: isDark ? 'rgba(156,163,175,1)' : 'rgba(107,114,128,1)' }}>{themeLabel}</span>
+                </>
+              )}
+            </Box>
+          </ButtonBase>
+        </Tooltip>
+      </Box>
+
       {/* User Profile Section */}
-      <div className="p-3 border-t border-gray-100">
-        <Button
+      <Box sx={{ p: 1.5, borderTop: '1px solid', borderColor: isDark ? 'rgba(31,41,55,1)' : 'rgba(243,244,246,1)' }}>
+        <ButtonBase
           onClick={handleMenuOpen}
-          className={`w-full rounded-xl transition-all duration-200 hover:bg-gray-50 ${
-            collapsed
-              ? "justify-center min-w-0 px-0"
-              : "justify-start px-3 py-2"
-          }`}
+          sx={{
+            width: '100%',
+            borderRadius: '12px',
+            transition: 'all 0.2s',
+            '&:hover': {
+              bgcolor: isDark ? 'rgba(31,41,55,1)' : 'rgba(249,250,251,1)',
+            },
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            minWidth: collapsed ? 0 : undefined,
+            px: collapsed ? 0 : 1.5,
+            py: 1,
+          }}
         >
-          <div className="flex items-center gap-3 w-full">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
             <Avatar
               alt={user?.firstName || "User"}
               src={user?.avatar}
-              className={`${collapsed ? "w-10 h-10" : "w-10 h-10"} bg-primary-100 text-primary-700 font-bold`}
+              sx={{ width: 40, height: 40, bgcolor: '#dbeafe', color: '#1d4ed8', fontWeight: 'bold' }}
             >
               {user?.firstName?.charAt(0) || "U"}
             </Avatar>
 
             {!collapsed && (
-              <div className="flex-1 text-left overflow-hidden">
+              <Box sx={{ flex: 1, textAlign: 'left', overflow: 'hidden' }}>
                 <Typography
                   variant="subtitle2"
-                  className="font-semibold text-gray-800 truncate"
+                  sx={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: isDark ? 'rgba(243,244,246,1)' : 'rgba(31,41,55,1)' }}
                 >
                   {user?.firstName} {user?.lastName}
                 </Typography>
                 <Typography
                   variant="caption"
-                  className="text-gray-500 truncate block"
+                  sx={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: isDark ? 'rgba(156,163,175,1)' : 'rgba(107,114,128,1)' }}
                 >
                   {user?.role?.replace("_", " ")}
                 </Typography>
-              </div>
+              </Box>
             )}
 
-            {!collapsed && <MoreVertIcon className="text-gray-400 text-sm" />}
-          </div>
-        </Button>
+            {!collapsed && <MoreVertIcon sx={{ fontSize: '1rem', color: isDark ? 'rgba(107,114,128,1)' : 'rgba(156,163,175,1)' }} />}
+          </Box>
+        </ButtonBase>
 
         <Menu
           anchorEl={anchorEl}
@@ -233,8 +304,8 @@ const Sidebar = ({ collapsed, onToggle }) => {
             Logout
           </MenuItem>
         </Menu>
-      </div>
-    </aside>
+      </Box>
+    </Box>
   );
 };
 

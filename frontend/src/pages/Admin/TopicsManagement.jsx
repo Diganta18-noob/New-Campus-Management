@@ -151,10 +151,10 @@ const TopicsManagement = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <Typography variant="h4" className="font-bold text-gray-800">
+          <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
             Topics / Courses
           </Typography>
-          <Typography variant="body2" className="text-gray-500 mt-1">
+          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
             Manage training topics, courses, and their assignments
           </Typography>
         </div>
@@ -177,7 +177,7 @@ const TopicsManagement = () => {
       </div>
 
       {/* Search Bar */}
-      <Paper elevation={0} className="p-4 rounded-2xl border border-gray-100">
+      <Paper elevation={0} sx={{ p: 2, borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
         <TextField
           id="search-topics"
           fullWidth
@@ -208,7 +208,7 @@ const TopicsManagement = () => {
           icon={TopicIcon}
         />
       ) : (
-        <Paper elevation={0} className="rounded-2xl border border-gray-100 overflow-hidden">
+        <Paper elevation={0} sx={{ borderRadius: '16px', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
           <TableContainer>
             <Table>
               <TableHead>

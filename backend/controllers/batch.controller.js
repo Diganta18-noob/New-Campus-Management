@@ -17,6 +17,10 @@ const getBatches = async (req, res) => {
             query.createdBy = req.user._id;
         } else if (req.user.role === 'LEARNER') {
             query._id = { $in: req.user.assignedBatches };
+        } else if (req.user.role === 'TRAINER') {
+            query.trainers = req.user._id;
+        } else if (req.user.role === 'TA') {
+            query.tas = req.user._id;
         }
 
         if (status) query.status = status;

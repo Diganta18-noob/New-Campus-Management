@@ -455,10 +455,10 @@ const UsersManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Typography variant="h4" className="font-bold text-gray-800">
+          <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
             Users Management
           </Typography>
-          <Typography variant="body2" className="text-gray-500 mt-1">
+          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
             Manage all system users and their roles
           </Typography>
         </div>
@@ -482,9 +482,9 @@ const UsersManagement = () => {
       </div>
 
       {/* Bulk Import Section */}
-      <Paper elevation={0} className="p-6 rounded-2xl border border-gray-100">
+      <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
         <div className="flex items-center justify-between mb-4">
-          <Typography variant="h6" className="font-semibold text-gray-800">
+          <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
             Bulk Import Learners
           </Typography>
           <Button
@@ -534,8 +534,8 @@ const UsersManagement = () => {
       </Paper>
 
       {/* Users Directory with Filters */}
-      <Paper elevation={0} className="p-6 rounded-2xl border border-gray-100">
-        <Typography variant="h6" className="font-semibold text-gray-800 mb-4">
+      <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>
           Users Directory ({filteredUsers.length} of {users.length} users)
         </Typography>
 

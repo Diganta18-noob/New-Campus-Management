@@ -163,10 +163,28 @@ const bulkCreateUsers = async (req, res) => {
         const stats = {
             successful: 0,
             failed: 0,
+            batchAssigned: 0,
+            batchNotFound: 0,
             errors: []
         };
 
         const createdUsers = [];
+
+        // Pre-fetch all unique cohortIds and resolve them to Batch documents
+        const uniqueCohortIds = [...new Set(
+            users
+                .map(u => u.cohortId)
+                .filter(Boolean)
+                .map(id => id.toString().trim().toUpperCase())
+        )];
+
+        const batchMap = {}; // cohortId (uppercase) -> Batch document
+        if (uniqueCohortIds.length > 0) {
+            const matchedBatches = await Batch.find({ code: { $in: uniqueCohortIds } });
+            matchedBatches.forEach(batch => {
+                batchMap[batch.code.toUpperCase()] = batch;
+            });
+        }
 
         for (const userData of users) {
             try {
@@ -189,13 +207,38 @@ const bulkCreateUsers = async (req, res) => {
                     throw new Error(`User already exists: ${userData.email}`);
                 }
 
+                // Resolve cohortId to a Batch
+                const cohortKey = userData.cohortId
+                    ? userData.cohortId.toString().trim().toUpperCase()
+                    : null;
+                const matchedBatch = cohortKey ? batchMap[cohortKey] : null;
+
+                const assignedBatches = matchedBatch ? [matchedBatch._id] : [];
+
                 const user = await User.create({
                     ...userData,
                     username,
                     role: userData.role || 'LEARNER',
                     password: userData.password || 'Default@123',
-                    requiresPasswordReset: true
+                    requiresPasswordReset: true,
+                    assignedBatches
                 });
+
+                // Add user to the batch's learners array
+                if (matchedBatch) {
+                    await Batch.findByIdAndUpdate(
+                        matchedBatch._id,
+                        { $addToSet: { learners: user._id } }
+                    );
+                    stats.batchAssigned++;
+                } else if (cohortKey) {
+                    // cohortId was provided but no matching batch was found
+                    stats.batchNotFound++;
+                    stats.errors.push({
+                        email: userData.email,
+                        error: `User created but batch not found for cohortId: ${userData.cohortId}`
+                    });
+                }
 
                 createdUsers.push(user);
                 stats.successful++;
@@ -214,7 +257,7 @@ const bulkCreateUsers = async (req, res) => {
                 stats,
                 createdUsers: createdUsers.length 
             },
-            message: `Successfully created ${stats.successful} users. ${stats.failed} failed.`
+            message: `Successfully created ${stats.successful} users. ${stats.batchAssigned} assigned to batches. ${stats.failed} failed.`
         });
 
     } catch (error) {
