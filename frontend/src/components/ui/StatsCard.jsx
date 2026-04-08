@@ -11,7 +11,17 @@ const StatsCard = ({ icon: Icon, title, value, color = 'primary' }) => {
     return (
         <Paper
             elevation={0}
-            className="p-6 rounded-2xl border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+            sx={{
+                p: 3,
+                borderRadius: '16px',
+                border: '1px solid',
+                borderColor: 'divider',
+                transition: 'all 0.3s',
+                '&:hover': {
+                    boxShadow: 6,
+                    transform: 'translateY(-4px)',
+                },
+            }}
         >
             <div className="flex items-center gap-4">
                 <div
@@ -20,10 +30,10 @@ const StatsCard = ({ icon: Icon, title, value, color = 'primary' }) => {
                     <Icon className="text-2xl" />
                 </div>
                 <div>
-                    <Typography variant="body2" className="text-gray-500 font-medium">
+                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
                         {title}
                     </Typography>
-                    <Typography variant="h4" className="font-bold text-gray-800 mt-1">
+                    <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary', mt: 0.5 }}>
                         {value}
                     </Typography>
                 </div>

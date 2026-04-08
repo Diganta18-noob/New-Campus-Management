@@ -40,10 +40,10 @@ const Dashboard = () => {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <Typography variant="h4" className="font-bold text-gray-800">
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
                     Admin Dashboard
                 </Typography>
-                <Typography variant="body2" className="text-gray-500 mt-1">
+                <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
                     Overview of your classroom management system
                 </Typography>
             </div>
@@ -66,16 +66,17 @@ const Dashboard = () => {
                 {/* Recent Activity */}
                 <Paper
                     elevation={0}
-                    className="p-6 rounded-2xl border border-gray-100"
+                    sx={{ p: 3, borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}
                 >
-                    <Typography variant="h6" className="font-semibold text-gray-800 mb-4">
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>
                         Recent Activity
                     </Typography>
                     <ul className="space-y-3">
                         {recentActivity.map((item, index) => (
                             <li
                                 key={index}
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
+                                className="flex items-center justify-between p-3 rounded-xl"
+                                style={{ backgroundColor: 'var(--activity-bg, rgba(0,0,0,0.03))' }}
                             >
                                 <div className="flex items-center gap-3">
                                     {item.type === 'success' ? (
@@ -83,9 +84,9 @@ const Dashboard = () => {
                                     ) : (
                                         <ErrorIcon className="text-amber-500" />
                                     )}
-                                    <span className="text-gray-700 font-medium">{item.action}</span>
+                                    <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>{item.action}</Typography>
                                 </div>
-                                <span className="text-gray-400 text-sm">{item.time}</span>
+                                <Typography variant="caption" sx={{ color: 'text.disabled' }}>{item.time}</Typography>
                             </li>
                         ))}
                     </ul>
@@ -94,22 +95,27 @@ const Dashboard = () => {
                 {/* System Status */}
                 <Paper
                     elevation={0}
-                    className="p-6 rounded-2xl border border-gray-100"
+                    sx={{ p: 3, borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}
                 >
-                    <Typography variant="h6" className="font-semibold text-gray-800 mb-4">
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>
                         System Status
                     </Typography>
                     <ul className="space-y-3">
                         {systemStatus.map((item, index) => (
                             <li
                                 key={index}
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
+                                className="flex items-center justify-between p-3 rounded-xl"
+                                style={{ backgroundColor: 'var(--activity-bg, rgba(0,0,0,0.03))' }}
                             >
-                                <span className="text-gray-700 font-medium">{item.name}</span>
+                                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>{item.name}</Typography>
                                 <Chip
                                     label={item.status}
                                     size="small"
-                                    className="bg-emerald-100 text-emerald-700 font-medium"
+                                    sx={{
+                                        bgcolor: 'rgba(16, 185, 129, 0.15)',
+                                        color: '#10b981',
+                                        fontWeight: 500,
+                                    }}
                                 />
                             </li>
                         ))}

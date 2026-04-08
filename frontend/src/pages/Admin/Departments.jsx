@@ -216,10 +216,10 @@ const Departments = () => {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <Typography variant="h4" className="font-bold text-gray-800">
+                    <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
                         Departments
                     </Typography>
-                    <Typography variant="body2" className="text-gray-500 mt-1">
+                    <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
                         Manage your academic departments
                     </Typography>
                 </div>
@@ -236,10 +236,10 @@ const Departments = () => {
             {/* Department List */}
             <Paper
                 elevation={0}
-                className="p-6 rounded-2xl border border-gray-100"
+                sx={{ p: 3, borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}
             >
                 <div className="flex items-center justify-between mb-4">
-                    <Typography variant="h6" className="font-semibold text-gray-800">
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
                         Department List
                     </Typography>
                     <ToggleButtonGroup

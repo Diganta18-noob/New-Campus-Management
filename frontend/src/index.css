@@ -13,6 +13,13 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f8fafc;
+  color: #0f172a;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
 }
 
 #root {
@@ -29,11 +36,250 @@ body {
   background: #f1f5f9;
 }
 
+html.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
 }
 
+html.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Activity item backgrounds */
+:root {
+  --activity-bg: rgba(0, 0, 0, 0.03);
+}
+
+html.dark {
+  --activity-bg: rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================
+   GLOBAL DARK MODE OVERRIDES
+   Fixes hardcoded text-gray-800, bg-gray-50, 
+   border-gray-100 etc. used across all pages
+   ============================================ */
+
+/* -- Text colors -- */
+html.dark .text-gray-800 {
+  color: #f1f5f9 !important;
+}
+
+html.dark .text-gray-700 {
+  color: #e2e8f0 !important;
+}
+
+html.dark .text-gray-600 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+html.dark .text-gray-400 {
+  color: #64748b !important;
+}
+
+/* -- Background colors -- */
+html.dark .bg-gray-50 {
+  background-color: #1e293b !important;
+}
+
+html.dark .bg-gray-100 {
+  background-color: #1e293b !important;
+}
+
+/* -- Border colors -- */
+html.dark .border-gray-100 {
+  border-color: #334155 !important;
+}
+
+html.dark .border-gray-200 {
+  border-color: #334155 !important;
+}
+
+html.dark .border-gray-300 {
+  border-color: #475569 !important;
+}
+
+/* -- Dashed borders (file upload area) -- */
+html.dark .border-dashed {
+  border-color: #475569 !important;
+}
+
+/* -- Mono/code spans -- */
+html.dark .font-mono {
+  color: #93c5fd !important;
+}
+
+/* -- MUI DataGrid dark mode overrides -- */
+html.dark .MuiDataGrid-root {
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html.dark .MuiDataGrid-columnHeaders {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html.dark .MuiDataGrid-columnHeader {
+  color: #e2e8f0 !important;
+}
+
+html.dark .MuiDataGrid-cell {
+  border-color: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+html.dark .MuiDataGrid-row:hover {
+  background-color: #1e293b !important;
+}
+
+html.dark .MuiDataGrid-footerContainer {
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+html.dark .MuiDataGrid-filler {
+  background-color: transparent !important;
+}
+
+html.dark .MuiTablePagination-root {
+  color: #94a3b8 !important;
+}
+
+/* -- Chip overrides for status badges -- */
+html.dark .bg-green-100 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+html.dark .bg-blue-100 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+html.dark .bg-red-100 {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+html.dark .bg-purple-100 {
+  background-color: rgba(139, 92, 246, 0.15) !important;
+}
+
+html.dark .bg-orange-100 {
+  background-color: rgba(249, 115, 22, 0.15) !important;
+}
+
+html.dark .bg-indigo-100 {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+html.dark .bg-cyan-100 {
+  background-color: rgba(6, 182, 212, 0.15) !important;
+}
+
+html.dark .bg-amber-100 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+}
+
+html.dark .bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+html.dark .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+html.dark .bg-orange-50 {
+  background-color: rgba(249, 115, 22, 0.1) !important;
+}
+
+/* -- MUI Table overrides in pages using raw Table -- */
+html.dark .MuiTableHead-root .MuiTableRow-root {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+html.dark .MuiTableCell-head {
+  color: #e2e8f0 !important;
+  border-bottom-color: #334155 !important;
+}
+
+html.dark .MuiTableCell-body {
+  color: #cbd5e1 !important;
+  border-bottom-color: #1e293b !important;
+}
+
+html.dark .MuiTableRow-root:hover {
+  background-color: rgba(30, 41, 59, 0.4) !important;
+}
+
+html.dark .MuiTablePagination-root {
+  color: #94a3b8 !important;
+  border-top-color: #334155 !important;
+}
+
+/* -- MUI ToggleButton dark support -- */
+html.dark .MuiToggleButton-root {
+  color: #94a3b8 !important;
+  border-color: #475569 !important;
+}
+
+html.dark .MuiToggleButton-root.Mui-selected {
+  color: #3b82f6 !important;
+  background-color: rgba(59, 130, 246, 0.12) !important;
+}
+
+/* -- MUI Paper/Card in dark mode -- */
+html.dark .MuiPaper-root {
+  background-image: none !important;
+}
+
+/* -- Additional color overrides -- */
+html.dark .bg-gray-200 {
+  background-color: #334155 !important;
+}
+
+html.dark .bg-green-50 {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+html.dark .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+html.dark .bg-purple-50 {
+  background-color: rgba(139, 92, 246, 0.1) !important;
+}
+
+html.dark .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+html.dark .border-blue-100 {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+html.dark .border-emerald-100 {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+html.dark .border-purple-100 {
+  border-color: rgba(139, 92, 246, 0.3) !important;
+}
+
+html.dark .border-red-100 {
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+html.dark .border-green-100 {
+  border-color: rgba(16, 185, 129, 0.3) !important;
 }

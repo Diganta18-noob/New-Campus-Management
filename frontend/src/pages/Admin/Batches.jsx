@@ -502,10 +502,10 @@ const Batches = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Typography variant="h4" className="font-bold text-gray-800">
+          <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
             Batches
           </Typography>
-          <Typography variant="body2" className="text-gray-500 mt-1">
+          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
             Manage training batches and their assignments
           </Typography>
         </div>
@@ -520,8 +520,8 @@ const Batches = () => {
       </div>
 
       {/* Batch List */}
-      <Paper elevation={0} className="p-6 rounded-2xl border border-gray-100">
-        <Typography variant="h6" className="font-semibold text-gray-800 mb-4">
+      <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>
           Batch List
         </Typography>
         <DataTable

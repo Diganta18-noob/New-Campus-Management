@@ -69,7 +69,7 @@ export const AttendanceMarking = ({ batchId: initialBatchId }) => {
   const { mutate: markAttendance, isPending: isSubmitting } =
     useMarkAttendance();
 
-  const batches = batchesData?.data || [];
+  const batches = Array.isArray(batchesData) ? batchesData : (batchesData?.data || []);
   const selectedBatch = batches.find((b) => b._id === selectedBatchId);
   const batchLearners = selectedBatch?.learners || [];
 

@@ -60,8 +60,8 @@ export const TrainerDashboard = () => {
   const { mutate: createDailyUpdate, isPending: isSubmitting } =
     useCreateDailyUpdate();
 
-  const assignedBatches = user?.assignedBatches || [];
-  const batches = batchesData?.data || [];
+  const assignedBatches = Array.isArray(batchesData) ? batchesData : (batchesData?.data || []);
+  const batches = assignedBatches;
 
   const handleCreateDailyUpdate = () => {
     if (!dailyUpdateForm.summary) {
