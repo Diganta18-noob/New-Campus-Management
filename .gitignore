@@ -27,6 +27,7 @@ package-lock.json
 
 # GSD and Agent related files
 .agent/
+.agents/
 .gemini/
 .gsd/
 adapters/
@@ -34,4 +35,7 @@ scripts/
 PROJECT_RULES.md
 GSD-STYLE.md
 model_capabilities.yaml
-MASTER_PROMPT.md
+MASTER_PROMPT.md
+docs/model-selection-playbook.md
+docs/runbook.md
+docs/token-optimization-guide.md
