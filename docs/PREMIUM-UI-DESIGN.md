@@ -5,7 +5,7 @@ Date: 2026-11-03. User direction: replace the generic appearance in the supplied
 ## Design contract
 - Retain existing routes, role permissions, real API metrics and error/empty states.
 - Self-host DM Sans Variable; replace the mix of filled navigation glyphs with Lucide outline icons at consistent 18–20px sizes and 1.7px stroke.
-- Use warm off-white/forest accents in light mode, charcoal/soft sage in dark mode, low-contrast borders, restrained elevation and a consistent 12px panel radius.
+- Use the user's navy-and-blue palette: #0B1F3B primary, #2563EB accent, #60A5FA secondary, #DBEAFE surface and #F0F7FF background. Dark mode uses the primary navy for panels with a deeper background and readable light text. Keep restrained elevation and a consistent 12px panel radius.
 - Add a workspace bar with breadcrumbs and profile access; group navigation by purpose with quiet active states and accessible collapsed labels.
 - Compact statistics with tabular numerals, contextual captions and small icon treatments. No fabricated changes, sparklines or trend percentages.
 - Give donut charts meaningful center totals and compact proportional legends; respect empty and single-category data.
@@ -26,7 +26,7 @@ Date: 2026-11-03. User direction: replace the generic appearance in the supplied
 - Lucide outline icons across navigation, dashboard and authentication forms; matching book mark for the product identity.
 - Grouped sidebar, accessible account menu, workspace breadcrumb bar and profile shortcut.
 - Rebuilt overview with compact metrics, center-total donut charts, proportional legends, daily pulse and resource links.
-- Auth surfaces use the same forest palette, font, icon style and explicit corner radius.
+- Auth surfaces use the same navy-and-blue palette, font, icon style and explicit corner radius.
 - Responsive layouts, mobile menu dismissal, visible keyboard focus and reduced-motion support.
 
 ## Verification
@@ -39,3 +39,8 @@ Date: 2026-11-03. User direction: replace the generic appearance in the supplied
 - Browser API data is an isolated fixture; production analytics still use the existing authenticated API. This pass does not claim live MongoDB verification.
 
 Font and icon setup follows [Fontsource DM Sans](https://fontsource.org/fonts/dm-sans/use) and [Lucide React](https://lucide.dev/guide/react/).
+
+## User palette update
+Applied the five hex colors from the user's supplied reference image to the shared theme, CSS tokens, Tailwind scale, charts, auth gradient, favicon and browser theme color. White is retained for light-mode cards; #DBEAFE is used for tinted surfaces and selected navigation. Green remains only for semantic success states, not branding. Added browser assertions for the exact light-mode colors and primary navy dark surfaces.
+
+Palette verification: production build passed using the committed Vite configuration; full browser suite passed with exact color assertions, light/dark persistence and desktop/tablet/mobile checks. Updated screenshots were visually reviewed in both themes. No backend behavior changed.

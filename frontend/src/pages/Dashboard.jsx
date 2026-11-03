@@ -6,7 +6,7 @@ import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
 import { dashboardAPI } from '../services/api'
 import StatsCard from '../components/ui/StatsCard'
 
-const COLORS = ['#729c7b', '#b4c88c', '#d7bc82', '#8caeac', '#a49bb9', '#ce9f8d']
+const COLORS = ['#2563EB', '#60A5FA', '#93C5FD', '#38BDF8', '#818CF8', '#BFDBFE']
 const names = { ADMIN: 'Administrators', MANAGER: 'Managers', TEAM_LEADER: 'Team leaders', TRAINER: 'Trainers', TA: 'Teaching assistants', LEARNER: 'Learners', PLANNING: 'Planning', ONGOING: 'Ongoing', COMPLETED: 'Completed', CANCELLED: 'Cancelled' }
 const label = value => names[value] || String(value || 'Unspecified').toLowerCase().replaceAll('_', ' ')
 

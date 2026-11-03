@@ -5,11 +5,11 @@ export const createCampusTheme = mode => {
     return createTheme({
         palette: {
             mode,
-            primary: { main: dark ? '#a8d5b7' : '#285b43', contrastText: dark ? '#15271c' : '#ffffff' },
-            secondary: { main: dark ? '#c8b88b' : '#8a7242' },
-            background: { default: dark ? '#111614' : '#f5f6f3', paper: dark ? '#191f1c' : '#ffffff' },
-            text: { primary: dark ? '#edf2ed' : '#202d25', secondary: dark ? '#a3aea6' : '#717b73' },
-            divider: dark ? '#2c352f' : '#e5e9e3',
+            primary: { main: '#2563EB', contrastText: '#ffffff' },
+            secondary: { main: '#60A5FA' },
+            background: { default: dark ? '#081426' : '#F0F7FF', paper: dark ? '#0B1F3B' : '#ffffff' },
+            text: { primary: dark ? '#F0F7FF' : '#0B1F3B', secondary: dark ? '#AFC6E1' : '#526984' },
+            divider: dark ? '#233D60' : '#D2E2F5',
             success: { main: dark ? '#9dccab' : '#397957' },
         },
         shape: { borderRadius: 12 },
@@ -31,13 +31,13 @@ export const createCampusTheme = mode => {
             MuiPaper: { defaultProps: { elevation: 0 }, styleOverrides: { root: { backgroundImage: 'none' } } },
             MuiButton: { defaultProps: { disableElevation: true }, styleOverrides: {
                 root: { borderRadius: 8, padding: '9px 15px', fontSize: '.8125rem', boxShadow: 'none', minHeight: 38 },
-                outlined: { borderColor: dark ? '#354139' : '#dce3da', color: dark ? '#d7e3d9' : '#45554a', '&:hover': { borderColor: dark ? '#6c8573' : '#9aac9d', background: dark ? '#253027' : '#f1f5ee' } },
+                outlined: { borderColor: dark ? '#315074' : '#C7DBF4', color: dark ? '#DBEAFE' : '#274361', '&:hover': { borderColor: dark ? '#60A5FA' : '#60A5FA', background: dark ? '#15345C' : '#DBEAFE' } },
             } },
-            MuiOutlinedInput: { styleOverrides: { root: { borderRadius: 8, fontSize: '.875rem' }, notchedOutline: { borderColor: dark ? '#3a453e' : '#dce3da' } } },
+            MuiOutlinedInput: { styleOverrides: { root: { borderRadius: 8, fontSize: '.875rem' }, notchedOutline: { borderColor: dark ? '#315074' : '#C7DBF4' } } },
             MuiInputLabel: { styleOverrides: { root: { fontSize: '.875rem' } } },
             MuiChip: { styleOverrides: { root: { borderRadius: 6, fontSize: '.7rem', fontWeight: 550 } } },
             MuiIconButton: { styleOverrides: { root: { borderRadius: 8 } } },
-            MuiTableCell: { styleOverrides: { root: { borderColor: dark ? '#2c352f' : '#e5e9e3', fontSize: '.8125rem', padding: '14px 18px' }, head: { fontSize: '.6875rem', fontWeight: 600, letterSpacing: '.045em', color: dark ? '#a3aea6' : '#717b73', background: dark ? '#1d2520' : '#f8faf6' } } },
+            MuiTableCell: { styleOverrides: { root: { borderColor: dark ? '#233D60' : '#D2E2F5', fontSize: '.8125rem', padding: '14px 18px' }, head: { fontSize: '.6875rem', fontWeight: 600, letterSpacing: '.045em', color: dark ? '#AFC6E1' : '#526984', background: dark ? '#102747' : '#F0F7FF' } } },
             MuiTooltip: { styleOverrides: { tooltip: { borderRadius: 6, fontSize: '.7rem', padding: '6px 10px' } } },
         },
     })
