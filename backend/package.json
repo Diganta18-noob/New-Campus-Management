@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "init:admin": "node src/utils/initAdmin.js",
+    "init:admin": "node utils/initAdmin.js",
     "test": "jest"
   },
   "dependencies": {

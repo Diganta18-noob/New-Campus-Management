@@ -44,6 +44,15 @@ const getDashboardStats = async (req, res) => {
     }
 };
 
+// Current-day metrics consistently use the server's local calendar day.
+const getTodayRange = () => {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const nextDay = new Date(startOfDay);
+    nextDay.setDate(nextDay.getDate() + 1);
+    return { $gte: startOfDay, $lt: nextDay };
+};
+
 // Admin dashboard statistics
 const getAdminStats = async () => {
     const [
@@ -58,7 +67,7 @@ const getAdminStats = async () => {
         User.countDocuments({ isActive: true }),
         Batch.countDocuments(),
         Batch.countDocuments({ status: 'ONGOING' }),
-        Attendance.countDocuments({ date: new Date().setHours(0, 0, 0, 0) }),
+        Attendance.countDocuments({ date: getTodayRange() }),
         DailyUpdate.countDocuments({
             createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
         })
@@ -109,7 +118,7 @@ const getManagerStats = async (managerId) => {
         }),
         Attendance.countDocuments({
             batch: { $in: batchIds },
-            date: new Date().setHours(0, 0, 0, 0)
+            date: getTodayRange()
         }),
         DailyUpdate.countDocuments({
             batch: { $in: batchIds },
@@ -182,19 +191,21 @@ const getTeamLeaderStats = async (teamLeaderId) => {
         ongoingBatches.map(async (batch) => {
             const attendance = await Attendance.find({ batch: batch._id })
                 .select('attendanceRecords date')
-                .limit(30); // Last 30 days
+                .sort({ date: -1, _id: -1 })
+                .limit(30); // Latest 30 recorded sessions, not 30 calendar days.
 
             let totalPresent = 0;
-            let totalDays = 0;
+            let totalEntries = 0;
 
             attendance.forEach(record => {
-                totalDays++;
+                totalEntries += record.attendanceRecords.length;
                 totalPresent += record.attendanceRecords.filter(ar =>
                     ['PRESENT', 'LATE', 'HALF_DAY'].includes(ar.status)
                 ).length;
             });
 
-            const avgAttendance = totalDays > 0 ? (totalPresent / (totalDays * batch.learners?.length || 1)) * 100 : 0;
+            // Historical record sizes remain correct as batch enrollment changes.
+            const avgAttendance = totalEntries > 0 ? (totalPresent / totalEntries) * 100 : 0;
 
             return {
                 id: batch._id,
@@ -228,10 +239,9 @@ const getTeamLeaderStats = async (teamLeaderId) => {
 
 // Trainer/TA dashboard statistics
 const getTrainerStats = async (userId, role) => {
-    // Get all batches and attendance data for general overview
-    // Note: Without Topic model, trainers/TAs see all batches
-    const batches = await Batch.find()
-        .select('name code status')
+    const assignmentFilter = { [role === 'TA' ? 'tas' : 'trainers']: userId };
+    const batches = await Batch.find(assignmentFilter)
+        .select('name code status learners')
         .populate('learners', 'firstName lastName');
 
     const batchIds = batches.map(b => b._id);
@@ -241,15 +251,16 @@ const getTrainerStats = async (userId, role) => {
         totalLearners,
         todayAttendance
     ] = await Promise.all([
-        Batch.countDocuments(),
-        User.countDocuments({ role: 'LEARNER' }),
+        Promise.resolve(batches.length),
+        User.countDocuments({ role: 'LEARNER', assignedBatches: { $in: batchIds } }),
         Attendance.countDocuments({
-            date: new Date().setHours(0, 0, 0, 0)
+            batch: { $in: batchIds },
+            date: getTodayRange()
         })
     ]);
 
     // Get recent attendance records
-    const recentAttendance = await Attendance.find()
+    const recentAttendance = await Attendance.find({ batch: { $in: batchIds } })
         .populate('batch', 'name code')
         .populate('attendanceRecords.learner', 'firstName lastName')
         .sort({ date: -1 })

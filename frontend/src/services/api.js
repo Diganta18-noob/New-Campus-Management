@@ -132,7 +132,7 @@ export const dailyUpdatesAPI = {
 
 // Dashboard API
 export const dashboardAPI = {
-  getStats: () => api.get("/dashboard"),
+  getStats: () => api.get("/dashboard/stats"),
 };
 
 // Topics/Courses API

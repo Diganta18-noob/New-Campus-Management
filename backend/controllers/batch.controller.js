@@ -1024,10 +1024,11 @@ const getBatchAttendance = async (req, res) => {
 
 // Helper function to check batch access
 const hasBatchAccess = (user, batch) => {
-    if (user.role === 'ADMIN') return true;
-    if (user.role === 'MANAGER' && batch.createdBy.toString() === user._id.toString()) return true;
-    if (user.role === 'LEARNER' && batch.learners.includes(user._id)) return true;
-    return true; // TEAM_LEADER, TRAINER, TA can view
+    const idOf = value => String(value?._id || value);
+    if (user.role === 'ADMIN' || user.role === 'TEAM_LEADER') return true;
+    if (user.role === 'MANAGER') return idOf(batch.createdBy) === idOf(user._id);
+    const field = { LEARNER: 'learners', TRAINER: 'trainers', TA: 'tas' }[user.role];
+    return !!field && (batch[field] || []).some(member => idOf(member) === idOf(user._id));
 };
 
 // @desc    Delete batch (soft delete)

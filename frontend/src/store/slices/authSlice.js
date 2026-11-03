@@ -7,7 +7,6 @@ export const login = createAsyncThunk(
     async (credentials, { rejectWithValue }) => {
         try {
             const response = await authAPI.login(credentials);
-            console.log(response);
             if (response.token) {
                 localStorage.setItem('token', response.token);
                 return response.data || response.user;
@@ -85,6 +84,8 @@ const initialState = {
     requiresPasswordReset: false,
 };
 
+const normalizeUser = user => user ? { ...user, _id: user._id || user.id } : null;
+
 const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -115,7 +116,7 @@ const authSlice = createSlice({
             })
             .addCase(login.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload;
+                state.user = normalizeUser(action.payload);
                 state.isAuthenticated = true;
                 state.error = null;
                 state.requiresPasswordReset = action.payload?.requiresPasswordReset || false;
@@ -124,6 +125,8 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
                 state.isAuthenticated = false;
+                state.user = null;
+                state.requiresPasswordReset = false;
             })
             // Register
             .addCase(register.pending, (state) => {
@@ -132,14 +135,17 @@ const authSlice = createSlice({
             })
             .addCase(register.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload;
+                state.user = normalizeUser(action.payload);
                 state.isAuthenticated = true;
                 state.error = null;
+                state.requiresPasswordReset = action.payload?.requiresPasswordReset || false;
             })
             .addCase(register.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
                 state.isAuthenticated = false;
+                state.user = null;
+                state.requiresPasswordReset = false;
             })
             // Check Auth
             .addCase(checkAuth.pending, (state) => {
@@ -147,7 +153,7 @@ const authSlice = createSlice({
             })
             .addCase(checkAuth.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload;
+                state.user = normalizeUser(action.payload);
                 state.isAuthenticated = !!action.payload;
                 state.requiresPasswordReset = action.payload?.requiresPasswordReset || false;
             })
@@ -155,6 +161,7 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.user = null;
                 state.isAuthenticated = false;
+                state.requiresPasswordReset = false;
             })
             // Logout
             .addCase(logout.fulfilled, (state) => {
@@ -162,6 +169,7 @@ const authSlice = createSlice({
                 state.isAuthenticated = false;
                 state.loading = false;
                 state.error = null;
+                state.requiresPasswordReset = false;
             })
             // Change Password
             .addCase(changePassword.pending, (state) => {

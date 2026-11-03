@@ -2,6 +2,44 @@ const Attendance = require('../models/Attendance.model');
 const DailyUpdate = require('../models/DailyUpdate.model');
 const Batch = require('../models/Batch.model');
 
+const idOf = value => String(value?._id || value);
+const batchScope = user => {
+    switch (user.role) {
+        case 'ADMIN': case 'TEAM_LEADER': return null;
+        case 'MANAGER': return { createdBy: user._id };
+        case 'TRAINER': return { trainers: user._id };
+        case 'TA': return { tas: user._id };
+        case 'LEARNER': return { learners: user._id };
+        default: return { _id: { $in: [] } };
+    }
+};
+const canWriteBatch = (user, batch) => user.role === 'ADMIN' ||
+    (['TRAINER', 'TA'].includes(user.role) &&
+        (batch[user.role === 'TA' ? 'tas' : 'trainers'] || []).some(member => idOf(member) === idOf(user._id)));
+const validRoster = (records, batch) => {
+    if (!Array.isArray(records)) return false;
+    const allowed = new Set((batch.learners || []).map(idOf));
+    const seen = new Set();
+    return records.every(record => {
+        const id = idOf(record.learner);
+        if (!allowed.has(id) || seen.has(id) || !['PRESENT', 'ABSENT', 'LATE', 'HALF_DAY', 'LEAVE', 'HOLIDAY'].includes(record.status)) return false;
+        seen.add(id);
+        return true;
+    });
+};
+
+// Apply requested batches inside the role scope, never in place of it.
+const scopeAttendanceQuery = async (user, requestedBatch, query) => {
+    const scope = batchScope(user);
+    if (scope) {
+        const batches = await Batch.find(scope).select('_id');
+        const ids = batches.map(batch => batch._id);
+        if (requestedBatch && !ids.some(id => idOf(id) === idOf(requestedBatch))) return false;
+        query.batch = requestedBatch || { $in: ids };
+    } else if (requestedBatch) query.batch = requestedBatch;
+    return true;
+};
+
 // @desc    Mark attendance
 // @route   POST /api/attendance
 // @access  Private/Trainer/TA
@@ -15,6 +53,10 @@ const markAttendance = async (req, res) => {
                 success: false,
                 message: 'Please provide date, batch, classroom, and attendance records'
             });
+        }
+
+        if (!Array.isArray(attendanceRecords) || !Number.isFinite(new Date(date).getTime())) {
+            return res.status(400).json({ success: false, message: 'Provide a valid date and attendance records array' });
         }
 
         const existingAttendance = await Attendance.findOne({
@@ -40,6 +82,13 @@ const markAttendance = async (req, res) => {
 
 
 
+
+        if (!canWriteBatch(req.user, batchDoc)) {
+            return res.status(403).json({ success: false, message: 'Not authorized to mark attendance for this batch' });
+        }
+        if (!validRoster(attendanceRecords, batchDoc)) {
+            return res.status(400).json({ success: false, message: 'Attendance must contain unique enrolled learners and valid statuses' });
+        }
 
         // Prepare attendance records with markedBy info
         const preparedRecords = attendanceRecords.map(record => ({
@@ -128,7 +177,8 @@ const updateAttendance = async (req, res) => {
             });
         }
 
-        if (!isAuthorized) {
+        const batchDoc = await Batch.findById(attendance.batch);
+        if (!batchDoc || !canWriteBatch(req.user, batchDoc)) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to update this attendance'
@@ -141,7 +191,9 @@ const updateAttendance = async (req, res) => {
 
         // Update attendance records if provided
         if (attendanceRecords) {
-            // Validate all learners are in the topic
+            if (!validRoster(attendanceRecords, batchDoc)) {
+                return res.status(400).json({ success: false, message: 'Attendance must contain unique enrolled learners and valid statuses' });
+            }
 
             // Prepare updated records with markedBy info
             const updatedRecords = attendanceRecords.map(record => ({
@@ -265,14 +317,11 @@ const getAttendance = async (req, res) => {
         if (req.user.role === 'LEARNER') {
             // Get attendance records where learner is present
             query['attendanceRecords.learner'] = req.user._id;
-        } else if (req.user.role === 'MANAGER') {
-            // Get batches created by manager, then get attendance for those batches
-            const batches = await Batch.find({ createdBy: req.user._id }).select('_id');
-            const batchIds = batches.map(b => b._id);
-            query.batch = { $in: batchIds };
         }
 
-        if (batch) query.batch = batch;
+        if (!await scopeAttendanceQuery(req.user, batch, query)) {
+            return res.status(403).json({ success: false, message: 'Access denied to this batch' });
+        }
         if (date) query.date = new Date(date);
 
         if (startDate || endDate) {
@@ -283,7 +332,9 @@ const getAttendance = async (req, res) => {
 
         const skip = (page - 1) * limit;
 
-        const attendance = await Attendance.find(query)
+        const attendanceQuery = Attendance.find(query);
+        if (req.user.role === 'LEARNER') attendanceQuery.select('date batch classroom attendanceRecords.$');
+        const attendance = await attendanceQuery
             .populate('batch', 'name code')
             .populate('classroom', 'name code location')
             .populate('attendanceRecords.learner', 'firstName lastName email')
@@ -340,7 +391,11 @@ const getAttendanceRecord = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            data: attendance
+            data: req.user.role === 'LEARNER' ? {
+                ...attendance.toObject(),
+                attendanceRecords: attendance.attendanceRecords.filter(record => idOf(record.learner) === idOf(req.user._id)),
+                dailyUpdate: undefined
+            } : attendance
         });
     } catch (error) {
         console.error('Get attendance record error:', error);
@@ -377,7 +432,9 @@ const getLearnerAttendance = async (req, res) => {
             if (endDate) query.date.$lte = new Date(endDate);
         }
 
-        if (batch) query.batch = batch;
+        if (!await scopeAttendanceQuery(req.user, batch, query)) {
+            return res.status(403).json({ success: false, message: 'Access denied to this batch' });
+        }
 
         const attendance = await Attendance.find(query)
             .populate('batch', 'name code')
@@ -449,7 +506,7 @@ const checkAttendanceAccess = async (user, attendance) => {
     if (user.role === 'LEARNER') {
         // Check if learner is in the attendance records
         return attendance.attendanceRecords.some(
-            record => record.learner.toString() === user._id.toString()
+            record => idOf(record.learner) === idOf(user._id)
         );
     }
 
@@ -459,7 +516,12 @@ const checkAttendanceAccess = async (user, attendance) => {
         return batch && batch.createdBy.toString() === user._id.toString();
     }
 
-    // TEAM_LEADER, TRAINER, TA access is handled at route level
+    if (user.role === 'TEAM_LEADER') return true;
+    if (user.role === 'TRAINER' || user.role === 'TA') {
+        const batch = await Batch.findById(attendance.batch._id || attendance.batch);
+        return !!batch && canWriteBatch(user, batch);
+    }
+
     return false;
 };
 

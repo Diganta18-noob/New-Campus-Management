@@ -9,6 +9,7 @@ import {
     IconButton,
     Alert,
     CircularProgress,
+    Box,
     MenuItem,
     FormControl,
     InputLabel,
@@ -25,14 +26,10 @@ import {
 } from '@mui/icons-material'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { register, selectAuthLoading, selectIsAuthenticated, clearError } from '../store/slices/authSlice'
+import './Login.css'
 
 // Available roles for signup
 const ROLES = [
-    { value: 'ADMIN', label: 'Admin', description: 'Full system access' },
-    { value: 'MANAGER', label: 'Manager', description: 'Manage batches and users' },
-    { value: 'TEAM_LEADER', label: 'Team Leader', description: 'Lead training teams' },
-    { value: 'TRAINER', label: 'Trainer', description: 'Conduct training sessions' },
-    { value: 'TA', label: 'Teaching Assistant', description: 'Assist trainers' },
     { value: 'LEARNER', label: 'Learner', description: 'Student/Trainee' },
 ]
 
@@ -114,9 +111,9 @@ const Signup = () => {
     ]
 
     return (
-        <div className="min-h-screen flex">
+        <div className="login-shell">
             {/* Left Sidebar */}
-            <div className="w-96 bg-gradient-to-br from-primary-600 to-primary-800 p-8 flex flex-col text-white">
+            <div className="login-story signup-story">
                 <div className="mb-12">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur">
@@ -150,16 +147,17 @@ const Signup = () => {
             </div>
 
             {/* Right Content */}
-            <div className="flex-1 flex items-center justify-center bg-gray-50 p-8 overflow-y-auto">
+            <Box component="main" className="login-main" sx={{ bgcolor: 'background.default' }}>
                 <Paper
                     elevation={0}
-                    className="w-full max-w-md p-10 rounded-3xl border border-gray-100"
+                    className="w-full max-w-md border border-gray-100"
+                    sx={{ p: { xs: 3, sm: 5 }, borderRadius: 4 }}
                 >
                     <div className="text-center mb-6">
-                        <Typography variant="h4" className="font-bold text-gray-800 mb-2">
+                        <Typography component="h1" variant="h4" sx={{ fontWeight: 700, color: 'text.primary', mb: 1 }}>
                             Create Account
                         </Typography>
-                        <Typography variant="body2" className="text-gray-500">
+                        <Typography variant="body2" color="text.secondary">
                             Sign up to get started with AttendEase
                         </Typography>
                     </div>
@@ -250,6 +248,7 @@ const Signup = () => {
                             select
                             name="role"
                             label="Role"
+                            helperText="Staff accounts are created by your campus administrator."
                             value={formData.role}
                             onChange={handleChange}
                             required
@@ -338,7 +337,7 @@ const Signup = () => {
                         </Typography>
                     </div>
                 </Paper>
-            </div>
+            </Box>
         </div>
     )
 }

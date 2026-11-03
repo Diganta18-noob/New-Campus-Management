@@ -9,6 +9,7 @@ import {
     IconButton,
     Alert,
     CircularProgress,
+    Box,
 } from '@mui/material'
 import {
     Person as PersonIcon,
@@ -18,6 +19,7 @@ import {
 } from '@mui/icons-material'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { login, selectAuthLoading, selectAuthError, selectIsAuthenticated, selectRequiresPasswordReset, clearError } from '../store/slices/authSlice'
+import './Login.css'
 
 const Login = () => {
     const navigate = useNavigate()
@@ -25,6 +27,7 @@ const Login = () => {
     const loading = useAppSelector(selectAuthLoading)
     const authError = useAppSelector(selectAuthError)
     const isAuthenticated = useAppSelector(selectIsAuthenticated)
+    const requiresPasswordReset = useAppSelector(selectRequiresPasswordReset)
 
     const [showPassword, setShowPassword] = useState(false)
     const [loginError, setLoginError] = useState('')
@@ -36,9 +39,9 @@ const Login = () => {
     // Redirect if already authenticated
     useEffect(() => {
         if (isAuthenticated) {
-            navigate('/dashboard')
+            navigate(requiresPasswordReset ? '/reset-password' : '/dashboard', { replace: true })
         }
-    }, [isAuthenticated, navigate])
+    }, [isAuthenticated, requiresPasswordReset, navigate])
 
     // Clear error on mount
     useEffect(() => {
@@ -50,17 +53,11 @@ const Login = () => {
         setLoginError('')
 
         try {
-            const result = await dispatch(login({
-                email: formData.email,
+            await dispatch(login({
+                email: formData.email.trim(),
                 password: formData.password,
             })).unwrap()
 
-            // Check if user needs to reset their default password
-            if (result?.requiresPasswordReset) {
-                navigate('/reset-password')
-            } else {
-                navigate('/dashboard')
-            }
         } catch (error) {
             setLoginError(error || 'Login failed. Please check your credentials.')
         }
@@ -79,9 +76,11 @@ const Login = () => {
     ]
 
     return (
-        <div className="min-h-screen flex">
+        <div className="login-shell">
             {/* Left Sidebar */}
-            <div className="w-96 bg-gradient-to-br from-primary-600 to-primary-800 p-8 flex flex-col text-white">
+            <div className="login-story">
+                <div className="login-orbit login-orbit-one" aria-hidden="true" />
+                <div className="login-orbit login-orbit-two" aria-hidden="true" />
                 <div className="mb-12">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur">
@@ -89,13 +88,16 @@ const Login = () => {
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold">AttendEase</h1>
-                            <p className="text-primary-200 text-sm">College Classroom Management System</p>
+                            <p className="text-primary-200 text-sm">Your education operations hub</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex-1">
-                    <h2 className="text-lg font-semibold mb-4 text-primary-100">What we teach</h2>
+                <div className="flex-1 login-story-content">
+                    <p className="login-eyebrow">A clearer view of campus</p>
+                    <h2 className="login-headline">Great learning.<br />Thoughtfully managed.</h2>
+                    <p className="login-description">Bring your people, programs and daily operations together in one focused workspace.</p>
+                    <h3 className="text-lg font-semibold mb-4 text-primary-100">Built for your programs</h3>
                     <ul className="space-y-3">
                         {trainingPrograms.map((program, index) => (
                             <li
@@ -115,16 +117,17 @@ const Login = () => {
             </div>
 
             {/* Right Content */}
-            <div className="flex-1 flex items-center justify-center bg-gray-50 p-8">
+            <Box component="main" className="login-main" sx={{ bgcolor: 'background.default' }}>
                 <Paper
                     elevation={0}
-                    className="w-full max-w-md p-10 rounded-3xl border border-gray-100"
+                    className="login-card w-full max-w-md border border-gray-100"
+                    sx={{ p: { xs: 3, sm: 5 }, borderRadius: 4 }}
                 >
                     <div className="text-center mb-8">
-                        <Typography variant="h4" className="font-bold text-gray-800 mb-2">
+                        <Typography component="h1" variant="h4" sx={{ fontWeight: 700, color: 'text.primary', mb: 1 }}>
                             Welcome Back
                         </Typography>
-                        <Typography variant="body2" className="text-gray-500">
+                        <Typography variant="body2" color="text.secondary">
                             Sign in to your account to continue
                         </Typography>
                     </div>
@@ -138,6 +141,10 @@ const Login = () => {
                         <TextField
                             fullWidth
                             name="email"
+                            type="email"
+                            autoComplete="username"
+                            required
+                            disabled={loading}
                             label="Email"
                             placeholder="Enter your email"
                             value={formData.email}
@@ -154,6 +161,9 @@ const Login = () => {
                         <TextField
                             fullWidth
                             name="password"
+                            autoComplete="current-password"
+                            required
+                            disabled={loading}
                             label="Password"
                             type={showPassword ? 'text' : 'password'}
                             placeholder="Enter your password"
@@ -168,6 +178,9 @@ const Login = () => {
                                 endAdornment: (
                                     <InputAdornment position="end">
                                         <IconButton
+                                            type="button"
+                                            aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                            aria-pressed={showPassword}
                                             onClick={() => setShowPassword(!showPassword)}
                                             edge="end"
                                         >
@@ -191,7 +204,7 @@ const Login = () => {
                     </form>
 
                     <div className="mt-6 text-center">
-                        <Typography variant="body2" className="text-gray-500">
+                        <Typography variant="body2" color="text.secondary">
                             Don't have an account?{' '}
                             <Link to="/signup" className="text-primary-500 hover:underline font-medium">
                                 Sign Up
@@ -199,7 +212,7 @@ const Login = () => {
                         </Typography>
                     </div>
                 </Paper>
-            </div>
+            </Box>
         </div>
     )
 }

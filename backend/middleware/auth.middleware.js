@@ -26,6 +26,20 @@ const protect = async (req, res, next) => {
         });
       }
 
+      const resetPaths = {
+        GET: '/api/auth/me',
+        PUT: '/api/auth/change-password',
+        POST: '/api/auth/logout'
+      };
+      const requestPath = req.originalUrl.split('?')[0].replace(/\/$/, '');
+      if (req.user.requiresPasswordReset && resetPaths[req.method] !== requestPath) {
+        return res.status(403).json({
+          success: false,
+          code: 'PASSWORD_RESET_REQUIRED',
+          message: 'Change your default password before accessing campus data'
+        });
+      }
+
       next();
     } catch (error) {
       logger.error('Auth middleware error:', error);

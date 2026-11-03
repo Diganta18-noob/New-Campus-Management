@@ -1,6 +1,17 @@
 const DailyUpdate = require('../models/DailyUpdate.model');
 const Batch = require('../models/Batch.model');
 const Attendance = require('../models/Attendance.model');
+const idOf = value => String(value?._id || value);
+const contentFields = new Set([
+    'dailySummary', 'topicsCovered', 'learnerHighlights', 'challenges', 'nextDayPlan',
+    'overallMood', 'completionPercentage', 'visibility', 'status'
+]);
+const contentOnly = body => Object.fromEntries(Object.entries(body).filter(([key]) => contentFields.has(key)));
+const batchScope = user => {
+    if (user.role === 'ADMIN' || user.role === 'TEAM_LEADER') return null;
+    const field = { MANAGER: 'createdBy', TRAINER: 'trainers', TA: 'tas', LEARNER: 'learners' }[user.role];
+    return field ? { [field]: user._id } : { _id: { $in: [] } };
+};
 
 // @desc    Create daily update
 // @route   POST /api/daily-updates
@@ -15,6 +26,12 @@ const createDailyUpdate = async (req, res) => {
                 success: false,
                 message: 'Please provide date, batch, and daily summary'
             });
+        }
+
+        const batchDoc = await Batch.findById(batch);
+        if (!batchDoc) return res.status(404).json({ success: false, message: 'Batch not found' });
+        if (!['TRAINER', 'TA'].includes(req.user.role) || !hasBatchAccess(req.user, batchDoc)) {
+            return res.status(403).json({ success: false, message: 'Not authorized to publish updates for this batch' });
         }
 
         // Check if daily update already exists for this date and batch
@@ -32,10 +49,10 @@ const createDailyUpdate = async (req, res) => {
 
         // Create daily update
         const dailyUpdate = await DailyUpdate.create({
+            ...contentOnly(updateData),
             date: new Date(date),
             batch,
             postedBy: req.user._id,
-            ...updateData
         });
 
         // Also update the attendance record with daily update summary
@@ -80,23 +97,17 @@ const getDailyUpdates = async (req, res) => {
 
         const query = { status: 'PUBLISHED' };
 
-        // Role-based visibility
-        if (req.user.role === 'MANAGER' || req.user.role === 'TEAM_LEADER') {
-            // Get batches managed by user
-            const batches = await Batch.find({
-                createdBy: req.user.role === 'MANAGER' ? req.user._id : { $exists: true }
-            }).select('_id');
-            const batchIds = batches.map(b => b._id);
-            query.batch = { $in: batchIds };
-            query.visibility = { $in: [req.user.role] };
-        } else if (req.user.role === 'LEARNER') {
-            // Learners can only see updates for their batches
-            const batches = await Batch.find({ learners: req.user._id }).select('_id');
-            const batchIds = batches.map(b => b._id);
-            query.batch = { $in: batchIds };
+        const scope = batchScope(req.user);
+        if (scope) {
+            const batches = await Batch.find(scope).select('_id');
+            const ids = batches.map(item => item._id);
+            if (batch && !ids.some(id => idOf(id) === idOf(batch))) {
+                return res.status(403).json({ success: false, message: 'Access denied to this batch' });
+            }
+            query.batch = { $in: ids };
         }
-
         if (batch) query.batch = batch;
+        if (req.user.role !== 'ADMIN') query.$and = [{ $or: [{ postedBy: req.user._id }, { visibility: req.user.role }] }];
 
         if (startDate || endDate) {
             query.date = {};
@@ -158,7 +169,7 @@ const getDailyUpdate = async (req, res) => {
         }
 
         // Check visibility
-        if (!hasUpdateAccess(req.user, dailyUpdate)) {
+        if (!await hasUpdateAccess(req.user, dailyUpdate)) {
             return res.status(403).json({
                 success: false,
                 message: 'Access denied to this daily update'
@@ -166,10 +177,14 @@ const getDailyUpdate = async (req, res) => {
         }
 
         // Get corresponding attendance data
-        const attendance = await Attendance.findOne({
+        const attendanceQuery = {
             date: dailyUpdate.date,
             batch: dailyUpdate.batch
-        })
+        };
+        if (req.user.role === 'LEARNER') attendanceQuery['attendanceRecords.learner'] = req.user._id;
+        const attendanceFind = Attendance.findOne(attendanceQuery);
+        if (req.user.role === 'LEARNER') attendanceFind.select('date batch classroom attendanceRecords.$');
+        const attendance = await attendanceFind
             .populate('attendanceRecords.learner', 'firstName lastName email')
             .populate('classroom', 'name code location');
 
@@ -214,13 +229,18 @@ const updateDailyUpdate = async (req, res) => {
             });
         }
 
+        const batchDoc = await Batch.findById(dailyUpdate.batch);
+        if (!batchDoc || !hasBatchAccess(req.user, batchDoc)) {
+            return res.status(403).json({ success: false, message: 'Access denied to this batch' });
+        }
+
         // Store old values for audit log
         req.oldValues = dailyUpdate.toObject();
         req.changes = [];
 
         const updatedUpdate = await DailyUpdate.findByIdAndUpdate(
             req.params.id,
-            { ...req.body, updatedAt: new Date() },
+            { $set: { ...contentOnly(req.body), updatedAt: new Date() } },
             { new: true, runValidators: true }
         )
             .populate('batch', 'name code')
@@ -284,7 +304,7 @@ const addFeedback = async (req, res) => {
         }
 
         // Check if user has access to this update
-        if (!dailyUpdate.visibility.includes(req.user.role)) {
+        if (!await hasUpdateAccess(req.user, dailyUpdate)) {
             return res.status(403).json({
                 success: false,
                 message: 'Access denied to this daily update'
@@ -345,6 +365,7 @@ const getBatchUpdatesSummary = async (req, res) => {
         }
 
         const query = { batch: batchId, status: 'PUBLISHED' };
+        if (req.user.role !== 'ADMIN') query.$and = [{ $or: [{ postedBy: req.user._id }, { visibility: req.user.role }] }];
 
         if (startDate || endDate) {
             query.date = {};
@@ -418,18 +439,19 @@ const getBatchUpdatesSummary = async (req, res) => {
 };
 
 // Helper function to check update access
-const hasUpdateAccess = (user, dailyUpdate) => {
+const hasUpdateAccess = async (user, dailyUpdate) => {
     if (user.role === 'ADMIN') return true;
-    if (dailyUpdate.postedBy.toString() === user._id.toString()) return true;
-    if (dailyUpdate.visibility.includes(user.role)) return true;
-    return false;
+    const batch = await Batch.findById(dailyUpdate.batch._id || dailyUpdate.batch);
+    if (!batch || !hasBatchAccess(user, batch)) return false;
+    return idOf(dailyUpdate.postedBy) === idOf(user._id) || (dailyUpdate.visibility || []).includes(user.role);
 };
 
 // Helper function to check batch access
 const hasBatchAccess = (user, batch) => {
-    if (user.role === 'ADMIN') return true;
-    if (user.role === 'MANAGER' && batch.createdBy.toString() === user._id.toString()) return true;
-    return false;
+    if (user.role === 'ADMIN' || user.role === 'TEAM_LEADER') return true;
+    if (user.role === 'MANAGER') return idOf(batch.createdBy) === idOf(user._id);
+    const field = { LEARNER: 'learners', TRAINER: 'trainers', TA: 'tas' }[user.role];
+    return !!field && (batch[field] || []).some(member => idOf(member) === idOf(user._id));
 };
 
 module.exports = {

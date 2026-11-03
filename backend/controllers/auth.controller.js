@@ -120,6 +120,14 @@ const register = async (req, res) => {
       });
     }
 
+    // Public self-registration cannot grant staff or administrator privileges.
+    if (role !== undefined && role !== 'LEARNER') {
+      return res.status(400).json({
+        success: false,
+        message: 'Public registration is for learners only. Staff accounts must be created by an administrator.'
+      });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({
       $or: [{ email }, { username }]
@@ -134,10 +142,6 @@ const register = async (req, res) => {
       });
     }
 
-    // Validate role
-    const validRoles = ['ADMIN', 'MANAGER', 'TEAM_LEADER', 'TRAINER', 'TA', 'LEARNER'];
-    const userRole = role && validRoles.includes(role) ? role : 'LEARNER';
-
     // Create user
     const user = await User.create({
       email,
@@ -146,7 +150,7 @@ const register = async (req, res) => {
       firstName,
       lastName,
       phone,
-      role: userRole
+      role: 'LEARNER'
     });
 
     // Generate token
