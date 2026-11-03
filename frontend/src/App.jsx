@@ -21,6 +21,7 @@ import TopicsManagement from "./pages/Admin/TopicsManagement";
 import AuditLogs from "./pages/Admin/AuditLogs";
 import AttendanceMarking from "./pages/Trainer/AttendanceMarking";
 import AttendanceHistory from "./pages/Reports/AttendanceHistory";
+import Insights from "./pages/Admin/Insights";
 import LearnerAttendance from "./pages/Learner/Attendance";
 import TrainerDailyUpdates from "./pages/Trainer/DailyUpdates";
 import ManagerDailyUpdates from "./pages/Manager/DailyUpdates";
@@ -66,6 +67,7 @@ function App() {
         >
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<RoleBasedDashboard />} />
+          <Route path="insights" element={<RoleBasedRoute allowedRoles={["ADMIN"]}><Insights /></RoleBasedRoute>} />
           <Route path="students" element={<UsersManagement />} />
           <Route
             path="departments"
@@ -150,7 +152,7 @@ function App() {
             path="attendance/history"
             element={
               <RoleBasedRoute
-                allowedRoles={["TRAINER", "TA", "ADMIN", "MANAGER"]}
+                allowedRoles={["TRAINER", "TA", "ADMIN", "MANAGER", "TEAM_LEADER"]}
               >
                 <AttendanceHistory />
               </RoleBasedRoute>

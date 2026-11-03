@@ -10,6 +10,7 @@ const {
   getAttendanceRecord,
   getLearnerAttendance
 } = require('../controllers/attendance.controller');
+const { getAttendanceReport } = require('../controllers/attendanceReport.controller');
 
 // All routes protected
 router.use(protect);
@@ -20,6 +21,8 @@ router.use(auditLog);
 router.route('/')
   .get(getAttendance)
   .post(authorize('TRAINER', 'TA'), markAttendance);
+
+router.get('/report', authorize('ADMIN', 'MANAGER', 'TEAM_LEADER', 'TRAINER', 'TA'), getAttendanceReport);
 
 router.route('/learner/:learnerId')
   .get(getLearnerAttendance);

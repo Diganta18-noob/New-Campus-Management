@@ -1,0 +1,53 @@
+import puppeteer from 'puppeteer';
+import assert from 'node:assert/strict';
+
+const browser = await puppeteer.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+const page = await browser.newPage();
+const errors = [];
+page.on('pageerror', error => errors.push(error.message));
+await page.evaluateOnNewDocument(() => { localStorage.setItem('token', 'fixture-token'); localStorage.setItem('campus-theme-mode', 'light'); });
+await page.setRequestInterception(true);
+page.on('request', request => {
+  const url = new URL(request.url());
+  if (!url.pathname.startsWith('/api/')) return request.continue();
+  const range = { startDate: url.searchParams.get('startDate') || '2026-11-01', endDate: url.searchParams.get('endDate') || '2026-11-02', timeZone: 'UTC' };
+  const summary = { sessionCount: 1, entryCount: 2, statusCounts: { PRESENT: 1, ABSENT: 1, LATE: 0, HALF_DAY: 0, LEAVE: 0, HOLIDAY: 0 } };
+  let body = { success: true, data: [] };
+  if (url.pathname === '/api/auth/me') body = { success: true, data: { _id: 'admin', role: 'ADMIN', firstName: 'Campus', lastName: 'Admin', isActive: true } };
+  if (url.pathname === '/api/batches') body = { success: true, data: [{ _id: 'batch-fixture', name: 'Fixture Batch', code: 'FB', status: 'ONGOING', learners: [], trainers: [] }], total: 1 };
+  if (url.pathname === '/api/dashboard/insights') body = { success: true, data: { range, summary, trend: [{ date: '2026-11-01', sessionCount: null, statusCounts: null }, { date: '2026-11-02', sessionCount: 1, statusCounts: summary.statusCounts }] } };
+  if (url.pathname === '/api/dashboard/operations') body = { success: true, data: { rows: [{ batchId: 'batch-fixture', name: 'Fixture Batch', code: 'FB', status: 'ONGOING', issues: ['NO_TRAINER', 'NO_CLASSROOM'], recordedSessionCount: 1 }], total: 1, truncated: false, range } };
+  if (url.pathname === '/api/attendance/report') body = { success: true, data: { rows: [{ rowId: 'session:learner', sessionId: 'session', date: '2026-11-02T12:00:00.000Z', batch: { id: 'batch-fixture', name: 'Fixture Batch', code: 'FB' }, learner: { id: 'learner', firstName: 'First', lastName: 'Student' }, status: 'PRESENT', remarks: 'Observed', markedBy: { id: 'trainer', firstName: 'Trainer', lastName: 'One' }, isLocked: false }], total: 1, page: 1, limit: 25, summary: { ...summary, entryCount: 1 }, range } };
+  request.respond({ status: 200, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type' }, body: JSON.stringify(body) });
+});
+const base = process.env.UI_TEST_URL || 'http://127.0.0.1:5181';
+try {
+  await page.setViewport({ width: 1440, height: 900 });
+  await page.goto(`${base}/insights?startDate=2026-11-01&endDate=2026-11-02`, { waitUntil: 'domcontentloaded', timeout: 120000 });
+  await page.waitForFunction(() => document.body.innerText.includes('Needs setup'));
+  await page.waitForFunction(() => document.body.innerText.includes('Assign trainer'));
+  assert.match(await page.$eval('body', el => el.innerText), /Learner entries/);
+  assert.equal(await page.$('a[href="/batches?focus=batch-fixture"]') !== null, true);
+  assert.equal(await page.$('a[href*="/attendance/history?"]') !== null, true);
+  await page.screenshot({ path: '../docs/verification/phase3a-insights-desktop.png', fullPage: true });
+  await page.click('button[aria-label="Appearance: light. Change appearance"]');
+  await page.waitForFunction(() => document.documentElement.classList.contains('dark'));
+  await page.screenshot({ path: '../docs/verification/phase3a-insights-dark.png', fullPage: true });
+  await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+  assert.equal(await page.$eval('.workspace-shell', el => getComputedStyle(el).transitionDuration), '0s');
+  await page.setViewport({ width: 320, height: 740 });
+  await page.waitForFunction(() => document.querySelector('aside')?.getBoundingClientRect().width === 80);
+  await new Promise(resolve => setTimeout(resolve, 250));
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.screenshot({ path: '../docs/verification/phase3a-insights-mobile.png', fullPage: true });
+  await page.goto(`${base}/batches?focus=batch-fixture`, { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => document.body.innerText.includes('Focused batch: Fixture Batch'));
+  assert.equal(await page.$('button') !== null, true);
+  await page.goto(`${base}/attendance/history?batch=batch-fixture&startDate=2026-11-01&endDate=2026-11-02`, { waitUntil: 'domcontentloaded', timeout: 120000 });
+  await page.waitForFunction(() => document.body.innerText.includes('First Student'));
+  await page.waitForFunction(() => [...document.querySelectorAll('button')].some(button => button.textContent.includes('Export CSV') && !button.disabled));
+  assert.match(await page.$eval('body', el => el.innerText), /Recorded sessions/);
+  await page.screenshot({ path: '../docs/verification/phase3a-report-mobile.png', fullPage: true });
+  assert.deepEqual(errors, []);
+  console.log('PASS: fixture insights, operations queue, focused links, report rows and 320px layout');
+} finally { await browser.close(); }

@@ -18,6 +18,7 @@ const links = [
     { path: '/attendance', label: 'Mark attendance', icon: CalendarCheck2, group: 'Workspace', roles: ['TRAINER', 'TA'] },
     { path: '/daily-updates', label: 'Daily updates', icon: NotebookPen, group: 'Workspace', roles: ['TRAINER', 'TA'] },
     { path: '/attendance/history', label: 'Attendance reports', icon: ChartNoAxesCombined, group: 'Insights', roles: ['ADMIN', 'MANAGER', 'TEAM_LEADER'] },
+    { path: '/insights', label: 'Campus insights', icon: ChartNoAxesCombined, group: 'Insights', roles: ['ADMIN'] },
     { path: '/daily-updates/review', label: 'Review updates', icon: NotebookPen, group: 'Insights', roles: ['MANAGER', 'TEAM_LEADER'] },
     { path: '/my-attendance', label: 'My attendance', icon: CalendarCheck2, group: 'Workspace', roles: ['LEARNER'] },
     { path: '/performance', label: 'My performance', icon: ChartNoAxesCombined, group: 'Insights', roles: ['LEARNER'] },

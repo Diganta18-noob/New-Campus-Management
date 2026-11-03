@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../services/api';
+import { api, attendanceAPI, dashboardAPI } from '../services/api';
 
 // ============= BATCHES QUERIES =============
 
@@ -107,6 +107,24 @@ export const useAttendance = (options = {}) => {
     ...options.queryConfig,
   });
 };
+
+export const useAttendanceReport = ({ batch = '', startDate, endDate, page = 1, limit = 25, enabled = true }) => useQuery({
+  queryKey: ['attendance', 'report', batch, startDate, endDate, page, limit],
+  queryFn: async () => (await attendanceAPI.getReport({ ...(batch && { batch }), startDate, endDate, page, limit })).data,
+  enabled,
+});
+
+export const useCampusInsights = ({ batch = '', startDate, endDate, enabled = true }) => useQuery({
+  queryKey: ['dashboard', 'insights', batch, startDate, endDate],
+  queryFn: async () => (await dashboardAPI.getInsights({ ...(batch && { batch }), startDate, endDate })).data,
+  enabled,
+});
+
+export const useCampusOperations = ({ batch = '', startDate, endDate, enabled = true }) => useQuery({
+  queryKey: ['dashboard', 'operations', batch, startDate, endDate],
+  queryFn: async () => (await dashboardAPI.getOperations({ ...(batch && { batch }), startDate, endDate })).data,
+  enabled,
+});
 
 export const useAttendanceByLearner = (learnerId, options = {}) => {
   return useQuery({

@@ -4,7 +4,7 @@ import { Box, useMediaQuery } from '@mui/material'
 import { ChevronRight, CalendarDays, UserRound } from 'lucide-react'
 import Sidebar from './Sidebar'
 
-const titles = { dashboard: 'Overview', departments: 'Departments', batches: 'Batches', classrooms: 'Classrooms', topics: 'Courses & topics', students: 'People directory', trainers: 'Trainers', tas: 'Teaching assistants', attendance: 'Attendance', 'audit-logs': 'Audit trail', profile: 'My profile', 'daily-updates': 'Daily updates', 'my-attendance': 'My attendance', performance: 'Performance' }
+const titles = { dashboard: 'Overview', insights: 'Campus insights', departments: 'Departments', batches: 'Batches', classrooms: 'Classrooms', topics: 'Courses & topics', students: 'People directory', trainers: 'Trainers', tas: 'Teaching assistants', attendance: 'Attendance', 'audit-logs': 'Audit trail', profile: 'My profile', 'daily-updates': 'Daily updates', 'my-attendance': 'My attendance', performance: 'Performance' }
 export default function MainLayout() {
     const compact = useMediaQuery('(max-width:800px)')
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false)

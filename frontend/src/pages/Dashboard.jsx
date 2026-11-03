@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Alert, Button, CircularProgress, Paper } from '@mui/material'
-import { UsersRound, UserRoundCheck, Layers3, CalendarCheck2, RefreshCw, ArrowUpRight, ArrowRight, BookOpen, GraduationCap, DoorOpen, History, ClipboardCheck, NotebookPen, CircleHelp } from 'lucide-react'
+import { UsersRound, UserRoundCheck, Layers3, CalendarCheck2, RefreshCw, ArrowUpRight, ArrowRight, BookOpen, GraduationCap, DoorOpen, History, ClipboardCheck, NotebookPen, CircleHelp, ChartNoAxesCombined } from 'lucide-react'
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
 import { dashboardAPI } from '../services/api'
 import StatsCard from '../components/ui/StatsCard'
@@ -36,6 +36,7 @@ function Distribution({ title, description, rows, unit, icon: Icon }) {
     </Paper>
 }
 const resources = [
+    { title: 'Campus insights', description: 'Recorded activity and setup follow-ups', to: '/insights', icon: ChartNoAxesCombined },
     { title: 'People directory', description: 'Learners, staff and account access', to: '/students', icon: UsersRound },
     { title: 'Learning batches', description: 'Groups, schedules and assignments', to: '/batches', icon: Layers3 },
     { title: 'Courses & curriculum', description: 'Topics and learning programs', to: '/topics', icon: BookOpen },

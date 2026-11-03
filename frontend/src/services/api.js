@@ -78,7 +78,7 @@ export const usersAPI = {
 
 // Batches API
 export const batchesAPI = {
-  getAll: () => api.get("/batches"),
+  getAll: (params = {}) => api.get("/batches", { params }),
   getById: (id) => api.get(`/batches/${id}`),
   create: (batchData) => api.post("/batches", batchData),
   update: (id, batchData) => api.put(`/batches/${id}`, batchData),
@@ -119,6 +119,7 @@ export const departmentsAPI = {
 // Attendance API
 export const attendanceAPI = {
   getAll: (params = {}) => api.get("/attendance", { params }),
+  getReport: (params = {}) => api.get("/attendance/report", { params }),
   mark: (attendanceData) => api.post("/attendance", attendanceData),
   update: (id, attendanceData) => api.put(`/attendance/${id}`, attendanceData),
 };
@@ -133,6 +134,8 @@ export const dailyUpdatesAPI = {
 // Dashboard API
 export const dashboardAPI = {
   getStats: () => api.get("/dashboard/stats"),
+  getInsights: (params = {}) => api.get("/dashboard/insights", { params }),
+  getOperations: (params = {}) => api.get("/dashboard/operations", { params }),
 };
 
 // Topics/Courses API

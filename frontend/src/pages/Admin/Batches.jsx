@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Typography,
   Button,
@@ -45,6 +46,8 @@ const MenuProps = {
 };
 
 const Batches = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const focusedId = searchParams.get('focus');
   const [batches, setBatches] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [availableTrainers, setAvailableTrainers] = useState([]);
@@ -84,13 +87,19 @@ const Batches = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [batchesRes, departmentsRes] = await Promise.all([
-        batchesAPI.getAll(),
+      const [firstPage, departmentsRes] = await Promise.all([
+        batchesAPI.getAll({ limit: 1000 }),
         departmentsAPI.getAll({ limit: 100, status: "ACTIVE" }),
       ]);
+      const allBatches = [...(firstPage.data || [])];
+      for (let page = 2; allBatches.length < firstPage.total; page++) {
+        const next = await batchesAPI.getAll({ limit: 1000, page });
+        if (!next.data?.length) break;
+        allBatches.push(...next.data);
+      }
 
       // Transform batches data for DataTable
-      const transformedBatches = (batchesRes.data || []).map((batch) => ({
+      const transformedBatches = allBatches.map((batch) => ({
         ...batch,
         id: batch._id,
         departmentName: batch.department?.name || "N/A",
@@ -499,6 +508,10 @@ const Batches = () => {
 
   return (
     <div className="space-y-6">
+      {focusedId && <Paper sx={{ p: 2, border: '1px solid', borderColor: 'divider' }}>
+        {batches.some(batch => batch._id === focusedId) ? <><Typography fontWeight={700}>Focused batch: {batches.find(batch => batch._id === focusedId)?.name}</Typography><Button onClick={() => handleEdit(batches.find(batch => batch._id === focusedId))}>Edit this batch</Button></> : <Typography color="text.secondary">This batch is not available in your current records.</Typography>}
+        <Button onClick={() => { const next = new URLSearchParams(searchParams); next.delete('focus'); setSearchParams(next); }}>Clear focus</Button>
+      </Paper>}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -526,7 +539,7 @@ const Batches = () => {
         </Typography>
         <DataTable
           columns={columns}
-          data={batches}
+          data={focusedId ? batches.filter(batch => batch._id === focusedId) : batches}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />

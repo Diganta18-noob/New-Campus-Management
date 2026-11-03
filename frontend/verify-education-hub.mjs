@@ -122,7 +122,7 @@ try {
     assert.equal(await page.$$eval('.sidebar-link .lucide', icons => icons.length > 0 && icons.every(icon => icon.getAttribute('stroke-width') === '1.7')), true)
     assert.equal(await page.$eval('.sidebar-link.is-active', el => getComputedStyle(el).display), 'flex', 'navigation icon and label must align in a row')
     const destinations = await page.$$eval('.resource-card', cards => cards.map(card => card.getAttribute('href')))
-    assert.deepEqual(destinations, ['/students', '/batches', '/topics', '/trainers', '/classrooms', '/audit-logs'])
+    assert.deepEqual(destinations, ['/insights', '/students', '/batches', '/topics', '/trainers', '/classrooms', '/audit-logs'])
     await page.click('button[aria-label="Open account menu for Campus Admin"]')
     await page.waitForSelector('[role="menu"]')
     assert.match(await page.$eval('[role="menu"]', menu => menu.innerText), /My profile/)
