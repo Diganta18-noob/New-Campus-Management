@@ -8,20 +8,20 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Inter', 'system-ui', 'sans-serif'],
+                sans: ['DM Sans Variable', 'DM Sans', 'system-ui', 'sans-serif'],
             },
             colors: {
                 primary: {
-                    50: '#eff6ff',
-                    100: '#dbeafe',
-                    200: '#bfdbfe',
-                    300: '#93c5fd',
-                    400: '#60a5fa',
-                    500: '#3b82f6',
-                    600: '#2563eb',
-                    700: '#1d4ed8',
-                    800: '#1e40af',
-                    900: '#1e3a8a',
+                    50: '#f1f6f0',
+                    100: '#e3eedf',
+                    200: '#cddfc6',
+                    300: '#a9c4a2',
+                    400: '#7ca279',
+                    500: '#527d58',
+                    600: '#3b6243',
+                    700: '#2a4c34',
+                    800: '#203c2a',
+                    900: '#182e21',
                 },
             },
         },

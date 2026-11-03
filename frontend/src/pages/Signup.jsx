@@ -16,14 +16,15 @@ import {
     Select,
 } from '@mui/material'
 import {
-    Person as PersonIcon,
-    Lock as LockIcon,
-    Email as EmailIcon,
+    UserRound as PersonIcon,
+    LockKeyhole as LockIcon,
+    Mail as EmailIcon,
     Phone as PhoneIcon,
-    Badge as BadgeIcon,
-    Visibility,
-    VisibilityOff,
-} from '@mui/icons-material'
+    IdCard as BadgeIcon,
+    Eye as Visibility,
+    EyeOff as VisibilityOff,
+    BookOpen,
+} from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { register, selectAuthLoading, selectIsAuthenticated, clearError } from '../store/slices/authSlice'
 import './Login.css'
@@ -117,11 +118,11 @@ const Signup = () => {
                 <div className="mb-12">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur">
-                            <span className="text-2xl font-bold">A</span>
+                            <BookOpen className="login-brand-icon" aria-hidden="true" />
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold">AttendEase</h1>
-                            <p className="text-primary-200 text-sm">College Classroom Management System</p>
+                            <p className="text-primary-200 text-sm">Your education operations hub</p>
                         </div>
                     </div>
                 </div>
@@ -151,7 +152,7 @@ const Signup = () => {
                 <Paper
                     elevation={0}
                     className="w-full max-w-md border border-gray-100"
-                    sx={{ p: { xs: 3, sm: 5 }, borderRadius: 4 }}
+                    sx={{ p: { xs: 3, sm: 5 }, borderRadius: '20px' }}
                 >
                     <div className="text-center mb-6">
                         <Typography component="h1" variant="h4" sx={{ fontWeight: 700, color: 'text.primary', mb: 1 }}>

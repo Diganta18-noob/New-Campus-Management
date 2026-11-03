@@ -12,11 +12,12 @@ import {
     Box,
 } from '@mui/material'
 import {
-    Person as PersonIcon,
-    Lock as LockIcon,
-    Visibility,
-    VisibilityOff,
-} from '@mui/icons-material'
+    UserRound as PersonIcon,
+    LockKeyhole as LockIcon,
+    Eye as Visibility,
+    EyeOff as VisibilityOff,
+    BookOpen,
+} from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { login, selectAuthLoading, selectAuthError, selectIsAuthenticated, selectRequiresPasswordReset, clearError } from '../store/slices/authSlice'
 import './Login.css'
@@ -84,7 +85,7 @@ const Login = () => {
                 <div className="mb-12">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur">
-                            <span className="text-2xl font-bold">A</span>
+                            <BookOpen className="login-brand-icon" aria-hidden="true" />
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold">AttendEase</h1>
@@ -121,7 +122,7 @@ const Login = () => {
                 <Paper
                     elevation={0}
                     className="login-card w-full max-w-md border border-gray-100"
-                    sx={{ p: { xs: 3, sm: 5 }, borderRadius: 4 }}
+                    sx={{ p: { xs: 3, sm: 5 }, borderRadius: '20px' }}
                 >
                     <div className="text-center mb-8">
                         <Typography component="h1" variant="h4" sx={{ fontWeight: 700, color: 'text.primary', mb: 1 }}>

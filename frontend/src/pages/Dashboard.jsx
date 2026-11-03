@@ -1,39 +1,48 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Alert, Box, Button, Chip, CircularProgress, Paper, Typography } from '@mui/material'
-import { Refresh, ArrowForward, People, School, CheckCircle, EventAvailable } from '@mui/icons-material'
+import { Alert, Button, CircularProgress, Paper } from '@mui/material'
+import { UsersRound, UserRoundCheck, Layers3, CalendarCheck2, RefreshCw, ArrowUpRight, ArrowRight, BookOpen, GraduationCap, DoorOpen, History, ClipboardCheck, NotebookPen, CircleHelp } from 'lucide-react'
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
 import { dashboardAPI } from '../services/api'
 import StatsCard from '../components/ui/StatsCard'
 
-const COLORS = ['#6366f1', '#14b8a6', '#f59e0b', '#38bdf8', '#a78bfa', '#f472b6']
-const label = value => String(value || 'Unspecified').toLowerCase().replaceAll('_', ' ')
-const panel = { p: { xs: 2, sm: 3 }, borderRadius: 4, border: '1px solid', borderColor: 'divider', height: '100%' }
+const COLORS = ['#729c7b', '#b4c88c', '#d7bc82', '#8caeac', '#a49bb9', '#ce9f8d']
+const names = { ADMIN: 'Administrators', MANAGER: 'Managers', TEAM_LEADER: 'Team leaders', TRAINER: 'Trainers', TA: 'Teaching assistants', LEARNER: 'Learners', PLANNING: 'Planning', ONGOING: 'Ongoing', COMPLETED: 'Completed', CANCELLED: 'Cancelled' }
+const label = value => names[value] || String(value || 'Unspecified').toLowerCase().replaceAll('_', ' ')
 
-function Distribution({ title, description, rows }) {
+function Distribution({ title, description, rows, unit, icon: Icon }) {
     const data = (rows || []).filter(row => row.count > 0).map(row => ({ name: label(row._id), value: row.count }))
     const total = data.reduce((sum, row) => sum + row.value, 0)
-    return <Paper elevation={0} sx={panel}>
-        <Typography component="h2" variant="h6" fontWeight={700}>{title}</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: .5 }}>{description}</Typography>
-        {total === 0 ? <Box sx={{ py: 8, textAlign: 'center' }}><Typography color="text.secondary">No records to display yet.</Typography></Box> : <>
-            <Box sx={{ height: 240, mt: 1 }} role="img" aria-label={`${title}: ${data.map(row => `${row.name} ${row.value}`).join(', ')}`}>
+    return <Paper component="section" className="dashboard-panel distribution-panel">
+        <div className="panel-heading"><div><h2>{title}</h2><p>{description}</p></div><span className="panel-heading-icon"><Icon size={17} strokeWidth={1.7} /></span></div>
+        {total === 0 ? <div className="chart-empty"><CircleHelp size={23} strokeWidth={1.5} /><p>No records to display yet.</p></div> : <div className="distribution-body">
+            <div className="distribution-chart" role="img" aria-label={`${title}: ${data.map(row => `${row.name} ${row.value}`).join(', ')}`}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <PieChart><Pie data={data} dataKey="value" nameKey="name" innerRadius={66} outerRadius={95} paddingAngle={3} stroke="none" isAnimationActive={false}>
+                    <PieChart><Pie data={data} dataKey="value" nameKey="name" innerRadius={66} outerRadius={81} paddingAngle={data.length > 1 ? 4 : 0} cornerRadius={3} stroke="none" startAngle={90} endAngle={-270} isAnimationActive={false}>
                         {data.map((row, index) => <Cell key={row.name} fill={COLORS[index % COLORS.length]} />)}
-                    </Pie><Tooltip formatter={value => [Number(value).toLocaleString(), 'Records']} /></PieChart>
+                    </Pie><Tooltip content={({ active, payload }) => active && payload?.length ? <div className="chart-tooltip"><span>{payload[0].name}</span><strong>{Number(payload[0].value).toLocaleString()} {unit}</strong></div> : null} /></PieChart>
                 </ResponsiveContainer>
-            </Box>
-            <ul style={{ padding: 0, margin: 0, listStyle: 'none', display: 'grid', gap: 10 }}>
-                {data.map((row, index) => <li key={row.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span aria-hidden="true" style={{ width: 9, height: 9, borderRadius: 3, background: COLORS[index % COLORS.length] }} />
-                    <Typography variant="body2" sx={{ flex: 1, textTransform: 'capitalize' }}>{row.name}</Typography>
-                    <Typography variant="body2" fontWeight={600}>{row.value.toLocaleString()} <Box component="span" sx={{ color: 'text.secondary', fontWeight: 400 }}>({Math.round(row.value / total * 100)}%)</Box></Typography>
+                <div className="donut-center"><strong>{total.toLocaleString()}</strong><span>{unit}</span></div>
+            </div>
+            <ul className="distribution-legend">
+                {data.map((row, index) => <li key={row.name}>
+                    <span className="legend-dot" style={{ background: COLORS[index % COLORS.length] }} aria-hidden="true" /><span className="legend-name">{row.name}</span>
+                    <strong>{row.value.toLocaleString()}</strong><span className="legend-percent">{Math.round(row.value / total * 100)}%</span>
+                    <span className="legend-track" aria-hidden="true"><span style={{ width: `${row.value / total * 100}%`, background: COLORS[index % COLORS.length] }} /></span>
                 </li>)}
             </ul>
-        </>}
+        </div>}
+        <div className="panel-footnote"><span className="small-status-dot" />{total === 0 ? 'Waiting for campus records' : `${total.toLocaleString()} ${unit} in this snapshot`}</div>
     </Paper>
 }
+const resources = [
+    { title: 'People directory', description: 'Learners, staff and account access', to: '/students', icon: UsersRound },
+    { title: 'Learning batches', description: 'Groups, schedules and assignments', to: '/batches', icon: Layers3 },
+    { title: 'Courses & curriculum', description: 'Topics and learning programs', to: '/topics', icon: BookOpen },
+    { title: 'Faculty & trainers', description: 'Your campus teaching community', to: '/trainers', icon: GraduationCap },
+    { title: 'Classroom spaces', description: 'Rooms, capacity and availability', to: '/classrooms', icon: DoorOpen },
+    { title: 'Audit trail', description: 'Accountability across campus', to: '/audit-logs', icon: History },
+]
 
 export default function Dashboard() {
     const [data, setData] = useState(null)
@@ -49,52 +58,43 @@ export default function Dashboard() {
         dashboardAPI.getStats().then(response => {
             if (!response?.success || !response.data?.summary) throw new Error('Dashboard statistics are unavailable.')
             if (active) { setData(response.data); setUpdatedAt(new Date()) }
-        }).catch(reason => {
-            if (active) setError(typeof reason === 'string' ? reason : reason.message || 'Unable to load dashboard.')
-        }).finally(() => { if (active) setLoading(false) })
+        }).catch(reason => { if (active) setError(typeof reason === 'string' ? reason : reason.message || 'Unable to load dashboard.') })
+            .finally(() => { if (active) setLoading(false) })
         return () => { active = false }
     }, [revision])
     const summary = data?.summary
     const cards = summary ? [
-        { title: 'Total users', value: summary.totalUsers, icon: People, color: 'primary' },
-        { title: 'Active users', value: summary.activeUsers, icon: CheckCircle, color: 'success' },
-        { title: 'Total batches', value: summary.totalBatches, icon: School, color: 'info' },
-        { title: 'Ongoing batches', value: summary.ongoingBatches, icon: EventAvailable, color: 'warning' },
+        { title: 'Total users', value: summary.totalUsers, icon: UsersRound, color: 'primary', caption: 'Across your campus community' },
+        { title: 'Active users', value: summary.activeUsers, icon: UserRoundCheck, color: 'success', caption: 'Accounts currently enabled' },
+        { title: 'Total batches', value: summary.totalBatches, icon: Layers3, color: 'info', caption: 'Learning groups on campus' },
+        { title: 'Ongoing batches', value: summary.ongoingBatches, icon: CalendarCheck2, color: 'warning', caption: 'Programs currently in progress' },
     ] : []
-    return <Box sx={{ display: 'grid', gap: 3 }}>
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between', flexWrap: 'wrap', alignItems: 'center' }}>
-            <Box><Typography variant="overline" color="primary" fontWeight={700} letterSpacing={2}>CAMPUS OPERATIONS</Typography>
-                <Typography component="h1" variant="h4" fontWeight={750}>Education overview</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>Your people, programs and daily activity, in one place.</Typography>
-            </Box>
-            <Button aria-label="Refresh overview" variant="outlined" startIcon={loading ? <CircularProgress size={16} /> : <Refresh />} disabled={loading} onClick={refresh}>Refresh overview</Button>
-        </Box>
+    return <div className="dashboard-view">
+        <section className="dashboard-heading" aria-label="Campus overview">
+            <div><div className="page-eyebrow"><span />Your campus, at a glance</div><h1>Campus overview<span className="heading-period">.</span></h1><p>A clearer picture of your people, programs and everyday progress.</p></div>
+            <div className="dashboard-heading-actions"><Button aria-label="Refresh overview" variant="outlined" startIcon={loading ? <CircularProgress size={14} /> : <RefreshCw size={15} strokeWidth={1.7} />} disabled={loading} onClick={refresh}>Refresh</Button><Button component={Link} to="/students" variant="contained" endIcon={<ArrowUpRight size={15} />}>Manage people</Button></div>
+        </section>
         {error && <Alert severity="error" action={<Button color="inherit" disabled={loading} onClick={refresh}>Retry</Button>}>{error}{data ? ' Showing the last successful snapshot.' : ''}</Alert>}
-        {loading && !data && <Box role="status" sx={{ py: 8, textAlign: 'center' }}><CircularProgress /><Typography sx={{ mt: 2 }}>Loading campus statistics…</Typography></Box>}
+        {loading && !data && <div className="dashboard-loading" role="status"><CircularProgress size={26} /><p>Gathering your campus overview…</p></div>}
         {summary && <>
-            <Typography variant="caption" color="text.secondary" role="status">Last refreshed {updatedAt?.toLocaleString()} · All campus records</Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', xl: 'repeat(4, 1fr)' }, gap: 2 }}>
-                {cards.map(card => <StatsCard key={card.title} {...card} />)}
-            </Box>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'repeat(2, minmax(0, 1fr))' }, gap: 3 }}>
-                <Distribution title="Campus community" description="User accounts by assigned role, including inactive accounts." rows={data.roleStats} />
-                <Distribution title="Batch lifecycle" description="All batches grouped by their current status." rows={data.batchStats} />
-            </Box>
-            <Paper elevation={0} sx={panel}>
-                <Typography component="h2" variant="h6" fontWeight={700}>Daily pulse</Typography>
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3, mt: 2 }}>
-                    <Box><Typography variant="h4" fontWeight={700}>{summary.todayAttendance?.toLocaleString() ?? '—'}</Typography><Typography fontWeight={600}>Attendance sessions today</Typography><Typography variant="body2" color="text.secondary">Recorded batch sessions, using the server's current day.</Typography></Box>
-                    <Box><Typography variant="h4" fontWeight={700}>{summary.recentUpdates?.toLocaleString() ?? '—'}</Typography><Typography fontWeight={600}>Updates in the last 7 days</Typography><Typography variant="body2" color="text.secondary">Daily updates posted across campus.</Typography></Box>
-                </Box>
+            <div className="section-meta"><h2>Workspace summary</h2><span role="status"><span className="small-status-dot" />Updated {updatedAt?.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</span></div>
+            <div className="metric-grid">{cards.map(card => <StatsCard key={card.title} {...card} />)}</div>
+            <div className="analytics-section-heading"><h2>Understand your campus</h2><span>Current records · All campus</span></div>
+            <div className="analytics-grid">
+                <Distribution title="Campus community" description="The people behind your learning programs" rows={data.roleStats} unit="people" icon={UsersRound} />
+                <Distribution title="Batch lifecycle" description="A view of every stage of learning" rows={data.batchStats} unit="batches" icon={Layers3} />
+            </div>
+            <Paper component="section" className="daily-pulse">
+                <div className="pulse-intro"><span className="pulse-mark"><ClipboardCheck size={21} strokeWidth={1.6} /></span><div><h2>The daily pulse</h2><p>Small details. A more connected campus.</p></div></div>
+                <div className="pulse-stat"><CalendarCheck2 size={17} strokeWidth={1.7} /><div><strong>{summary.todayAttendance?.toLocaleString() ?? '—'}</strong><span>Attendance sessions today</span></div></div>
+                <div className="pulse-stat"><NotebookPen size={17} strokeWidth={1.7} /><div><strong>{summary.recentUpdates?.toLocaleString() ?? '—'}</strong><span>Updates in the last 7 days</span></div></div>
+                <Link to="/attendance/history" className="pulse-link" aria-label="View attendance reports"><ArrowUpRight size={20} strokeWidth={1.7} /></Link>
             </Paper>
         </>}
-        <Paper elevation={0} sx={panel}>
-            <Typography component="h2" variant="h6" fontWeight={700}>Manage your campus</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: .5, mb: 2 }}>Jump into the work behind the numbers.</Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
-                {[['People', '/students'], ['Batches', '/batches'], ['Trainers', '/trainers'], ['Classrooms', '/classrooms'], ['Courses & topics', '/topics'], ['Audit logs', '/audit-logs']].map(([name, to]) => <Button key={to} component={Link} to={to} variant="outlined" endIcon={<ArrowForward />}>{name}</Button>)}
-            </Box>
-            <Chip label="Campus administration" size="small" sx={{ mt: 3 }} />
-        </Paper>
-    </Box>
+        <section className="resource-section">
+            <div className="resource-section-heading"><div><span className="page-eyebrow">MAKE ROOM FOR WHAT MATTERS</span><h2>Your campus, organised.</h2></div><p>The right tools, a little closer.</p></div>
+            <div className="resource-grid">{resources.map(({ title, description, to, icon: Icon }) => <Link to={to} key={to} className="resource-card"><span className="resource-icon"><Icon size={20} strokeWidth={1.65} /></span><div><h3>{title}</h3><p>{description}</p></div><ArrowUpRight className="resource-arrow" size={16} strokeWidth={1.7} /></Link>)}</div>
+        </section>
+        <footer className="dashboard-footer"><span>AttendEase <span> / </span> Designed for the everyday work of education.</span><span>Campus workspace <ArrowRight size={12} /></span></footer>
+    </div>
 }

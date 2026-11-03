@@ -53,6 +53,7 @@ Delivered Phase 2 slice: learner-only public registration; default-password API 
 - [ ] Replace service-health UI only when real telemetry exists.
 
 ### Phase 5 — Premium quality and release
+- [x] Deliver shared typography/color/icon system, redesigned sidebar/workspace shell, overview charts and matching authentication surfaces (2026-11-03; see PREMIUM-UI-DESIGN.md).
 - [ ] Unify navigation, breadcrumbs, tables, forms, confirmation dialogs and empty states.
 - [ ] Verify mobile/tablet layouts, keyboard navigation, contrast and reduced motion across screens.
 - [ ] Establish bundle budgets, lazy routes, error boundaries and monitored API performance.

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { Provider } from "react-redux";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -11,6 +11,8 @@ import { DataProvider } from "./context/DataContext";
 import { ThemeContext } from "./context/ThemeContext";
 import AppInitializer from "./components/AppInitializer";
 import App from "./App.jsx";
+import "@fontsource-variable/dm-sans";
+import { createCampusTheme } from "./theme";
 import "./index.css";
 
 const THEME_STORAGE_KEY = "campus-theme-mode";
@@ -68,53 +70,7 @@ function Root() {
     [themeMode, resolvedMode]
   );
 
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: resolvedMode,
-          primary: {
-            main: "#3b82f6",
-            light: "#60a5fa",
-            dark: "#2563eb",
-          },
-          background:
-            resolvedMode === "dark"
-              ? {
-                  default: "#0f172a",
-                  paper: "#111827",
-                }
-              : {
-                  default: "#f8fafc",
-                  paper: "#ffffff",
-                },
-        },
-        typography: {
-          fontFamily: '"Inter", "system-ui", "sans-serif"',
-        },
-        components: {
-          MuiButton: {
-            styleOverrides: {
-              root: {
-                textTransform: "none",
-                borderRadius: "8px",
-                fontWeight: 500,
-              },
-            },
-          },
-          MuiTextField: {
-            styleOverrides: {
-              root: {
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "8px",
-                },
-              },
-            },
-          },
-        },
-      }),
-    [resolvedMode]
-  );
+  const theme = useMemo(() => createCampusTheme(resolvedMode), [resolvedMode]);
 
   return (
     <Provider store={store}>

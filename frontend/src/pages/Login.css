@@ -1,12 +1,14 @@
-.login-shell { min-height: 100vh; min-height: 100dvh; display: grid; grid-template-columns: minmax(340px, 0.9fr) minmax(0, 1.1fr); background: #f7f8fc; }
-.login-story { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; padding: clamp(28px, 5vw, 72px); color: white; background: linear-gradient(145deg, #162447, #303c87 60%, #5356ac); }
+.login-shell { min-height: 100vh; min-height: 100dvh; display: grid; grid-template-columns: minmax(340px, 0.9fr) minmax(0, 1.1fr); background: var(--campus-bg); }
+.login-story { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; padding: clamp(28px, 5vw, 72px); color: white; background: linear-gradient(145deg, #142c22, #28513b 60%, #47674e); }
 .login-story > :not(.login-orbit) { position: relative; z-index: 1; }
 .login-story-content { max-width: 510px; }
-.login-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #c7d2fe; margin-bottom: 18px; }
+.login-eyebrow { font-size: 10px; font-weight: 550; letter-spacing: .16em; text-transform: uppercase; color: #b8cfb0; margin-bottom: 18px; }
 .login-headline { font-size: clamp(32px, 3.5vw, 54px); line-height: 1.12; letter-spacing: -.04em; font-weight: 700; margin-bottom: 22px; }
-.login-description { color: #d6ddf5; line-height: 1.8; max-width: 390px; margin-bottom: 32px; }
+.login-description { color: #d0ddcf; line-height: 1.8; max-width: 390px; margin-bottom: 32px; }
 .login-main { display: flex; align-items: center; justify-content: center; padding: 32px; min-width: 0; }
 .login-card { animation: login-arrive .65s ease-out both; box-shadow: 0 20px 70px #1624470a !important; }
+.login-shell .lucide { width: 19px; height: 19px; stroke-width: 1.7; }
+.login-shell .login-brand-icon { width: 26px; height: 26px; stroke-width: 1.5; }
 .login-orbit { position: absolute; z-index: 0; border: 1px solid #ffffff16; border-radius: 50%; pointer-events: none; animation: login-drift 16s ease-in-out infinite alternate; }
 .login-orbit-one { width: 650px; height: 650px; right: -400px; top: -230px; background: radial-gradient(circle, #a5b4fc16, transparent 65%); }
 .login-orbit-two { width: 480px; height: 480px; left: -250px; bottom: -240px; animation-delay: -8s; }
