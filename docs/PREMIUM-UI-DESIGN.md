@@ -44,3 +44,5 @@ Font and icon setup follows [Fontsource DM Sans](https://fontsource.org/fonts/dm
 Applied the five hex colors from the user's supplied reference image to the shared theme, CSS tokens, Tailwind scale, charts, auth gradient, favicon and browser theme color. White is retained for light-mode cards; #DBEAFE is used for tinted surfaces and selected navigation. Green remains only for semantic success states, not branding. Added browser assertions for the exact light-mode colors and primary navy dark surfaces.
 
 Palette verification: production build passed using the committed Vite configuration; full browser suite passed with exact color assertions, light/dark persistence and desktop/tablet/mobile checks. Updated screenshots were visually reviewed in both themes. No backend behavior changed.
+
+The /login entry experience was subsequently redesigned with an original animated campus illustration, full-page header/hero/form composition and responsive behavior. See LOGIN-EXPERIENCE-DESIGN.md for scope and verification.
