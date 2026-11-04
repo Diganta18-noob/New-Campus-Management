@@ -2,6 +2,36 @@ const Batch = require('../models/Batch.model');
 const User = require('../models/User.model');
 const Attendance = require('../models/Attendance.model');
 const Classroom = require('../models/Classroom.model');
+const { validateCandidate, allowed: allocationFields } = require('../services/batchAllocation.service');
+
+const validateAllocationConflicts = async (candidate, excludeBatchId) => {
+    const issues = [];
+    for (const [field, code, validate] of [
+        ['trainers', 'TRAINER_CONFLICT', validateTrainers],
+        ['learners', 'LEARNER_CONFLICT', validateLearners],
+        ['classroom', 'CLASSROOM_CONFLICT', validateClassroom],
+    ]) {
+        const selection = candidate[field];
+        if (!selection || (Array.isArray(selection) && !selection.length)) continue;
+        const check = await validate(selection, excludeBatchId, candidate.status || 'PLANNING', candidate.startDate, candidate.endDate);
+        if (!check.valid) issues.push({ code, field, message: check.message });
+    }
+    return issues;
+};
+
+const allocationPreview = async (req, res) => {
+    try {
+        let existing = null;
+        if (req.body.batchId) {
+            if (!require('mongoose').isValidObjectId(req.body.batchId)) return res.status(400).json({ success: false, message: 'Invalid batch ID' });
+            existing = await Batch.findById(req.body.batchId);
+            if (!existing) return res.status(404).json({ success: false, message: 'Batch not found' });
+        }
+        const result = await validateCandidate(req.body, existing);
+        if (!result.issues.length) result.issues.push(...await validateAllocationConflicts(result.candidate, existing?._id));
+        res.json({ success: true, data: { issues: result.issues, capacity: result.capacity } });
+    } catch (error) { res.status(500).json({ success: false, message: 'Allocation preview unavailable' }); }
+};
 
 // @desc    Get all batches
 // @route   GET /api/batches
@@ -382,7 +412,10 @@ const getAvailableClassrooms = async (req, res) => {
 // @access  Private/Admin/Manager
 const createBatch = async (req, res) => {
     try {
-        const { learners, trainers, tas, ...batchData } = req.body;
+        const allocation = await validateCandidate(req.body);
+        if (!allocation.issues.length) allocation.issues.push(...await validateAllocationConflicts(allocation.candidate, null));
+        if (allocation.issues.length) return res.status(400).json({ success: false, message: allocation.issues[0].message, issues: allocation.issues });
+        const { learners, trainers, tas, ...batchData } = Object.fromEntries(Object.entries(req.body).filter(([key]) => allocationFields.includes(key)));
 
         // Set created by
         batchData.createdBy = req.user._id;
@@ -495,7 +528,7 @@ const createBatch = async (req, res) => {
 // @access  Private/Admin/Manager
 const updateBatch = async (req, res) => {
     try {
-        const { learners, trainers, tas, ...updateData } = req.body;
+        const { learners, trainers, tas, ...updateData } = Object.fromEntries(Object.entries(req.body).filter(([key]) => allocationFields.includes(key)));
         const batchId = req.params.id;
 
         const batch = await Batch.findById(batchId);
@@ -506,6 +539,9 @@ const updateBatch = async (req, res) => {
                 message: 'Batch not found'
             });
         }
+        const allocation = await validateCandidate(req.body, batch);
+        if (!allocation.issues.length) allocation.issues.push(...await validateAllocationConflicts(allocation.candidate, batchId));
+        if (allocation.issues.length) return res.status(400).json({ success: false, message: allocation.issues[0].message, issues: allocation.issues });
 
         // Check if user has permission to update this batch
         if (req.user.role === 'MANAGER' && batch.createdBy.toString() !== req.user._id.toString()) {
@@ -589,21 +625,6 @@ const updateBatch = async (req, res) => {
             }
 
 
-            // Update learners arrays
-            if (removedLearners.length > 0) {
-                await User.updateMany(
-                    { _id: { $in: removedLearners } },
-                    { $pull: { assignedBatches: batchId } }
-                );
-            }
-
-            if (addedLearners.length > 0) {
-                await User.updateMany(
-                    { _id: { $in: addedLearners } },
-                    { $addToSet: { assignedBatches: batchId } }
-                );
-            }
-
             updateData.learners = learners;
         }
 
@@ -645,6 +666,15 @@ const updateBatch = async (req, res) => {
             .populate('tas', 'firstName lastName email')
             .populate('createdBy', 'firstName lastName');
 
+        if (learners !== undefined) {
+            const previous = batch.learners.map(value => String(value));
+            const current = learners.map(String);
+            const removed = previous.filter(id => !current.includes(id));
+            const added = current.filter(id => !previous.includes(id));
+            if (removed.length) await User.updateMany({ _id: { $in: removed } }, { $pull: { assignedBatches: batchId } });
+            if (added.length) await User.updateMany({ _id: { $in: added } }, { $addToSet: { assignedBatches: batchId } });
+        }
+
         res.status(200).json({
             success: true,
             data: updatedBatch
@@ -674,6 +704,7 @@ const validateTrainers = async (trainerIds, excludeBatchId, batchStatus, batchSt
             message: 'One or more trainers not found or not active'
         };
     }
+    if (['COMPLETED', 'CANCELLED'].includes(batchStatus)) return { valid: true };
 
     // Find active batches (ONGOING or PLANNING) where these trainers are assigned
     const activeBatchQuery = {
@@ -751,6 +782,7 @@ const validateLearners = async (learnerIds, excludeBatchId, batchStatus, batchSt
             message: 'One or more learners not found or not active'
         };
     }
+    if (['COMPLETED', 'CANCELLED'].includes(batchStatus)) return { valid: true };
 
     // Find active batches (ONGOING or PLANNING) where these learners are assigned
     const activeBatchQuery = {
@@ -820,6 +852,7 @@ const validateClassroom = async (classroomId, excludeBatchId, batchStatus, batch
             message: 'Classroom not found or inactive'
         };
     }
+    if (['COMPLETED', 'CANCELLED'].includes(batchStatus)) return { valid: true };
 
     // Find active batches that use this classroom
     const activeBatchQuery = {
@@ -1064,6 +1097,7 @@ const deleteBatch = async (req, res) => {
 };
 
 module.exports = {
+    allocationPreview,
     getBatches,
     getBatch,
     createBatch,

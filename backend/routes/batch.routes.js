@@ -15,13 +15,14 @@ const {
   getAvailableLearners,
   getAvailableClassrooms
 } = require('../controllers/batch.controller');
+const { allocationPreview } = require('../controllers/batch.controller');
 
 // All routes protected
 router.use(protect);
 
 // Apply audit logging to non-GET routes
 router.use((req, res, next) => {
-  if (req.method !== 'GET') {
+  if (req.method !== 'GET' && req.path !== '/allocation-preview') {
     auditLog(req, res, next);
   } else {
     next();
@@ -29,6 +30,7 @@ router.use((req, res, next) => {
 });
 
 // Routes for getting available trainers and TAs (must be before /:id routes)
+router.post('/allocation-preview', authorize('ADMIN'), allocationPreview);
 router.route('/available-trainers')
   .get(authorize('ADMIN'), getAvailableTrainers);
 

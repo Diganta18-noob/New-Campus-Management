@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Typography,
@@ -59,6 +59,9 @@ const Batches = () => {
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [loadingStaff, setLoadingStaff] = useState(false);
+  const [allocationPreview, setAllocationPreview] = useState(null);
+  const [checkingAllocation, setCheckingAllocation] = useState(false);
+  const allocationVersion = useRef(0);
   const [formData, setFormData] = useState({
     name: "",
     code: "",
@@ -73,6 +76,16 @@ const Batches = () => {
     tas: [],
     learners: [],
   });
+  useEffect(() => { allocationVersion.current++; setAllocationPreview(null); }, [formData]);
+  const checkAllocation = async () => {
+    const version = allocationVersion.current;
+    setCheckingAllocation(true);
+    try {
+      const result = await batchesAPI.previewAllocation({ ...formData, ...(editingId && { batchId: editingId }) });
+      if (allocationVersion.current === version) setAllocationPreview(result.data);
+    } catch (error) { showSnackbar(String(error?.message || error), 'error'); }
+    finally { setCheckingAllocation(false); }
+  };
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -985,7 +998,12 @@ const Batches = () => {
             )}
           </div>
         </DialogContent>
+        {allocationPreview && <Box sx={{ px: 3, pb: 1 }} role="status">
+          {allocationPreview.capacity && <Alert severity="info" sx={{ mb: 1 }}>{allocationPreview.capacity.enrolled} learners / {allocationPreview.capacity.seats} classroom seats</Alert>}
+          {allocationPreview.issues.length ? allocationPreview.issues.map(issue => <Alert severity="warning" key={`${issue.code}-${issue.field}`} sx={{ mb: 1 }}>{issue.field}: {issue.message}</Alert>) : <Alert severity="success">Allocation check passed. Save will check again.</Alert>}
+        </Box>}
         <DialogActions className="p-6 pt-0">
+          <Button onClick={checkAllocation} disabled={checkingAllocation}>{checkingAllocation ? 'Checking…' : 'Check allocation'}</Button>
           <Button onClick={handleClose} className="text-gray-600">
             Cancel
           </Button>

@@ -10,17 +10,21 @@ const auditLog = async (req, res, next) => {
     // Log the audit after response is sent
     setTimeout(async () => {
       try {
-        if (req.user && req.method !== 'GET') {
+        if (req.user && req.method !== 'GET' && res.statusCode < 400) {
+          let responseBody;
+          try { responseBody = typeof data === 'string' ? JSON.parse(data) : data; } catch { responseBody = null; }
+          const entityId = req.params.id || responseBody?.data?._id || req.body._id;
+          if (!entityId) return;
           const auditData = {
             action: getActionFromMethod(req.method),
             entity: getEntityFromPath(req.path),
-            entityId: req.params.id || req.body._id || null,
+            entityId,
             performedBy: req.user._id,
             userRole: req.user.role,
             ipAddress: req.ip || req.connection.remoteAddress,
             userAgent: req.headers['user-agent'],
             oldValues: req.oldValues || null,
-            newValues: req.body,
+            newValues: Object.fromEntries(Object.entries(req.body || {}).filter(([key]) => !/password|token|secret/i.test(key))),
             changes: req.changes || []
           };
 

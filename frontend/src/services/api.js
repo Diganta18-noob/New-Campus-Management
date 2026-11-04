@@ -78,6 +78,7 @@ export const usersAPI = {
 
 // Batches API
 export const batchesAPI = {
+  previewAllocation: (data) => api.post("/batches/allocation-preview", data),
   getAll: (params = {}) => api.get("/batches", { params }),
   getById: (id) => api.get(`/batches/${id}`),
   create: (batchData) => api.post("/batches", batchData),
