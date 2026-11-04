@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./components/layout/MainLayout";
 import {
@@ -5,27 +6,27 @@ import {
   RoleBasedRoute,
 } from "./components/auth/ProtectedRoute";
 import { ErrorBoundary } from "./components/common";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import ResetPassword from "./pages/ResetPassword";
-import Unauthorized from "./pages/Unauthorized";
-import RoleBasedDashboard from "./pages/RoleBasedDashboard";
-import UsersManagement from "./pages/Admin/UsersManagement";
-import Departments from "./pages/Admin/Departments";
-import Batches from "./pages/Admin/Batches";
-import Trainers from "./pages/Admin/Trainers";
-import TAs from "./pages/Admin/TAs";
-import Profile from "./pages/Profile";
-import Classrooms from "./pages/Admin/Classrooms";
-import TopicsManagement from "./pages/Admin/TopicsManagement";
-import AuditLogs from "./pages/Admin/AuditLogs";
-import AttendanceMarking from "./pages/Trainer/AttendanceMarking";
-import AttendanceHistory from "./pages/Reports/AttendanceHistory";
-import Insights from "./pages/Admin/Insights";
-import LearnerAttendance from "./pages/Learner/Attendance";
-import TrainerDailyUpdates from "./pages/Trainer/DailyUpdates";
-import ManagerDailyUpdates from "./pages/Manager/DailyUpdates";
-import LearnerPerformance from "./pages/Learner/Performance";
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Unauthorized = lazy(() => import("./pages/Unauthorized"));
+const RoleBasedDashboard = lazy(() => import("./pages/RoleBasedDashboard"));
+const UsersManagement = lazy(() => import("./pages/Admin/UsersManagement"));
+const Departments = lazy(() => import("./pages/Admin/Departments"));
+const Batches = lazy(() => import("./pages/Admin/Batches"));
+const Trainers = lazy(() => import("./pages/Admin/Trainers"));
+const TAs = lazy(() => import("./pages/Admin/TAs"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Classrooms = lazy(() => import("./pages/Admin/Classrooms"));
+const TopicsManagement = lazy(() => import("./pages/Admin/TopicsManagement"));
+const AuditLogs = lazy(() => import("./pages/Admin/AuditLogs"));
+const AttendanceMarking = lazy(() => import("./pages/Trainer/AttendanceMarking"));
+const AttendanceHistory = lazy(() => import("./pages/Reports/AttendanceHistory"));
+const Insights = lazy(() => import("./pages/Admin/Insights"));
+const LearnerAttendance = lazy(() => import("./pages/Learner/Attendance"));
+const TrainerDailyUpdates = lazy(() => import("./pages/Trainer/DailyUpdates"));
+const ManagerDailyUpdates = lazy(() => import("./pages/Manager/DailyUpdates"));
+const LearnerPerformance = lazy(() => import("./pages/Learner/Performance"));
 
 // Roles that can access the dashboard
 const DASHBOARD_ROLES = [
@@ -40,6 +41,7 @@ const DASHBOARD_ROLES = [
 function App() {
   return (
     <ErrorBoundary>
+      <Suspense fallback={<div role="status" aria-live="polite" style={{ padding: 32 }}>Loading workspace…</div>}>
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
@@ -194,6 +196,7 @@ function App() {
           />
         </Route>
       </Routes>
+      </Suspense>
     </ErrorBoundary>
   );
 }
