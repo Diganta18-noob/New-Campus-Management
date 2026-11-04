@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import * as XLSX from 'xlsx';
 import {
   Typography,
   Button,
@@ -380,6 +379,7 @@ const UsersManagement = () => {
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
+          const XLSX = await import('xlsx');
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
           const sheetName = workbook.SheetNames[0];
@@ -427,7 +427,9 @@ const UsersManagement = () => {
     event.target.value = "";
   };
 
-  const handleDownloadTemplate = () => {
+  const handleDownloadTemplate = async () => {
+    try {
+    const XLSX = await import('xlsx');
     // Create an Excel template with SheetJS
     const templateData = [
       { firstname: 'John', lastname: 'Doe', email: 'john@example.com', rollnumber: 'J001', phone: '1234567890', cohortid: 'BATCH-2025-A' },
@@ -438,6 +440,9 @@ const UsersManagement = () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Users');
     XLSX.writeFile(wb, 'users_bulk_import_template.xlsx');
+    } catch (error) {
+      showSnackbar('Could not download the template. Please try again.', 'error');
+    }
   };
 
   if (loading && !users.length) {
