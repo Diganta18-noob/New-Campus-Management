@@ -117,7 +117,7 @@ const ResetPassword = () => {
                         </p>
                         <div className="mt-4 p-3 bg-white/10 rounded-xl">
                             <p className="text-primary-100 text-xs">
-                                <strong>Your current password:</strong> The default password provided by your administrator (Default@123)
+                                <strong>Your current password:</strong> Use the temporary password provided by your administrator.
                             </p>
                         </div>
                     </div>

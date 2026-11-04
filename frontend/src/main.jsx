@@ -7,7 +7,6 @@ import { Provider } from "react-redux";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { store } from "./store";
 import { queryClient } from "./utils/queryClient";
-import { DataProvider } from "./context/DataContext";
 import { ThemeContext } from "./context/ThemeContext";
 import AppInitializer from "./components/AppInitializer";
 import App from "./App.jsx";
@@ -80,9 +79,7 @@ function Root() {
             <ThemeProvider theme={theme}>
               <CssBaseline />
               <AppInitializer>
-                <DataProvider>
-                  <App />
-                </DataProvider>
+                <App />
               </AppInitializer>
             </ThemeProvider>
           </ThemeContext.Provider>

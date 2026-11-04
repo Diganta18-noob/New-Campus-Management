@@ -69,6 +69,7 @@ export const changePassword = createAsyncThunk(
     async (passwords, { rejectWithValue }) => {
         try {
             const response = await authAPI.changePassword(passwords);
+            if (response.token) localStorage.setItem('token', response.token);
             return response.message;
         } catch (error) {
             return rejectWithValue(error.message || error);

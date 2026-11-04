@@ -3,8 +3,8 @@ const User = require('../models/User.model');
 const { auditLogger } = require('../utils/logger');
 
 // Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = (id, version = 0) => {
+  return jwt.sign({ id, v: version }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE
   });
 };
@@ -44,7 +44,6 @@ const login = async (req, res) => {
 
     // Check password
     const isPasswordMatch = await user.comparePassword(password);
-    console.log(isPasswordMatch);
     if (!isPasswordMatch) {
       await user.incrementLoginAttempts();
 
@@ -72,7 +71,7 @@ const login = async (req, res) => {
     await user.resetLoginAttempts();
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user._id, user.tokenVersion || 0);
 
     // Audit log
     auditLogger.info('User logged in', {
@@ -154,7 +153,7 @@ const register = async (req, res) => {
     });
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user._id, user.tokenVersion || 0);
 
     // Audit log
     auditLogger.info('New user registered', {
@@ -221,6 +220,7 @@ const getMe = async (req, res) => {
 // @access  Private
 const logout = async (req, res) => {
   try {
+    await User.findByIdAndUpdate(req.user._id, { $inc: { tokenVersion: 1 } });
     auditLogger.info('User logged out', {
       userId: req.user._id,
       email: req.user.email
@@ -274,6 +274,7 @@ const changePassword = async (req, res) => {
     // Update password and clear force-reset flag
     user.password = newPassword;
     user.requiresPasswordReset = false;
+    user.tokenVersion = (user.tokenVersion || 0) + 1;
     await user.save();
 
     auditLogger.info('Password changed', {
@@ -283,7 +284,8 @@ const changePassword = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Password changed successfully'
+      message: 'Password changed successfully',
+      token: generateToken(user._id, user.tokenVersion)
     });
   } catch (error) {
     console.error('Change password error:', error);

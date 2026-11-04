@@ -421,6 +421,7 @@ const resetPassword = async (req, res) => {
 
     // Update password
     user.password = newPassword;
+    user.tokenVersion = (user.tokenVersion || 0) + 1;
     await user.save();
 
     res.status(200).json({
