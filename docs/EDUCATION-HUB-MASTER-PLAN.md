@@ -49,7 +49,7 @@ Delivered Phase 2 slice: learner-only public registration; default-password API 
 - [ ] Search, pagination, validated imports, accessible exports and audit trail.
 
 ### Phase 4 — Institutional management
-- [ ] Specify fees, invoices, payments, refunds and reconciliation before adding financial models.
+- [ ] Fees, invoices, payments, refunds and reconciliation are excluded at the user's request (2026-11-05). Do not enable live payment flows.
 - [ ] Add academic calendar, announcements, notification preferences and delivery tracking.
 - [ ] Define institution settings, retention policy, backups and restore checks.
 - [ ] Replace service-health UI only when real telemetry exists.

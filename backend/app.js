@@ -39,6 +39,7 @@ const auditRoutes = require("./routes/audit.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const departmentRoutes = require("./routes/department.routes");
 const classroomRoutes = require("./routes/classroom.routes");
+const topicRoutes = require("./routes/topic.routes");
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
@@ -61,6 +62,7 @@ app.use("/api/audit", auditRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/classrooms", classroomRoutes);
+app.use("/api/topics", topicRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

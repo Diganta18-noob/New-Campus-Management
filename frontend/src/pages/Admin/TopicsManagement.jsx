@@ -39,6 +39,8 @@ import {
 import { useTopics, useBatches, useUsers } from "../../hooks";
 import { useCreateTopic, useUpdateTopic, useDeleteTopic } from "../../hooks";
 import { LoadingSpinner, EmptyState, ConfirmDialog } from "../../components/common";
+import { useAppSelector } from "../../store/hooks";
+import { selectUser } from "../../store/slices/authSlice";
 
 const initialFormData = {
   name: "",
@@ -52,6 +54,7 @@ const initialFormData = {
 };
 
 const TopicsManagement = () => {
+  const canEdit = useAppSelector(selectUser)?.role === 'ADMIN';
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
@@ -158,7 +161,7 @@ const TopicsManagement = () => {
             Manage training topics, courses, and their assignments
           </Typography>
         </div>
-        <Button
+        {canEdit && <Button
           id="btn-create-topic"
           variant="contained"
           startIcon={<AddIcon />}
@@ -173,7 +176,7 @@ const TopicsManagement = () => {
           }}
         >
           Add Topic
-        </Button>
+        </Button>}
       </div>
 
       {/* Search Bar */}
@@ -283,6 +286,7 @@ const TopicsManagement = () => {
                         <Chip label={status} color={statusColor} size="small" />
                       </TableCell>
                       <TableCell align="right">
+                        {canEdit && <>
                         <Tooltip title="Edit">
                           <IconButton size="small" onClick={() => handleOpenEdit(topic)} id={`btn-edit-topic-${topic._id}`}>
                             <EditIcon fontSize="small" />
@@ -298,6 +302,7 @@ const TopicsManagement = () => {
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
+                        </>}
                       </TableCell>
                     </TableRow>
                   );
