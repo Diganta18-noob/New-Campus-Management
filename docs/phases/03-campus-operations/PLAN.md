@@ -53,4 +53,4 @@ Execute each plan inline and verify its full slice before expanding. Do not begi
 Admissions pipeline, fees/payments, gradebooks, notifications, timetable-derived attendance alerts, institution timezone settings and inline attendance corrections remain in the master roadmap. Existing staff-account review and token revocation policy also remain separate Phase 2 release work; fixtures do not certify the production database or existing accounts.
 
 ## Execution entry
-The three slices have local implementations. See [verification results](../../verification/PHASE-3A-UAT.md). Do not mark this phase complete until the isolated MongoDB gate passes.
+The three slices have local implementations. See [verification results](../../verification/PHASE-3A-UAT.md). The isolated MongoDB gate passed on 2026-11-04.

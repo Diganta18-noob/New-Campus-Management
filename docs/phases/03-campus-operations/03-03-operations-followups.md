@@ -1,6 +1,6 @@
 # 03-03 — Actionable batch follow-ups
 
-Wave: 3 | Status: IMPLEMENTED LOCALLY; real MongoDB gate open | Depends on: 03-01 and 03-02
+Wave: 3 | Status: IMPLEMENTED; isolated MongoDB gate passed | Depends on: 03-01 and 03-02
 Read PLAN.md before implementation.
 
 ## Task 1 — Data-backed operations queue

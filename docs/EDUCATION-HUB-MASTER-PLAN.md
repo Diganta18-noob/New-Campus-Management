@@ -40,7 +40,7 @@ These are source findings, not a claim of a complete security or runtime audit. 
 Delivered Phase 2 slice: learner-only public registration; default-password API gate; assignment-scoped trainer/TA dashboards; attendance and daily-update query scope; batch-detail authorization; attendance roster validation and learner privacy; corrected attendance update authorization; safe daily-update authorship/feedback fields; session-state cleanup and consistent user IDs. Real HTTP/JWT tests cover all six roles with database method fixtures. Live database integration is still pending.
 
 ### Phase 3 — Education operations
-- **Current delivery:** [Phase 3A — Attendance & Operations Insights](phases/03-campus-operations/PLAN.md). Reporting, date-filtered insights and batch-setup follow-ups have local implementations. Real MongoDB reconciliation remains an open release gate; see [UAT](verification/PHASE-3A-UAT.md).
+- **Current delivery:** [Phase 3A — Attendance & Operations Insights](phases/03-campus-operations/PLAN.md). Reporting, date-filtered insights and batch-setup follow-ups have local implementations. Isolated MongoDB 8.2 reconciliation passed on 2026-11-04; see [UAT](verification/PHASE-3A-UAT.md).
 - [ ] Admissions/enrollment pipeline, batch capacity, trainer/TA assignments and classroom conflicts.
 - [ ] Attendance trends, low-attendance follow-up and date/batch filters with explicit denominators.
 - [ ] Course/topic progress, assessments, results and learner support cases.

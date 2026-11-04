@@ -1,6 +1,6 @@
 # 03-02 — Attendance insights
 
-Wave: 2 | Status: IMPLEMENTED LOCALLY; real MongoDB gate open | Depends on: 03-01 contract
+Wave: 2 | Status: IMPLEMENTED; isolated MongoDB gate passed | Depends on: 03-01 contract
 Read PLAN.md and 03-01 before implementation.
 
 ## Task 1 — Admin analytics contract

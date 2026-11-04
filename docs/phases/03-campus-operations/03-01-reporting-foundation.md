@@ -1,6 +1,6 @@
 # 03-01 — Reliable attendance reporting
 
-Wave: 1 | Status: IMPLEMENTED LOCALLY; real MongoDB gate open | Depends on: existing auth/scope fixes
+Wave: 1 | Status: IMPLEMENTED; isolated MongoDB gate passed | Depends on: existing auth/scope fixes
 Read PLAN.md first; its constraints apply to every task.
 
 ## Task 1 — Safe application bootstrap and real DB fixture harness
