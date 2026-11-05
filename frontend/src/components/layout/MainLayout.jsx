@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { Box, useMediaQuery } from '@mui/material'
 import { ChevronRight, CalendarDays, UserRound } from 'lucide-react'
@@ -22,7 +22,7 @@ export default function MainLayout() {
                 <nav className="workspace-breadcrumbs" aria-label="Breadcrumb"><Link to="/dashboard">Workspace</Link><ChevronRight size={13} /><span aria-current="page">{title}</span></nav>
                 <div className="workspace-bar-actions"><span className="workspace-date"><CalendarDays size={14} strokeWidth={1.7} />{new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</span><span className="workspace-divider" /><Link to="/profile" aria-label="My profile" className="top-profile-link"><UserRound size={16} strokeWidth={1.7} /></Link></div>
             </header>
-            <main id="main-content" tabIndex={-1} className="workspace-content"><Outlet /></main>
+            <main id="main-content" tabIndex={-1} className="workspace-content"><Suspense key={pathname} fallback={<div role="status" aria-live="polite">Loading {title.toLowerCase()}…</div>}><Outlet /></Suspense></main>
         </Box>
     </Box>
 }

@@ -47,7 +47,7 @@ const DASHBOARD_ROLES = [
 function App() {
   return (
     <ErrorBoundary>
-      <Suspense fallback={<div role="status" aria-live="polite" style={{ padding: 32 }}>Loading workspace�</div>}>
+      <Suspense fallback={<div role="status" aria-live="polite" style={{ padding: 32 }}>Loading workspace…</div>}>
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
