@@ -37,11 +37,11 @@ These are source findings, not a claim of a complete security or runtime audit. 
 - [x] Retire the mounted local sample data provider from production routes.
 - [x] Add isolated MongoDB integration tests and seeded role fixtures.
 
-Delivered Phase 2 slice: learner-only public registration; default-password API gate; assignment-scoped trainer/TA dashboards; attendance and daily-update query scope; batch-detail authorization; attendance roster validation and learner privacy; corrected attendance update authorization; safe daily-update authorship/feedback fields; session-state cleanup and consistent user IDs. Real HTTP/JWT tests cover all six roles with database method fixtures. Live database integration is still pending.
+Delivered Phase 2 slice: learner-only public registration; default-password API gate; assignment-scoped trainer/TA dashboards; attendance and daily-update query scope; batch-detail authorization; attendance roster validation and learner privacy; corrected attendance update authorization; safe daily-update authorship/feedback fields; session-state cleanup and consistent user IDs. Real HTTP/JWT tests cover all six roles; isolated MongoDB integration tests now cover allocation, reports and academic workflows.
 
 ### Phase 3 — Education operations
-- **Delivered:** [Phase 3B — Reliable batch allocation](phases/03b-batch-allocation/PLAN.md): shared validation, classroom capacity and allocation preview. Isolated MongoDB and mobile browser checks passed. Concurrent saves still require a reservation strategy.
-- **Current delivery:** [Phase 3A — Attendance & Operations Insights](phases/03-campus-operations/PLAN.md). Reporting, date-filtered insights and batch-setup follow-ups have local implementations. Isolated MongoDB 8.2 reconciliation passed on 2026-11-04; see [UAT](verification/PHASE-3A-UAT.md).
+- **Delivered:** [Phase 3B — Reliable batch allocation](phases/03b-batch-allocation/PLAN.md): shared validation, classroom capacity and allocation preview. Isolated MongoDB and mobile browser checks passed. Enrollment approval uses a learner lock and conditional capacity update; direct concurrent batch edits still need staging contention checks.
+- **Delivered:** [Phase 3A — Attendance & Operations Insights](phases/03-campus-operations/PLAN.md). Reporting, date-filtered insights and batch-setup follow-ups passed isolated MongoDB 8.2 reconciliation; see [UAT](verification/PHASE-3A-UAT.md).
 - [x] Add learner enrollment requests and admin review, atomic capacity checks and a learner approval lock. Batch allocation preview checks trainer/TA assignments and classroom conflicts.
 - [x] Add attendance trends and low-attendance follow-up below 75% after five eligible entries, with date/batch filters.
 - [x] Add recorded topic progress, assessments/results and learner support cases with role and assignment scope.
@@ -56,8 +56,8 @@ Delivered Phase 2 slice: learner-only public registration; default-password API 
 
 ### Phase 5 — Premium quality and release
 - [x] Deliver shared typography/color/icon system, redesigned sidebar/workspace shell, overview charts and matching authentication surfaces (2026-11-03; see PREMIUM-UI-DESIGN.md).
-- [ ] Unify legacy tables, forms, confirmation dialogs and empty states; the new pages use the shared shell and MUI controls.
-- [ ] Complete keyboard, contrast and reduced-motion review across every legacy screen; new academic pages passed mobile/tablet Chrome smoke checks.
+- [ ] Finish legacy form and empty-state consistency. Shared management tables now have labeled search, action names, contextual empty states and mobile scrolling; destructive actions use a consistent dialog.
+- [ ] Complete keyboard, contrast and reduced-motion review across every legacy screen. New academic pages and five legacy management pages passed mobile Chrome smoke checks; the login page has a reduced-motion check.
 - [x] Enforce bundle budgets, lazy routes, error boundaries and slow API logging.
 - [ ] Run staging acceptance on an actual deployment and restore a production-style backup before release. Local six-role and MongoDB tests pass; production credentials and staging infrastructure are not available in this workspace.
 

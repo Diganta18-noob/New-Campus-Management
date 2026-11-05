@@ -10,10 +10,12 @@ import {
     IconButton,
     TextField,
     InputAdornment,
+    Box,
+    Typography,
 } from '@mui/material'
-import { Search as SearchIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material'
+import { Search as SearchIcon, Edit as EditIcon, Delete as DeleteIcon, InboxOutlined as InboxIcon } from '@mui/icons-material'
 
-const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
+const DataTable = ({ columns, data = [], onEdit, onDelete, searchable = true, searchLabel = 'Search records', emptyMessage = 'No records yet' }) => {
     const [searchQuery, setSearchQuery] = useState('')
 
     // Filter data based on search query
@@ -38,10 +40,10 @@ const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
             }}
         >
             {searchable && (
-                <div className="p-4" style={{ borderBottom: '1px solid var(--divider-color, #e0e0e0)' }}>
+                <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
                     <TextField
                         size="small"
-                        placeholder="Search..."
+                        label={searchLabel}
                         className="w-full max-w-sm"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -53,22 +55,16 @@ const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
                             ),
                         }}
                     />
-                </div>
+                </Box>
             )}
-            <TableContainer>
-                <Table>
+            <TableContainer sx={{ overflowX: 'auto' }}>
+                <Table size="small" sx={{ minWidth: 560 }}>
                     <TableHead>
-                        <TableRow
-                            sx={{
-                                bgcolor: (theme) =>
-                                    theme.palette.mode === 'dark'
-                                        ? 'rgba(30, 41, 59, 0.8)'
-                                        : '#f9fafb',
-                            }}
-                        >
+                        <TableRow sx={{ bgcolor: 'action.hover' }}>
                             {columns.map((column) => (
                                 <TableCell
                                     key={column.field}
+                                    scope="col"
                                     sx={{
                                         fontWeight: 600,
                                         color: 'text.secondary',
@@ -78,7 +74,7 @@ const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
                                 </TableCell>
                             ))}
                             {(onEdit || onDelete) && (
-                                <TableCell sx={{ fontWeight: 600, color: 'text.secondary' }}>Actions</TableCell>
+                                <TableCell scope="col" sx={{ fontWeight: 600, color: 'text.secondary' }}>Actions</TableCell>
                             )}
                         </TableRow>
                     </TableHead>
@@ -87,22 +83,21 @@ const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
                             <TableRow>
                                 <TableCell
                                     colSpan={columns.length + (onEdit || onDelete ? 1 : 0)}
-                                    sx={{ textAlign: 'center', py: 4, color: 'text.disabled' }}
+                                    sx={{ textAlign: 'center', py: 5, color: 'text.secondary' }}
                                 >
-                                    {searchQuery ? 'No results found' : 'No data available'}
+                                    <Box sx={{ display: 'grid', justifyItems: 'center', gap: 1 }}>
+                                        <InboxIcon color="primary" fontSize="large" aria-hidden="true" />
+                                        <Typography fontWeight={650}>{searchQuery ? 'No matching records' : emptyMessage}</Typography>
+                                        <Typography variant="body2" color="text.secondary">{searchQuery ? 'Try another search term.' : 'Records will appear here when available.'}</Typography>
+                                    </Box>
                                 </TableCell>
                             </TableRow>
                         ) : (
                             filteredData.map((row, index) => (
                                 <TableRow
-                                    key={row.id || index}
+                                    key={row._id || row.id || index}
                                     sx={{
-                                        '&:hover': {
-                                            bgcolor: (theme) =>
-                                                theme.palette.mode === 'dark'
-                                                    ? 'rgba(30, 41, 59, 0.5)'
-                                                    : '#f9fafb',
-                                        },
+                                        '&:hover': { bgcolor: 'action.hover' },
                                         transition: 'background-color 0.15s',
                                     }}
                                 >
@@ -117,6 +112,7 @@ const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
                                                 {onEdit && (
                                                     <IconButton
                                                         size="small"
+                                                        aria-label={`Edit ${row.name || row.title || row.firstName || 'record'}`}
                                                         onClick={() => onEdit(row)}
                                                         sx={{ color: 'primary.main' }}
                                                     >
@@ -126,6 +122,7 @@ const DataTable = ({ columns, data, onEdit, onDelete, searchable = true }) => {
                                                 {onDelete && (
                                                     <IconButton
                                                         size="small"
+                                                        aria-label={`Delete ${row.name || row.title || row.firstName || 'record'}`}
                                                         onClick={() => onDelete(row)}
                                                         sx={{ color: 'error.main' }}
                                                     >

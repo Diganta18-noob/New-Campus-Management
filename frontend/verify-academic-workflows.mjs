@@ -30,6 +30,26 @@ try {
   await visit('ADMIN', 320, [['/calendar', 'Campus calendar'], ['/assessments', 'Assessments'], ['/course-progress', 'Course progress'], ['/support', 'Learner support'], ['/enrollments', 'Enrollment'], ['/institution-settings', 'Institution settings']]);
   await visit('LEARNER', 390, [['/calendar', 'Campus calendar'], ['/assessments', 'Assessments'], ['/course-progress', 'Course progress'], ['/support', 'Learner support'], ['/enrollments', 'Enrollment']]);
   await visit('TRAINER', 1024, [['/calendar', 'Campus calendar'], ['/assessments', 'Assessments'], ['/course-progress', 'Course progress'], ['/support', 'Learner support']]);
+  for (const route of ['/departments', '/classrooms', '/batches', '/trainers', '/tas']) {
+    const page = await browser.newPage();
+    page.on('pageerror', error => errors.push(`${route}: ${error.message}`));
+    await page.setViewport({ width: 390, height: 800 });
+    await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+    await page.evaluateOnNewDocument(() => { localStorage.setItem('token', 'ui-test-token'); localStorage.setItem('campus-theme-mode', 'light'); });
+    await page.setRequestInterception(true);
+    page.on('request', request => {
+      if (!request.url().includes('/api/')) return request.continue();
+      const data = request.url().includes('/auth/me') ? { _id: 'ADMIN-fixture', role: 'ADMIN', firstName: 'Test', lastName: 'Admin', email: 'test@example.local', isActive: true, requiresPasswordReset: false } : [];
+      request.respond({ status: 200, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type' }, body: JSON.stringify({ success: true, data, total: 0 }) });
+    });
+    try {
+      await page.goto(`${base}${route}`);
+      await page.waitForSelector('table', { timeout: 5000 });
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${route} overflows at 390px`);
+      assert.equal(await page.evaluate(() => [...document.querySelectorAll('label')].some(label => label.textContent.startsWith('Search ') && label.htmlFor && document.getElementById(label.htmlFor))), true, `${route} search lacks an accessible name`);
+      assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('tbody tr')).transitionDuration === '0s'), true, `${route} ignores reduced motion`);
+    } finally { await page.close(); }
+  }
   assert.deepEqual(errors, []);
-  console.log('PASS: academic pages render without overflow or browser errors for admin, learner and trainer');
+  console.log('PASS: academic and legacy management pages render without overflow or browser errors');
 } finally { await browser.close(); }

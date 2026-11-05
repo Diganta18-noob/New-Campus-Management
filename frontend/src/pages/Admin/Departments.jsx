@@ -257,6 +257,8 @@ const Departments = () => {
                     </ToggleButtonGroup>
                 </div>
                 <DataTable
+                    searchLabel="Search departments"
+                    emptyMessage="No departments to show"
                     columns={columns}
                     data={departments.filter(d => (d.status || 'ACTIVE') === filterStatus)}
                     onEdit={handleEdit}

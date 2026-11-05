@@ -554,6 +554,8 @@ const Batches = () => {
           Batch List
         </Typography>
         <DataTable
+          searchLabel="Search batches"
+          emptyMessage="No batches to show"
           columns={columns}
           data={focusedId ? batches.filter(batch => batch._id === focusedId) : batches}
           onEdit={handleEdit}

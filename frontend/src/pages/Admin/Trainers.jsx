@@ -231,6 +231,8 @@ const Trainers = () => {
 
             <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
                 <DataTable
+                    searchLabel="Search trainers"
+                    emptyMessage="No trainers to show"
                     columns={columns}
                     data={trainers}
                     loading={loading}

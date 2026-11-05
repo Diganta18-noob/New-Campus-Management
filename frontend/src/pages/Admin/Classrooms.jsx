@@ -245,6 +245,8 @@ const Classrooms = () => {
 
             <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
                 <DataTable
+                    searchLabel="Search classrooms"
+                    emptyMessage="No classrooms to show"
                     columns={columns}
                     data={classrooms}
                     onEdit={handleEdit}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Typography,
   Button,
@@ -53,7 +53,6 @@ const UsersManagement = () => {
   });
   const [totalUsers, setTotalUsers] = useState(0);
   const [temporaryCredentials, setTemporaryCredentials] = useState([]);
-  const fileInputRef = useRef(null);
   const [cohortOptions, setCohortOptions] = useState([]);
 
   // Filter states
@@ -452,25 +451,10 @@ const UsersManagement = () => {
           </Typography>
         </Alert>
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".csv"
-          onChange={handleFileUpload}
-          className="hidden"
-        />
-        <div
-          className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-primary-300 transition-colors cursor-pointer"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <UploadIcon className="text-gray-400 text-5xl mb-3" />
-          <Typography variant="body1" className="text-gray-600 mb-1">
-            Select your CSV file here
-          </Typography>
-          <Typography variant="body2" className="text-gray-400">
-            or click to browse
-          </Typography>
-        </div>
+        <Button component="label" variant="outlined" startIcon={<UploadIcon />} fullWidth sx={{ minHeight: 96, borderStyle: 'dashed' }}>
+          Select learner CSV file
+          <input type="file" accept=".csv,text/csv" onChange={handleFileUpload} hidden />
+        </Button>
       </Paper>
 
       {/* Users Directory with Filters */}
