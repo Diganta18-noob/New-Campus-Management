@@ -1,4 +1,5 @@
-import { Typography, Paper, Avatar, Grid, Divider } from '@mui/material'
+import { useEffect, useState } from 'react'
+import { Typography, Paper, Avatar, Grid, Divider, Alert, Button, FormControlLabel, Switch, Stack } from '@mui/material'
 import {
     Person as PersonIcon,
     Email as EmailIcon,
@@ -8,9 +9,14 @@ import {
 } from '@mui/icons-material'
 import { useAppSelector } from '../store/hooks'
 import { selectUser } from '../store/slices/authSlice'
+import { api } from '../services/api'
 
 const Profile = () => {
     const user = useAppSelector(selectUser)
+    const [preferences, setPreferences] = useState({ announcements: true, calendar: true })
+    const [message, setMessage] = useState('')
+    useEffect(() => { api.get('/settings/me').then(result => setPreferences(result.data)).catch(e => setMessage(String(e))) }, [])
+    const savePreferences = async () => { try { await api.put('/settings/me', preferences); setMessage('Preferences saved.'); } catch (e) { setMessage(String(e)); } }
 
     if (!user) {
         return <Typography>Loading profile...</Typography>
@@ -120,6 +126,7 @@ const Profile = () => {
                     </Paper>
                 </Grid>
             </Grid>
+            <Paper variant="outlined" sx={{ p: 3, mt: 3 }}><Typography variant="h6" fontWeight={700}>In-app notification preferences</Typography><Typography color="text.secondary" sx={{ mb: 2 }}>Choose which campus updates appear as notifications. Calendar and notice pages remain available.</Typography>{message && <Alert severity={message.startsWith('Preferences saved') ? 'success' : 'error'} sx={{ mb: 2 }}>{message}</Alert>}<Stack><FormControlLabel control={<Switch checked={preferences.announcements} onChange={e => setPreferences({ ...preferences, announcements: e.target.checked })} />} label="Announcements" /><FormControlLabel control={<Switch checked={preferences.calendar} onChange={e => setPreferences({ ...preferences, calendar: e.target.checked })} />} label="Calendar events" /></Stack><Button variant="contained" onClick={savePreferences}>Save preferences</Button></Paper>
         </div>
     )
 }

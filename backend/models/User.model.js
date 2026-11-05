@@ -7,13 +7,16 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Email is required'],
     unique: true,
     lowercase: true,
-    trim: true
+    trim: true,
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Valid email is required'],
+    maxlength: 254
   },
   username: {
     type: String,
     required: [true, 'Username is required'],
     unique: true,
-    trim: true
+    trim: true,
+    maxlength: 80
   },
   password: {
     type: String,
@@ -68,6 +71,12 @@ const userSchema = new mongoose.Schema({
     default: false
   },
   tokenVersion: { type: Number, default: 0 },
+  enrollmentLockUntil: { type: Date, select: false },
+  enrollmentLockToken: { type: String, select: false },
+  notificationPreferences: {
+    announcements: { type: Boolean, default: true },
+    calendar: { type: Boolean, default: true }
+  },
   lastLogin: {
     type: Date
   },
@@ -88,7 +97,7 @@ userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
   try {
-    const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_SALT_ROUNDS));
+    const salt = await bcrypt.genSalt(Number.parseInt(process.env.BCRYPT_SALT_ROUNDS, 10) || 12);
     this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (error) {

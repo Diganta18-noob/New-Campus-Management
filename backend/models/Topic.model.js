@@ -9,6 +9,9 @@ const topicSchema = new mongoose.Schema({
   trainers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   tas: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   classroom: { type: mongoose.Schema.Types.ObjectId, ref: 'Classroom' },
+  progressPercent: { type: Number, min: 0, max: 100, default: 0 },
+  progressNote: { type: String, trim: true, maxlength: 1000, default: '' },
+  completedAt: { type: Date },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 }, { timestamps: true });
 

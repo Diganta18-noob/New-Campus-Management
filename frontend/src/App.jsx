@@ -27,6 +27,12 @@ const LearnerAttendance = lazy(() => import("./pages/Learner/Attendance"));
 const TrainerDailyUpdates = lazy(() => import("./pages/Trainer/DailyUpdates"));
 const ManagerDailyUpdates = lazy(() => import("./pages/Manager/DailyUpdates"));
 const LearnerPerformance = lazy(() => import("./pages/Learner/Performance"));
+const CampusCalendar = lazy(() => import("./pages/CampusCalendar"));
+const Assessments = lazy(() => import("./pages/Assessments"));
+const SupportCases = lazy(() => import("./pages/SupportCases"));
+const Enrollments = lazy(() => import("./pages/Enrollments"));
+const InstitutionSettings = lazy(() => import("./pages/InstitutionSettings"));
+const CourseProgress = lazy(() => import("./pages/CourseProgress"));
 
 // Roles that can access the dashboard
 const DASHBOARD_ROLES = [
@@ -41,7 +47,7 @@ const DASHBOARD_ROLES = [
 function App() {
   return (
     <ErrorBoundary>
-      <Suspense fallback={<div role="status" aria-live="polite" style={{ padding: 32 }}>Loading workspace…</div>}>
+      <Suspense fallback={<div role="status" aria-live="polite" style={{ padding: 32 }}>Loading workspaceï¿½</div>}>
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
@@ -112,6 +118,12 @@ function App() {
             }
           />
           <Route path="profile" element={<Profile />} />
+          <Route path="calendar" element={<CampusCalendar />} />
+          <Route path="assessments" element={<Assessments />} />
+          <Route path="support" element={<SupportCases />} />
+          <Route path="enrollments" element={<RoleBasedRoute allowedRoles={["ADMIN", "LEARNER"]}><Enrollments /></RoleBasedRoute>} />
+          <Route path="institution-settings" element={<RoleBasedRoute allowedRoles={["ADMIN"]}><InstitutionSettings /></RoleBasedRoute>} />
+          <Route path="course-progress" element={<CourseProgress />} />
 
           {/* Topics/Courses Routes */}
           <Route

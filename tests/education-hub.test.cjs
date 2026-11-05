@@ -30,9 +30,9 @@ test('admin attendance includes midday sessions and excludes next midnight', asy
     assert.equal(body.data.summary.todayAttendance, 2);
     const { $gte: start, $lt: end } = attendanceFilter.date;
     assert.ok(start instanceof Date && end instanceof Date);
-    assert.equal(start.getHours(), 0);
-    assert.equal(end.getDate(), new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1).getDate());
-    const midday = new Date(start); midday.setHours(12);
+    assert.equal(start.getUTCHours(), 0);
+    assert.equal(end.getUTCDate(), new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate() + 1)).getUTCDate());
+    const midday = new Date(start); midday.setUTCHours(12);
     assert.ok(midday >= start && midday < end);
     assert.ok(!(end < end));
 });

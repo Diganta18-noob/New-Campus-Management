@@ -32,6 +32,7 @@ import {
   Person as PersonIcon,
 } from "@mui/icons-material";
 import DataTable from "../../components/ui/DataTable";
+import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { batchesAPI, departmentsAPI } from "../../services/api";
 
 const ITEM_HEIGHT = 48;
@@ -58,6 +59,7 @@ const Batches = () => {
   const [openModal, setOpenModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [batchToCancel, setBatchToCancel] = useState(null);
   const [loadingStaff, setLoadingStaff] = useState(false);
   const [allocationPreview, setAllocationPreview] = useState(null);
   const [checkingAllocation, setCheckingAllocation] = useState(false);
@@ -480,12 +482,13 @@ const Batches = () => {
     }
   };
 
-  const handleDelete = async (row) => {
-    if (
-      window.confirm(`Are you sure you want to cancel the batch "${row.name}"?`)
-    ) {
+  const handleDelete = (row) => setBatchToCancel(row);
+  const confirmCancel = async () => {
+    const row = batchToCancel;
+    if (row) {
       try {
         await batchesAPI.delete(row._id || row.id);
+        setBatchToCancel(null);
         showSnackbar("Batch cancelled successfully");
         fetchData(); // Refresh the list
       } catch (error) {
@@ -1031,6 +1034,7 @@ const Batches = () => {
         </DialogActions>
       </Dialog>
 
+      <ConfirmDialog open={Boolean(batchToCancel)} title="Cancel batch" message={`Cancel the batch "${batchToCancel?.name || ''}"?`} confirmLabel="Cancel batch" isDangerous onCancel={() => setBatchToCancel(null)} onConfirm={confirmCancel} />
       {/* Snackbar for notifications */}
       <Snackbar
         open={snackbar.open}

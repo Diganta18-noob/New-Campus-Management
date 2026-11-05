@@ -24,6 +24,8 @@ dist-ssr
 *.sw?
 .env
 package-lock.json
+!backend/package-lock.json
+!frontend/package-lock.json
 
 # GSD and Agent related files
 .agent/

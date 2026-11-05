@@ -1,11 +1,13 @@
 const AuditLog = require('../models/AuditLog.model');
+const { pagination } = require('../utils/listQuery');
 
 // @desc    Get audit logs
 // @route   GET /api/audit
 // @access  Private/Admin
 const getAuditLogs = async (req, res) => {
   try {
-    const { entity, entityId, action, performedBy, startDate, endDate, page = 1, limit = 50 } = req.query;
+    const { entity, entityId, action, performedBy, startDate, endDate } = req.query;
+    const { page, limit } = pagination(req.query, 50);
     
     const query = {};
     
@@ -25,7 +27,7 @@ const getAuditLogs = async (req, res) => {
     const logs = await AuditLog.find(query)
       .populate('performedBy', 'firstName lastName email role')
       .skip(skip)
-      .limit(parseInt(limit))
+      .limit(limit)
       .sort({ timestamp: -1 });
 
     const total = await AuditLog.countDocuments(query);

@@ -1,0 +1,10 @@
+const router = require('express').Router();
+const { protect, authorize } = require('../middleware/auth.middleware');
+const { auditLog } = require('../middleware/audit.middleware');
+const settings = require('../controllers/settings.controller');
+router.use(protect);
+router.get('/me', settings.getMine);
+router.put('/me', settings.updateMine);
+router.get('/', authorize('ADMIN'), settings.get);
+router.put('/', authorize('ADMIN'), auditLog, settings.update);
+module.exports = router;

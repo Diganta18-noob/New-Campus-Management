@@ -1,0 +1,38 @@
+name: Quality checks
+on:
+  push:
+  pull_request:
+
+jobs:
+  api-and-ui:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:8
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ping:1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      TEST_MONGODB_URI: mongodb://127.0.0.1:27017/campus_test
+      PUPPETEER_SKIP_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - run: npm ci
+        working-directory: backend
+      - run: npm ci
+        working-directory: frontend
+      - run: node --test tests/*.test.cjs
+      - run: node --test tests/integration/*.test.cjs
+      - run: npm run build:check
+        working-directory: frontend

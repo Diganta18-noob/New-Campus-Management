@@ -1,13 +1,18 @@
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Avatar, Box, ButtonBase, Divider, IconButton, ListItemIcon, Menu, MenuItem, Tooltip, Typography } from '@mui/material'
-import { BookOpen, LayoutDashboard, Landmark, DoorOpen, Layers3, UsersRound, GraduationCap, ContactRound, CalendarCheck2, NotebookPen, ChartNoAxesCombined, History, Sun, Moon, Monitor, PanelLeftClose, PanelLeftOpen, ChevronsUpDown, LogOut, UserRound } from 'lucide-react'
+import { BookOpen, LayoutDashboard, Landmark, DoorOpen, Layers3, UsersRound, GraduationCap, ContactRound, CalendarCheck2, CalendarDays, NotebookPen, ChartNoAxesCombined, History, Settings2, Sun, Moon, Monitor, PanelLeftClose, PanelLeftOpen, ChevronsUpDown, LogOut, UserRound } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { selectUser, logout } from '../../store/slices/authSlice'
 import { useThemeMode } from '../../context/ThemeContext'
 
 const links = [
     { path: '/dashboard', label: 'Overview', icon: LayoutDashboard, group: 'Workspace' },
+    { path: '/calendar', label: 'Calendar & notices', icon: CalendarDays, group: 'Workspace' },
+    { path: '/assessments', label: 'Assessments', icon: GraduationCap, group: 'Academics' },
+    { path: '/course-progress', label: 'Course progress', icon: BookOpen, group: 'Academics' },
+    { path: '/support', label: 'Learner support', icon: ContactRound, group: 'Workspace' },
+    { path: '/enrollments', label: 'Enrollment', icon: UsersRound, group: 'People', roles: ['ADMIN', 'LEARNER'] },
     { path: '/departments', label: 'Departments', icon: Landmark, group: 'Academics', roles: ['ADMIN', 'MANAGER'] },
     { path: '/batches', label: 'Batches', icon: Layers3, group: 'Academics', roles: ['ADMIN', 'MANAGER'] },
     { path: '/topics', label: 'Courses & topics', icon: BookOpen, group: 'Academics', roles: ['ADMIN', 'MANAGER'] },
@@ -23,6 +28,7 @@ const links = [
     { path: '/my-attendance', label: 'My attendance', icon: CalendarCheck2, group: 'Workspace', roles: ['LEARNER'] },
     { path: '/performance', label: 'My performance', icon: ChartNoAxesCombined, group: 'Insights', roles: ['LEARNER'] },
     { path: '/audit-logs', label: 'Audit trail', icon: History, group: 'Insights', roles: ['ADMIN'] },
+    { path: '/institution-settings', label: 'Institution settings', icon: Settings2, group: 'Workspace', roles: ['ADMIN'] },
 ]
 const groups = ['Workspace', 'Academics', 'People', 'Insights']
 

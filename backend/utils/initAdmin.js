@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 const logger = require('./logger');
 
@@ -9,14 +8,13 @@ const User = require('../models/User.model');
 
 const createAdminUser = async () => {
     try {
-        // Connect to MongoDB
-        await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        if (!process.env.MONGODB_URI || !process.env.INITIAL_ADMIN_EMAIL || !process.env.INITIAL_ADMIN_PASSWORD || process.env.INITIAL_ADMIN_PASSWORD.length < 16) {
+            throw new Error('Set MONGODB_URI, INITIAL_ADMIN_EMAIL and a unique INITIAL_ADMIN_PASSWORD of at least 16 characters');
+        }
+        await mongoose.connect(process.env.MONGODB_URI);
 
         // Check if admin already exists
-        const adminExists = await User.findOne({ email: 'admin@system.com' });
+        const adminExists = await User.findOne({ role: 'ADMIN' });
 
         if (adminExists) {
             logger.info('Admin user already exists');
@@ -25,46 +23,21 @@ const createAdminUser = async () => {
 
         // Create admin user
         const adminData = {
-            email: 'admin@system.com',
+            email: process.env.INITIAL_ADMIN_EMAIL,
             username: 'systemadmin',
-            password: 'Admin@123', // Default password - should be changed on first login
+            password: process.env.INITIAL_ADMIN_PASSWORD,
             firstName: 'System',
             lastName: 'Administrator',
-            phone: '+1234567890',
             role: 'ADMIN',
-            isActive: true
+            isActive: true,
+            requiresPasswordReset: true
         };
-
-        // Hash password
-        const salt = await bcrypt.genSalt(10);
-        adminData.password = await bcrypt.hash(adminData.password, salt);
 
         const admin = new User(adminData);
         await admin.save();
 
         logger.info(`Admin user created successfully`);
-        logger.info('Admin credentials:');
-        logger.info(`Email: ${admin.email}`);
-        logger.info(`Username: ${admin.username}`);
-        logger.info(`Password: Admin@123 (Change this immediately!)`);
-
-        // Create default manager user as well
-        const managerData = {
-            email: 'manager@system.com',
-            username: 'manager',
-            password: 'Manager@123',
-            firstName: 'System',
-            lastName: 'Manager',
-            phone: '+1234567891',
-            role: 'MANAGER',
-            isActive: true
-        };
-
-        managerData.password = await bcrypt.hash(managerData.password, salt);
-        const manager = new User(managerData);
-        await manager.save();
-
-        logger.info('Manager user created successfully');
+        logger.info('Initial administrator created. Share the password securely and rotate the setup environment variable.');
 
         process.exit(0);
     } catch (error) {

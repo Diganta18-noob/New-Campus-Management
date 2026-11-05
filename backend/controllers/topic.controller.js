@@ -4,6 +4,11 @@ const Batch = require('../models/Batch.model');
 
 const bad = (message, status = 400) => { const error = new Error(message); error.status = status; throw error; };
 const fields = ['name', 'description', 'batch', 'startDate', 'endDate', 'trainers', 'tas', 'classroom'];
+async function scope(user) {
+  if (['ADMIN', 'TEAM_LEADER'].includes(user.role)) return null;
+  const field = { MANAGER: 'createdBy', TRAINER: 'trainers', TA: 'tas', LEARNER: 'learners' }[user.role];
+  return Batch.find({ [field]: user._id }).distinct('_id');
+}
 const validIds = values => Array.isArray(values) && values.every(mongoose.isValidObjectId) && new Set(values.map(String)).size === values.length;
 
 async function validate(data) {
@@ -29,12 +34,15 @@ const list = async (req, res, next) => { try {
   const search = String(req.query.search || '').trim().slice(0, 100);
   const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const filter = search ? { name: { $regex: escaped, $options: 'i' } } : {};
+  const visible = await scope(req.user);
+  if (visible) filter.batch = { $in: visible };
   const [data, total] = await Promise.all([populate(Topic.find(filter).sort({ startDate: -1, _id: -1 }).skip((page - 1) * limit).limit(limit)).lean(), Topic.countDocuments(filter)]);
   res.json({ success: true, data, total, page, limit });
 } catch (error) { next(error); } };
 const get = async (req, res, next) => { try {
   if (!mongoose.isValidObjectId(req.params.id)) bad('Invalid topic ID');
-  const data = await populate(Topic.findById(req.params.id)).lean();
+  const visible = await scope(req.user);
+  const data = await populate(Topic.findOne({ _id: req.params.id, ...(visible ? { batch: { $in: visible } } : {}) })).lean();
   if (!data) bad('Topic not found', 404);
   res.json({ success: true, data });
 } catch (error) { next(error); } };
@@ -56,4 +64,21 @@ const remove = async (req, res, next) => { try {
   res.json({ success: true });
 } catch (error) { next(error); } };
 
-module.exports = { list, get, save, remove };
+const updateProgress = async (req, res, next) => { try {
+  if (!mongoose.isValidObjectId(req.params.id)) bad('Invalid topic ID');
+  const percent = Number(req.body.progressPercent);
+  if (!Number.isInteger(percent) || percent < 0 || percent > 100 || typeof req.body.progressNote !== 'string' || req.body.progressNote.length > 1000) bad('Progress must be 0–100 with a note');
+  const topic = await Topic.findById(req.params.id);
+  if (!topic) bad('Topic not found', 404);
+  if (req.user.role !== 'ADMIN') {
+    const assigned = await Batch.exists({ _id: topic.batch, [req.user.role === 'TA' ? 'tas' : 'trainers']: req.user._id });
+    if (!assigned) bad('Access denied to this topic', 403);
+  }
+  topic.progressPercent = percent;
+  topic.progressNote = req.body.progressNote.trim();
+  topic.completedAt = percent === 100 ? (topic.completedAt || new Date()) : null;
+  await topic.save();
+  res.json({ success: true, data: topic });
+} catch (error) { next(error); } };
+
+module.exports = { list, get, save, remove, updateProgress };

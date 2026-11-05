@@ -7,6 +7,7 @@ const root = path.resolve(__dirname, '..');
 function load(file, dependencies) {
     const context = { require: name => {
         if (name.includes('batchAllocation.service')) return { allowed: ['learners','trainers','tas','name','code','startDate','endDate','status','classroom'], validateCandidate: async input => ({ candidate: input, issues: [], capacity: null }) };
+        if (name.includes('listQuery')) return require('../backend/utils/listQuery');
         for (const [key, value] of Object.entries(dependencies)) if (name.includes(key)) return value;
         throw new Error(`Unexpected dependency: ${name}`);
     }, module: { exports: {} }, console, Date, process: { env: {} } };

@@ -93,7 +93,10 @@ const createDailyUpdate = async (req, res) => {
 // @access  Private
 const getDailyUpdates = async (req, res) => {
     try {
-        const { batch, startDate, endDate, search, page = 1, limit = 20 } = req.query;
+        const { batch, startDate, endDate } = req.query;
+        const { pagination, literalSearch } = require('../utils/listQuery');
+        const { page, limit } = pagination(req.query);
+        const search = literalSearch(req.query.search);
 
         const query = { status: 'PUBLISHED' };
 
@@ -128,7 +131,7 @@ const getDailyUpdates = async (req, res) => {
             .populate('postedBy', 'firstName lastName email')
             .populate('feedback.givenBy', 'firstName lastName email')
             .skip(skip)
-            .limit(parseInt(limit))
+            .limit(limit)
             .sort({ date: -1, createdAt: -1 });
 
         const total = await DailyUpdate.countDocuments(query);

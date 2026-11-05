@@ -24,6 +24,14 @@ const limiter = rateLimit({
   max: 100,
 });
 app.use("/api/", limiter);
+app.use('/api/', (req, res, next) => {
+  const start = process.hrtime.bigint();
+  res.on('finish', () => {
+    const durationMs = Number(process.hrtime.bigint() - start) / 1e6;
+    if (durationMs >= 1000) logger.warn('Slow API request', { method: req.method, path: req.path, status: res.statusCode, durationMs: Math.round(durationMs) });
+  });
+  next();
+});
 
 // Body parsing middleware
 app.use(express.json({ limit: "10mb" }));
@@ -40,6 +48,11 @@ const dashboardRoutes = require("./routes/dashboard.routes");
 const departmentRoutes = require("./routes/department.routes");
 const classroomRoutes = require("./routes/classroom.routes");
 const topicRoutes = require("./routes/topic.routes");
+const campusPostRoutes = require("./routes/campusPost.routes");
+const assessmentRoutes = require("./routes/assessment.routes");
+const supportCaseRoutes = require("./routes/supportCase.routes");
+const enrollmentRoutes = require("./routes/enrollment.routes");
+const settingsRoutes = require("./routes/settings.routes");
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
@@ -63,6 +76,11 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/classrooms", classroomRoutes);
 app.use("/api/topics", topicRoutes);
+app.use("/api/campus-posts", campusPostRoutes);
+app.use("/api/assessments", assessmentRoutes);
+app.use("/api/support-cases", supportCaseRoutes);
+app.use("/api/enrollments", enrollmentRoutes);
+app.use("/api/settings", settingsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -73,9 +91,10 @@ app.use((err, req, res, next) => {
     method: req.method,
   });
 
-  res.status(err.status || 500).json({
+  const status = err.status || (err.code === 11000 ? 409 : ['ValidationError', 'CastError'].includes(err.name) ? 400 : 500);
+  res.status(status).json({
     success: false,
-    message: err.message || "Internal Server Error",
+    message: status >= 500 ? "Internal Server Error" : (err.message || "Request failed"),
     ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
   });
 });

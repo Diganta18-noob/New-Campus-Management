@@ -16,32 +16,25 @@ const connectDB = async () => {
     logger.info("MongoDB connected successfully");
 
     // Create indexes
-    await mongoose.model("Attendance").ensureIndexes();
-    await mongoose.model("DailyUpdate").ensureIndexes();
-    await mongoose.model("User").ensureIndexes();
+    for (const name of ['Attendance', 'DailyUpdate', 'User', 'Topic', 'CampusPost', 'Assessment', 'AssessmentResult', 'SupportCase', 'EnrollmentRequest']) {
+      await mongoose.model(name).createIndexes();
+    }
   } catch (error) {
     logger.error("MongoDB connection error:", error);
     process.exit(1);
   }
 };
 
-connectDB();
-
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
-  logger.info(
-    `🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`,
-  );
+let server;
+connectDB().then(() => {
+  server = app.listen(PORT, () => logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`));
 });
 
 // Graceful shutdown
-process.on("SIGTERM", () => {
+process.on("SIGTERM", async () => {
   logger.info("SIGTERM signal received: closing HTTP server");
-  server.close(() => {
-    logger.info("HTTP server closed");
-    mongoose.connection.close(false, () => {
-      logger.info("MongoDB connection closed");
-      process.exit(0);
-    });
-  });
+  if (server) await new Promise(resolve => server.close(resolve));
+  await mongoose.disconnect();
+  process.exit(0);
 });

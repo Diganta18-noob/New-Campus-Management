@@ -33,6 +33,8 @@ import {
 } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
 import { usersAPI, departmentsAPI } from "../../services/api";
+import { parseCsv } from "../../utils/csvImport";
+import ConfirmDialog from "../../components/common/ConfirmDialog";
 
 const ROLES = ["ADMIN", "MANAGER", "TEAM_LEADER", "TRAINER", "TA", "LEARNER"];
 
@@ -43,11 +45,14 @@ const UsersManagement = () => {
   const [openModal, setOpenModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [userToDeactivate, setUserToDeactivate] = useState(null);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   });
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [temporaryCredentials, setTemporaryCredentials] = useState([]);
   const fileInputRef = useRef(null);
   const [cohortOptions, setCohortOptions] = useState([]);
 
@@ -157,15 +162,13 @@ const UsersManagement = () => {
     },
   ];
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { const timer = setTimeout(fetchData, 250); return () => clearTimeout(timer); }, [selectedRole, searchText, paginationModel.page, paginationModel.pageSize]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       const [usersRes, deptsRes] = await Promise.all([
-        usersAPI.getAll({ limit: 1000 }),
+        usersAPI.getAll({ page: paginationModel.page + 1, limit: paginationModel.pageSize, ...(selectedRole !== 'ALL' && { role: selectedRole }), search: searchText }),
         departmentsAPI.getAll(),
       ]);
 
@@ -175,6 +178,7 @@ const UsersManagement = () => {
       }));
 
       setUsers(allUsers);
+      setTotalUsers(usersRes.total || 0);
       setDepartments(deptsRes.data || []);
 
       // Extract unique cohorts
@@ -194,22 +198,12 @@ const UsersManagement = () => {
   };
 
   // Filter users based on role and search text
-  const getFilteredUsers = () => {
-    return users.filter((user) => {
-      const roleMatch = selectedRole === "ALL" || user.role === selectedRole;
-
-      const searchLower = searchText.toLowerCase();
-      const searchMatch =
-        !searchText ||
-        `${user.firstName} ${user.lastName}`
-          .toLowerCase()
-          .includes(searchLower) ||
-        user.email.toLowerCase().includes(searchLower) ||
-        (user.cohortId && user.cohortId.toLowerCase().includes(searchLower)) ||
-        (user.username && user.username.toLowerCase().includes(searchLower));
-
-      return roleMatch && searchMatch;
-    });
+  const downloadCredentials = credentials => {
+    const cell = value => `"${String(value || '').replace(/^[=+@\-]/, "'$&").replaceAll('"', '""')}\"`;
+    const csv = ['email,temporaryPassword', ...credentials.map(row => `${cell(row.email)},${cell(row.temporaryPassword)}`)].join('\r\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const link = document.createElement('a'); link.href = url; link.download = 'temporary-credentials.csv'; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const showSnackbar = (message, severity = "success") => {
@@ -274,7 +268,8 @@ const UsersManagement = () => {
         await usersAPI.update(editingId, formData);
         showSnackbar("User updated successfully");
       } else {
-        await usersAPI.create(formData);
+        const result = await usersAPI.create(formData);
+        if (result.temporaryPassword) setTemporaryCredentials([{ email: formData.email, temporaryPassword: result.temporaryPassword }]);
         showSnackbar("User created successfully");
       }
       handleClose();
@@ -287,14 +282,13 @@ const UsersManagement = () => {
     }
   };
 
-  const handleDelete = async (row) => {
-    if (
-      window.confirm(
-        `Are you sure you want to deactivate "${row.firstName} ${row.lastName}"?`,
-      )
-    ) {
+  const handleDelete = (row) => setUserToDeactivate(row);
+  const confirmDeactivate = async () => {
+    const row = userToDeactivate;
+    if (row) {
       try {
         await usersAPI.updateStatus(row._id || row.id, false);
+        setUserToDeactivate(null);
         showSnackbar("User deactivated successfully");
         fetchData();
       } catch (error) {
@@ -303,21 +297,18 @@ const UsersManagement = () => {
     }
   };
 
-  // Parse rows (from CSV lines or Excel JSON) into user objects
+  // Validate CSV rows before sending them to the server.
   const parseRows = (headers, rows) => {
     const usersToImport = [];
     const uniqueCohorts = new Set();
 
-    for (const row of rows) {
-      // row can be an array (CSV) or an object (Excel)
+    for (const [index, row] of rows.entries()) {
       const user = {
-        role: selectedRole === "ALL" ? "LEARNER" : selectedRole,
+        role: "LEARNER",
       };
 
       headers.forEach((header, index) => {
-        const value = Array.isArray(row)
-          ? (row[index] || '').toString().trim()
-          : (row[header] || row[Object.keys(row).find(k => k.toLowerCase().trim() === header)] || '').toString().trim();
+        const value = (row[index] || '').toString().trim();
 
         if (header.includes("first")) user.firstName = value;
         else if (header.includes("last")) user.lastName = value;
@@ -328,7 +319,7 @@ const UsersManagement = () => {
         else if (header.includes("cohort")) user.cohortId = value;
       });
 
-      if (user.firstName && user.email) {
+      if (user.firstName && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email || '')) {
         if (!user.username) {
           user.username = user.email.split("@")[0];
         }
@@ -337,7 +328,7 @@ const UsersManagement = () => {
           uniqueCohorts.add(user.cohortId);
         }
         usersToImport.push(user);
-      }
+      } else throw new Error(`CSV row ${index + 2} needs a first name and valid email`);
     }
     return { usersToImport, uniqueCohorts };
   };
@@ -350,6 +341,7 @@ const UsersManagement = () => {
     try {
       setLoading(true);
       const res = await usersAPI.bulkCreate({ users: usersToImport });
+      if (res.data?.temporaryCredentials?.length) setTemporaryCredentials(res.data.temporaryCredentials);
       const cohortInfo =
         uniqueCohorts.size > 0
           ? ` (${uniqueCohorts.size} cohort group(s))`
@@ -367,82 +359,25 @@ const UsersManagement = () => {
     }
   };
 
-  // CSV / Excel Upload Handler
+  // CSV upload with quoted-field and size validation.
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
-
-    const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
-
-    if (isExcel) {
-      // Parse Excel using SheetJS
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const XLSX = await import('xlsx');
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const sheetName = workbook.SheetNames[0];
-          const sheet = workbook.Sheets[sheetName];
-          const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-
-          if (jsonData.length === 0) {
-            showSnackbar("Excel file is empty or invalid", "error");
-            return;
-          }
-
-          const headers = Object.keys(jsonData[0]).map(h => h.toLowerCase().trim());
-          const { usersToImport, uniqueCohorts } = parseRows(headers, jsonData);
-          await importUsers(usersToImport, uniqueCohorts);
-        } catch (err) {
-          console.error('Excel parse error:', err);
-          showSnackbar('Error parsing Excel file', 'error');
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    } else {
-      // Parse CSV
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const text = e.target.result;
-        const lines = text.split("\n").filter((line) => line.trim());
-
-        if (lines.length < 2) {
-          showSnackbar("CSV file is empty or invalid", "error");
-          return;
-        }
-
-        const headers = lines[0]
-          .toLowerCase()
-          .split(",")
-          .map((h) => h.trim());
-
-        const rows = lines.slice(1).map(line => line.split(",").map(v => v.trim())).filter(r => r.length >= 3);
-        const { usersToImport, uniqueCohorts } = parseRows(headers, rows);
-        await importUsers(usersToImport, uniqueCohorts);
-      };
-      reader.readAsText(file);
-    }
-
+    if (!file.name.toLowerCase().endsWith('.csv')) { showSnackbar('Save the spreadsheet as CSV before importing', 'error'); return; }
+    if (file.size > 2_000_000) { showSnackbar('CSV file must be under 2 MB', 'error'); return; }
+    file.text().then(async text => {
+      const { headers, rows } = parseCsv(text);
+      const { usersToImport, uniqueCohorts } = parseRows(headers, rows);
+      await importUsers(usersToImport, uniqueCohorts);
+    }).catch(error => showSnackbar(error.message || 'Could not read CSV', 'error'));
     event.target.value = "";
   };
 
-  const handleDownloadTemplate = async () => {
-    try {
-    const XLSX = await import('xlsx');
-    // Create an Excel template with SheetJS
-    const templateData = [
-      { firstname: 'John', lastname: 'Doe', email: 'john@example.com', rollnumber: 'J001', phone: '1234567890', cohortid: 'BATCH-2025-A' },
-      { firstname: 'Jane', lastname: 'Smith', email: 'jane@example.com', rollnumber: 'J002', phone: '9876543210', cohortid: 'BATCH-2025-A' },
-      { firstname: 'Mark', lastname: 'Wilson', email: 'mark@example.com', rollnumber: 'J003', phone: '5555555555', cohortid: 'BATCH-2025-B' },
-    ];
-    const ws = XLSX.utils.json_to_sheet(templateData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Users');
-    XLSX.writeFile(wb, 'users_bulk_import_template.xlsx');
-    } catch (error) {
-      showSnackbar('Could not download the template. Please try again.', 'error');
-    }
+  const handleDownloadTemplate = () => {
+    const csv = 'firstname,lastname,email,rollnumber,phone,cohortid\r\nJohn,Doe,john@example.com,J001,1234567890,BATCH-2025-A\r\n';
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const link = document.createElement('a'); link.href = url; link.download = 'users_bulk_import_template.csv'; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   if (loading && !users.length) {
@@ -453,7 +388,7 @@ const UsersManagement = () => {
     );
   }
 
-  const filteredUsers = getFilteredUsers();
+  const filteredUsers = users;
 
   return (
     <div className="space-y-6">
@@ -498,13 +433,13 @@ const UsersManagement = () => {
             onClick={handleDownloadTemplate}
             className="text-primary-500"
           >
-            Download Template (.xlsx)
+            Download Template (.csv)
           </Button>
         </div>
 
         <Alert severity="info" className="mb-4 rounded-lg">
           <Typography variant="body2" className="mb-2">
-            <strong>Accepted formats:</strong> CSV (.csv) or Excel (.xlsx)
+            <strong>Accepted format:</strong> CSV (.csv), up to 500 learners
           </Typography>
           <Typography variant="body2" className="mb-2">
             <strong>Columns:</strong> firstname, lastname, email, rollnumber,
@@ -512,15 +447,15 @@ const UsersManagement = () => {
           </Typography>
           <Typography variant="body2" className="text-gray-700">
             Use <strong>cohortid</strong> to group users for easy batch
-            assignment. Currently selected role: <strong>{selectedRole}</strong>.
-            Default password: <strong>Default@123</strong>
+            assignment. This import creates learner accounts.
+            Unique temporary passwords will be shown once after import. Download and share them securely.
           </Typography>
         </Alert>
 
         <input
           ref={fileInputRef}
           type="file"
-          accept=".csv,.xlsx,.xls"
+          accept=".csv"
           onChange={handleFileUpload}
           className="hidden"
         />
@@ -530,7 +465,7 @@ const UsersManagement = () => {
         >
           <UploadIcon className="text-gray-400 text-5xl mb-3" />
           <Typography variant="body1" className="text-gray-600 mb-1">
-            Drag and drop your CSV or Excel (.xlsx) file here
+            Select your CSV file here
           </Typography>
           <Typography variant="body2" className="text-gray-400">
             or click to browse
@@ -541,7 +476,7 @@ const UsersManagement = () => {
       {/* Users Directory with Filters */}
       <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
         <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>
-          Users Directory ({filteredUsers.length} of {users.length} users)
+          Users Directory ({totalUsers} users)
         </Typography>
 
         {/* Filter and Search Bar */}
@@ -550,7 +485,7 @@ const UsersManagement = () => {
             <InputLabel>Filter by Role</InputLabel>
             <Select
               value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
+              onChange={(e) => { setSelectedRole(e.target.value); setPaginationModel(model => ({ ...model, page: 0 })); }}
               label="Filter by Role"
             >
               <MenuItem value="ALL">All Roles</MenuItem>
@@ -565,7 +500,7 @@ const UsersManagement = () => {
           <TextField
             placeholder="Search by name, email, or cohort ID..."
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={(e) => { setSearchText(e.target.value); setPaginationModel(model => ({ ...model, page: 0 })); }}
             size="small"
             sx={{ minWidth: 300 }}
             InputProps={{
@@ -582,6 +517,8 @@ const UsersManagement = () => {
         <div style={{ height: 600, width: "100%" }}>
           <DataGrid
             rows={filteredUsers}
+            rowCount={totalUsers}
+            paginationMode="server"
             columns={columns}
             paginationModel={paginationModel}
             onPaginationModelChange={setPaginationModel}
@@ -748,6 +685,15 @@ const UsersManagement = () => {
         </DialogActions>
       </Dialog>
 
+      <Dialog open={temporaryCredentials.length > 0} onClose={() => setTemporaryCredentials([])} fullWidth maxWidth="sm">
+        <DialogTitle>Temporary credentials</DialogTitle>
+        <DialogContent><Alert severity="warning" sx={{ mb: 2 }}>These passwords are shown only now. Share each one securely; users must change it on first sign-in.</Alert>
+          {temporaryCredentials.length === 1 && <TextField fullWidth label={temporaryCredentials[0].email} value={temporaryCredentials[0].temporaryPassword} InputProps={{ readOnly: true }} />}
+          {temporaryCredentials.length > 1 && <Typography>{temporaryCredentials.length} accounts created. Download the one-time credentials file.</Typography>}
+        </DialogContent>
+        <DialogActions><Button onClick={() => downloadCredentials(temporaryCredentials)}>Download CSV</Button><Button onClick={() => setTemporaryCredentials([])}>Done</Button></DialogActions>
+      </Dialog>
+      <ConfirmDialog open={Boolean(userToDeactivate)} title="Deactivate user" message={`Deactivate "${userToDeactivate?.firstName || ''} ${userToDeactivate?.lastName || ''}"?`} confirmLabel="Deactivate" isDangerous onCancel={() => setUserToDeactivate(null)} onConfirm={confirmDeactivate} />
       {/* Snackbar for notifications */}
       <Snackbar
         open={snackbar.open}

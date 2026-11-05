@@ -1,11 +1,14 @@
 const Classroom = require('../models/Classroom.model');
+const { pagination, literalSearch } = require('../utils/listQuery');
 
 // @desc    Get all classrooms
 // @route   GET /api/classrooms
 // @access  Private/Admin/Manager/Trainer/TA
 const getClassrooms = async (req, res) => {
   try {
-    const { isActive, search, page = 1, limit = 20 } = req.query;
+    const { isActive } = req.query;
+    const { page, limit } = pagination(req.query);
+    const search = literalSearch(req.query.search);
     
     const query = {};
     
@@ -23,7 +26,7 @@ const getClassrooms = async (req, res) => {
     const classrooms = await Classroom.find(query)
       .populate('createdBy', 'firstName lastName')
       .skip(skip)
-      .limit(parseInt(limit))
+      .limit(limit)
       .sort({ createdAt: -1 });
 
     const total = await Classroom.countDocuments(query);

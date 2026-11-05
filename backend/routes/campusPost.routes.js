@@ -1,0 +1,11 @@
+const router = require('express').Router();
+const { protect, authorize } = require('../middleware/auth.middleware');
+const { auditLog } = require('../middleware/audit.middleware');
+const post = require('../controllers/campusPost.controller');
+router.use(protect);
+router.get('/', post.list);
+router.post('/', authorize('ADMIN'), auditLog, post.save);
+router.put('/:id', authorize('ADMIN'), auditLog, post.save);
+router.delete('/:id', authorize('ADMIN'), auditLog, post.remove);
+router.post('/:id/read', post.markRead);
+module.exports = router;

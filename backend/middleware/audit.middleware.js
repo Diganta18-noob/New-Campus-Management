@@ -13,18 +13,19 @@ const auditLog = async (req, res, next) => {
         if (req.user && req.method !== 'GET' && res.statusCode < 400) {
           let responseBody;
           try { responseBody = typeof data === 'string' ? JSON.parse(data) : data; } catch { responseBody = null; }
-          const entityId = req.params.id || responseBody?.data?._id || req.body._id;
+          const requestPath = req.originalUrl.split('?')[0];
+          const entityId = requestPath.startsWith('/api/settings') ? req.user._id : (req.params.id || responseBody?.data?._id || req.body._id);
           if (!entityId) return;
           const auditData = {
             action: getActionFromMethod(req.method),
-            entity: getEntityFromPath(req.path),
+            entity: getEntityFromPath(requestPath),
             entityId,
             performedBy: req.user._id,
             userRole: req.user.role,
             ipAddress: req.ip || req.connection.remoteAddress,
             userAgent: req.headers['user-agent'],
             oldValues: req.oldValues || null,
-            newValues: Object.fromEntries(Object.entries(req.body || {}).filter(([key]) => !/password|token|secret/i.test(key))),
+            newValues: /support-cases|settings\/me|results|users\/bulk/.test(requestPath) ? null : Object.fromEntries(Object.entries(req.body || {}).filter(([key]) => !/password|token|secret/i.test(key))),
             changes: req.changes || []
           };
 
@@ -58,7 +59,13 @@ const getEntityFromPath = (path) => {
     'batches': 'BATCH',
     'attendance': 'ATTENDANCE',
     'daily-updates': 'DAILY_UPDATE',
-    'classrooms': 'CLASSROOM'
+    'classrooms': 'CLASSROOM',
+    'topics': 'TOPIC',
+    'campus-posts': 'CAMPUS_POST',
+    'assessments': 'ASSESSMENT',
+    'support-cases': 'SUPPORT_CASE',
+    'enrollments': 'ENROLLMENT',
+    'settings': 'SETTING'
   };
   
   for (const part of pathParts) {

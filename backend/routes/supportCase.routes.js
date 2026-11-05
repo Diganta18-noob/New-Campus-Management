@@ -1,0 +1,10 @@
+const router = require('express').Router();
+const { protect, authorize } = require('../middleware/auth.middleware');
+const { auditLog } = require('../middleware/audit.middleware');
+const support = require('../controllers/supportCase.controller');
+router.use(protect);
+router.get('/', support.list);
+router.post('/', authorize('LEARNER'), auditLog, support.create);
+router.post('/:id/replies', auditLog, support.reply);
+router.patch('/:id/status', authorize('ADMIN', 'MANAGER', 'TEAM_LEADER', 'TRAINER', 'TA'), auditLog, support.setStatus);
+module.exports = router;

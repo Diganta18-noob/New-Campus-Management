@@ -44,12 +44,12 @@ const getDashboardStats = async (req, res) => {
     }
 };
 
-// Current-day metrics consistently use the server's local calendar day.
+// Campus reporting uses UTC calendar days, independent of server locale.
 const getTodayRange = () => {
     const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    startOfDay.setUTCHours(0, 0, 0, 0);
     const nextDay = new Date(startOfDay);
-    nextDay.setDate(nextDay.getDate() + 1);
+    nextDay.setUTCDate(nextDay.getUTCDate() + 1);
     return { $gte: startOfDay, $lt: nextDay };
 };
 
@@ -198,7 +198,7 @@ const getTeamLeaderStats = async (teamLeaderId) => {
             let totalEntries = 0;
 
             attendance.forEach(record => {
-                totalEntries += record.attendanceRecords.length;
+                totalEntries += record.attendanceRecords.filter(ar => ['PRESENT', 'LATE', 'HALF_DAY', 'ABSENT'].includes(ar.status)).length;
                 totalPresent += record.attendanceRecords.filter(ar =>
                     ['PRESENT', 'LATE', 'HALF_DAY'].includes(ar.status)
                 ).length;

@@ -3,6 +3,7 @@ const User = require('../models/User.model');
 const Attendance = require('../models/Attendance.model');
 const Classroom = require('../models/Classroom.model');
 const { validateCandidate, allowed: allocationFields } = require('../services/batchAllocation.service');
+const { pagination, literalSearch } = require('../utils/listQuery');
 
 const validateAllocationConflicts = async (candidate, excludeBatchId) => {
     const issues = [];
@@ -38,7 +39,9 @@ const allocationPreview = async (req, res) => {
 // @access  Private/Admin/Manager
 const getBatches = async (req, res) => {
     try {
-        const { status, search, page = 1, limit = 20 } = req.query;
+        const { status } = req.query;
+        const { page, limit } = pagination(req.query);
+        const search = literalSearch(req.query.search);
 
         const query = {};
 
@@ -72,7 +75,7 @@ const getBatches = async (req, res) => {
             .populate('tas', 'firstName lastName email')
             .populate('createdBy', 'firstName lastName')
             .skip(skip)
-            .limit(parseInt(limit))
+            .limit(limit)
             .sort({ createdAt: -1 });
 
         const total = await Batch.countDocuments(query);

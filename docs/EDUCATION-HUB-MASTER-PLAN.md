@@ -30,36 +30,36 @@ These are source findings, not a claim of a complete security or runtime audit. 
 - [x] Animate responsive login, with reduced-motion support and keyboard labels.
 - [x] Verify build, endpoint regression and browser behavior; record limitations.
 
-### Phase 2 — Reliability and permissions (in progress)
-- [ ] Inventory every screen, API and model; test ADMIN/MANAGER/TEAM_LEADER/TRAINER/TA/LEARNER access.
-- [ ] Fix attendance denominator, missing projections, timezone policy and latest-session ordering.
-- [ ] Audit token lifecycle, logout/reset state, registration policy, input validation and error handling.
-- [ ] Replace remaining local sample contexts where used for production management screens.
-- [ ] Add API integration tests with isolated test database and seeded role fixtures.
+### Phase 2 — Reliability and permissions (implemented; release acceptance pending)
+- [x] Inventory screens, APIs and models in [API-ROLE-MATRIX.md](API-ROLE-MATRIX.md); test all six roles in HTTP and isolated database fixtures.
+- [x] Use UTC reporting dates, latest-session ordering and eligible attendance entries as the denominator; exclude leave/holiday.
+- [x] Revoke sessions on logout/password change, require reset on generated credentials, secure admin bootstrap, validate imports and bound list queries.
+- [x] Retire the mounted local sample data provider from production routes.
+- [x] Add isolated MongoDB integration tests and seeded role fixtures.
 
 Delivered Phase 2 slice: learner-only public registration; default-password API gate; assignment-scoped trainer/TA dashboards; attendance and daily-update query scope; batch-detail authorization; attendance roster validation and learner privacy; corrected attendance update authorization; safe daily-update authorship/feedback fields; session-state cleanup and consistent user IDs. Real HTTP/JWT tests cover all six roles with database method fixtures. Live database integration is still pending.
 
 ### Phase 3 — Education operations
 - **Delivered:** [Phase 3B — Reliable batch allocation](phases/03b-batch-allocation/PLAN.md): shared validation, classroom capacity and allocation preview. Isolated MongoDB and mobile browser checks passed. Concurrent saves still require a reservation strategy.
 - **Current delivery:** [Phase 3A — Attendance & Operations Insights](phases/03-campus-operations/PLAN.md). Reporting, date-filtered insights and batch-setup follow-ups have local implementations. Isolated MongoDB 8.2 reconciliation passed on 2026-11-04; see [UAT](verification/PHASE-3A-UAT.md).
-- [ ] Admissions/enrollment pipeline, batch capacity, trainer/TA assignments and classroom conflicts.
-- [ ] Attendance trends, low-attendance follow-up and date/batch filters with explicit denominators.
-- [ ] Course/topic progress, assessments, results and learner support cases.
-- [ ] Action queue for missing attendance, overdue updates and incomplete allocations.
-- [ ] Search, pagination, validated imports, accessible exports and audit trail.
+- [x] Add learner enrollment requests and admin review, atomic capacity checks and a learner approval lock. Batch allocation preview checks trainer/TA assignments and classroom conflicts.
+- [x] Add attendance trends and low-attendance follow-up below 75% after five eligible entries, with date/batch filters.
+- [x] Add recorded topic progress, assessments/results and learner support cases with role and assignment scope.
+- [x] Add setup follow-ups and scheduled-class follow-ups for missing attendance and overdue daily updates.
+- [x] Bound and escape management searches, paginate the people directory, validate CSV imports, keep CSV exports and record mutations in the audit trail.
 
 ### Phase 4 — Institutional management
 - [ ] Fees, invoices, payments, refunds and reconciliation are excluded at the user's request (2026-11-05). Do not enable live payment flows.
-- [ ] Add academic calendar, announcements, notification preferences and delivery tracking.
-- [ ] Define institution settings, retention policy, backups and restore checks.
-- [ ] Replace service-health UI only when real telemetry exists.
+- [x] Add academic calendar, announcements, in-app unread/read tracking and notification preferences. Email/SMS/push delivery is outside this implementation.
+- [x] Add institution settings and define UTC, retention, backups and restore drills in [OPERATIONS-RELEASE.md](OPERATIONS-RELEASE.md).
+- [x] Log slow API requests; show only real database health.
 
 ### Phase 5 — Premium quality and release
 - [x] Deliver shared typography/color/icon system, redesigned sidebar/workspace shell, overview charts and matching authentication surfaces (2026-11-03; see PREMIUM-UI-DESIGN.md).
-- [ ] Unify navigation, breadcrumbs, tables, forms, confirmation dialogs and empty states.
-- [ ] Verify mobile/tablet layouts, keyboard navigation, contrast and reduced motion across screens.
-- [ ] Establish bundle budgets, lazy routes, error boundaries and monitored API performance.
-- [ ] Run role-based end-to-end tests, security review and staging acceptance before release.
+- [ ] Unify legacy tables, forms, confirmation dialogs and empty states; the new pages use the shared shell and MUI controls.
+- [ ] Complete keyboard, contrast and reduced-motion review across every legacy screen; new academic pages passed mobile/tablet Chrome smoke checks.
+- [x] Enforce bundle budgets, lazy routes, error boundaries and slow API logging.
+- [ ] Run staging acceptance on an actual deployment and restore a production-style backup before release. Local six-role and MongoDB tests pass; production credentials and staging infrastructure are not available in this workspace.
 
 ## First-delivery interfaces and validation
 Dashboard consumes dashboardAPI.getStats() → { success, data: { summary, roleStats, batchStats } }. Summary metrics are users, active users, batches, ongoing batches, attendance sessions today and updates over seven days. Charts consume {_id, count} aggregate rows; zero records show an empty state, never invented proportions.

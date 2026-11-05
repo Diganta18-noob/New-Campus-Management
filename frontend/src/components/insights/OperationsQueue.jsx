@@ -1,9 +1,9 @@
 import { Alert, Box, Button, Chip, Paper, Stack, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 
-const labels = { NO_TRAINER: 'Assign trainer', NO_CLASSROOM: 'Assign classroom', NO_LEARNERS: 'Enroll learners' };
+const labels = { NO_TRAINER: 'Assign trainer', NO_CLASSROOM: 'Assign classroom', NO_LEARNERS: 'Enroll learners', MISSING_ATTENDANCE: 'Mark planned attendance', OVERDUE_UPDATE: 'Post planned daily update' };
 export default function OperationsQueue({ query, range }) {
-  return <Paper component="section" sx={{ p: 3 }}><Typography variant="h6" fontWeight={700}>Needs setup</Typography><Typography color="text.secondary" sx={{ mb: 2 }}>Active or planned batches with missing assignments. Zero recorded sessions is informational.</Typography>
+  return <Paper component="section" sx={{ p: 3 }}><Typography variant="h6" fontWeight={700}>Operations follow-up</Typography><Typography color="text.secondary" sx={{ mb: 2 }}>Missing assignments and past scheduled class days without attendance or an update. Unscheduled days are not treated as missing.</Typography>
     {query.isFetching && <Typography>Loading setup queue…</Typography>}
     {query.isError && <Alert severity="error">Setup queue unavailable. <Button onClick={() => query.refetch()}>Retry</Button></Alert>}
     {!query.isFetching && !query.isError && !query.data?.rows.length && <Alert severity="success">No incomplete batch setup found in this range.</Alert>}

@@ -309,7 +309,8 @@ const lockAttendance = async (req, res) => {
 // @access  Private
 const getAttendance = async (req, res) => {
     try {
-        const { batch, date, startDate, endDate, page = 1, limit = 20 } = req.query;
+        const { batch, date, startDate, endDate } = req.query;
+        const { page, limit } = require('../utils/listQuery').pagination(req.query);
 
         const query = {};
 
@@ -340,7 +341,7 @@ const getAttendance = async (req, res) => {
             .populate('attendanceRecords.learner', 'firstName lastName email')
             .populate('attendanceRecords.markedBy', 'firstName lastName')
             .skip(skip)
-            .limit(parseInt(limit))
+            .limit(limit)
             .sort({ date: -1 });
 
         const total = await Attendance.countDocuments(query);

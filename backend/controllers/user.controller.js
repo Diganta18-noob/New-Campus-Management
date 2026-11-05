@@ -1,12 +1,17 @@
 const User = require('../models/User.model');
 const Batch = require('../models/Batch.model');
+const Classroom = require('../models/Classroom.model');
+const { randomBytes } = require('node:crypto');
+const { pagination, literalSearch } = require('../utils/listQuery');
 
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Private/Admin
 const getUsers = async (req, res) => {
   try {
-    const { role, isActive, search, page = 1, limit = 20 } = req.query;
+    const { role, isActive } = req.query;
+    const { page, limit } = pagination(req.query);
+    const search = literalSearch(req.query.search);
     
     const query = {};
     
@@ -27,7 +32,7 @@ const getUsers = async (req, res) => {
       .select('-password')
       .populate('assignedBatches', 'name code')
       .skip(skip)
-      .limit(parseInt(limit))
+      .limit(limit)
       .sort({ createdAt: -1 });
 
     const total = await User.countDocuments(query);
@@ -110,10 +115,13 @@ const createUser = async (req, res) => {
 
 
     // Create user
+    const temporaryPassword = password || randomBytes(18).toString('base64url');
+    if (temporaryPassword.length < 12) return res.status(400).json({ success: false, message: 'Password must be at least 12 characters' });
     const user = await User.create({
       email,
       username,
-      password: password || 'Default@123', // Default password
+      password: temporaryPassword,
+      requiresPasswordReset: true,
       firstName,
       lastName,
       phone,
@@ -135,7 +143,8 @@ const createUser = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      data: createdUser
+      data: createdUser,
+      ...(!password && { temporaryPassword })
     });
   } catch (error) {
     console.error('Create user error:', error);
@@ -153,12 +162,13 @@ const bulkCreateUsers = async (req, res) => {
     try {
         const { users } = req.body; // Array of user objects
 
-        if (!users || !Array.isArray(users) || users.length === 0) {
+        if (!users || !Array.isArray(users) || users.length === 0 || users.length > 500) {
             return res.status(400).json({
                 success: false,
-                message: 'No users provided'
+                message: 'Provide 1 to 500 users'
             });
         }
+        if (users.some(user => user.role && user.role !== 'LEARNER')) return res.status(400).json({ success: false, message: 'Bulk import accepts learners only' });
 
         const stats = {
             successful: 0,
@@ -169,6 +179,7 @@ const bulkCreateUsers = async (req, res) => {
         };
 
         const createdUsers = [];
+        const temporaryCredentials = [];
 
         // Pre-fetch all unique cohortIds and resolve them to Batch documents
         const uniqueCohortIds = [...new Set(
@@ -180,7 +191,7 @@ const bulkCreateUsers = async (req, res) => {
 
         const batchMap = {}; // cohortId (uppercase) -> Batch document
         if (uniqueCohortIds.length > 0) {
-            const matchedBatches = await Batch.find({ code: { $in: uniqueCohortIds } });
+            const matchedBatches = await Batch.find({ code: { $in: uniqueCohortIds }, status: { $in: ['PLANNING', 'ONGOING'] } });
             matchedBatches.forEach(batch => {
                 batchMap[batch.code.toUpperCase()] = batch;
             });
@@ -213,24 +224,34 @@ const bulkCreateUsers = async (req, res) => {
                     : null;
                 const matchedBatch = cohortKey ? batchMap[cohortKey] : null;
 
-                const assignedBatches = matchedBatch ? [matchedBatch._id] : [];
-
+                const temporaryPassword = randomBytes(18).toString('base64url');
                 const user = await User.create({
-                    ...userData,
+                    email: userData.email,
+                    firstName: userData.firstName,
+                    lastName: userData.lastName,
+                    phone: userData.phone,
+                    rollNumber: userData.rollNumber,
+                    cohortId: userData.cohortId,
                     username,
-                    role: userData.role || 'LEARNER',
-                    password: userData.password || 'Default@123',
+                    role: 'LEARNER',
+                    password: temporaryPassword,
                     requiresPasswordReset: true,
-                    assignedBatches
+                    assignedBatches: []
                 });
 
                 // Add user to the batch's learners array
                 if (matchedBatch) {
-                    await Batch.findByIdAndUpdate(
-                        matchedBatch._id,
-                        { $addToSet: { learners: user._id } }
-                    );
-                    stats.batchAssigned++;
+                    const room = matchedBatch.classroom ? await Classroom.findById(matchedBatch.classroom).select('capacity').lean() : null;
+                    const condition = { _id: matchedBatch._id, learners: { $ne: user._id } };
+                    if (room?.capacity != null) condition.$expr = { $lt: [{ $size: '$learners' }, room.capacity] };
+                    const assignment = await Batch.updateOne(condition, { $addToSet: { learners: user._id } });
+                    if (assignment.modifiedCount) {
+                        try { await User.updateOne({ _id: user._id }, { $addToSet: { assignedBatches: matchedBatch._id } }); }
+                        catch (error) { await Batch.updateOne({ _id: matchedBatch._id }, { $pull: { learners: user._id } }); throw error; }
+                        stats.batchAssigned++;
+                    } else {
+                        stats.errors.push({ email: userData.email, error: `User created but batch ${matchedBatch.code} is full` });
+                    }
                 } else if (cohortKey) {
                     // cohortId was provided but no matching batch was found
                     stats.batchNotFound++;
@@ -241,6 +262,7 @@ const bulkCreateUsers = async (req, res) => {
                 }
 
                 createdUsers.push(user);
+                temporaryCredentials.push({ email: user.email, temporaryPassword });
                 stats.successful++;
             } catch (error) {
                 stats.failed++;
@@ -255,7 +277,8 @@ const bulkCreateUsers = async (req, res) => {
             success: true,
             data: {
                 stats,
-                createdUsers: createdUsers.length 
+                createdUsers: createdUsers.length,
+                temporaryCredentials
             },
             message: `Successfully created ${stats.successful} users. ${stats.batchAssigned} assigned to batches. ${stats.failed} failed.`
         });
@@ -403,10 +426,10 @@ const resetPassword = async (req, res) => {
   try {
     const { newPassword } = req.body;
 
-    if (!newPassword || newPassword.length < 6) {
+    if (!newPassword || newPassword.length < 12) {
       return res.status(400).json({
         success: false,
-        message: 'Password must be at least 6 characters'
+        message: 'Password must be at least 12 characters'
       });
     }
 
@@ -421,6 +444,7 @@ const resetPassword = async (req, res) => {
 
     // Update password
     user.password = newPassword;
+    user.requiresPasswordReset = true;
     user.tokenVersion = (user.tokenVersion || 0) + 1;
     await user.save();
 

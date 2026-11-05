@@ -1,0 +1,10 @@
+const router = require('express').Router();
+const { protect, authorize } = require('../middleware/auth.middleware');
+const { auditLog } = require('../middleware/audit.middleware');
+const enrollment = require('../controllers/enrollment.controller');
+router.use(protect);
+router.get('/', authorize('ADMIN', 'LEARNER'), enrollment.list);
+router.get('/available', authorize('LEARNER'), enrollment.available);
+router.post('/', authorize('LEARNER'), auditLog, enrollment.create);
+router.patch('/:id', authorize('ADMIN'), auditLog, enrollment.decide);
+module.exports = router;

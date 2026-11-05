@@ -1,11 +1,14 @@
 const Department = require('../models/Department.model');
+const { pagination, literalSearch } = require('../utils/listQuery');
 
 // @desc    Get all departments
 // @route   GET /api/departments
 // @access  Private
 exports.getDepartments = async (req, res) => {
     try {
-        const { search, status, page = 1, limit = 10 } = req.query;
+        const { status } = req.query;
+        const { page, limit } = pagination(req.query, 10);
+        const search = literalSearch(req.query.search);
 
         // Build query
         const query = {};
@@ -23,14 +26,14 @@ exports.getDepartments = async (req, res) => {
         }
 
         // Pagination
-        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const skip = (page - 1) * limit;
 
         const [departments, total] = await Promise.all([
             Department.find(query)
                 .populate('createdBy', 'firstName lastName email')
                 .sort({ createdAt: -1 })
                 .skip(skip)
-                .limit(parseInt(limit)),
+                .limit(limit),
             Department.countDocuments(query)
         ]);
 
@@ -38,10 +41,10 @@ exports.getDepartments = async (req, res) => {
             success: true,
             data: departments,
             pagination: {
-                page: parseInt(page),
-                limit: parseInt(limit),
+                page,
+                limit,
                 total,
-                pages: Math.ceil(total / parseInt(limit))
+                pages: Math.ceil(total / limit)
             }
         });
     } catch (error) {
