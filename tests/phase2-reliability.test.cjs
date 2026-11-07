@@ -179,6 +179,7 @@ test('public signup rejects privileged and invalid roles before accessing the da
     let writes = 0;
     const { register } = load('backend/controllers/auth.controller.js', {
         'User.model': { findOne: async () => null, create: async data => { writes++; return { ...data, _id: 'new-user' }; } },
+        'sessionActivity.service': { startSession: async () => ({ _id: 'fixture-session' }) },
         jsonwebtoken: { sign: () => 'fixture-token' }, logger: { auditLogger: { info() {} } },
     });
     for (const role of ['ADMIN', 'MANAGER', 'TEAM_LEADER', 'TRAINER', 'TA', 'INVALID']) {
@@ -193,6 +194,7 @@ test('public signup defaults to learner when role is omitted', async () => {
     let created;
     const { register } = load('backend/controllers/auth.controller.js', {
         'User.model': { findOne: async () => null, create: async data => { created = data; return { ...data, _id: 'new-user' }; } },
+        'sessionActivity.service': { startSession: async () => ({ _id: 'fixture-session' }) },
         jsonwebtoken: { sign: () => 'fixture-token' }, logger: { auditLogger: { info() {} } },
     });
     const res = response();

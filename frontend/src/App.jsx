@@ -23,6 +23,7 @@ const AuditLogs = lazy(() => import("./pages/Admin/AuditLogs"));
 const AttendanceMarking = lazy(() => import("./pages/Trainer/AttendanceMarking"));
 const AttendanceHistory = lazy(() => import("./pages/Reports/AttendanceHistory"));
 const Insights = lazy(() => import("./pages/Admin/Insights"));
+const EngagementAnalytics = lazy(() => import("./pages/Admin/EngagementAnalytics"));
 const LearnerAttendance = lazy(() => import("./pages/Learner/Attendance"));
 const TrainerDailyUpdates = lazy(() => import("./pages/Trainer/DailyUpdates"));
 const ManagerDailyUpdates = lazy(() => import("./pages/Manager/DailyUpdates"));
@@ -76,6 +77,7 @@ function App() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<RoleBasedDashboard />} />
           <Route path="insights" element={<RoleBasedRoute allowedRoles={["ADMIN"]}><Insights /></RoleBasedRoute>} />
+          <Route path="engagement" element={<RoleBasedRoute allowedRoles={["ADMIN"]}><EngagementAnalytics /></RoleBasedRoute>} />
           <Route path="students" element={<UsersManagement />} />
           <Route
             path="departments"

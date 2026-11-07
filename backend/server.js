@@ -16,7 +16,7 @@ const connectDB = async () => {
     logger.info("MongoDB connected successfully");
 
     // Create indexes
-    for (const name of ['Attendance', 'DailyUpdate', 'User', 'Topic', 'CampusPost', 'Assessment', 'AssessmentResult', 'SupportCase', 'EnrollmentRequest']) {
+    for (const name of ['Attendance', 'DailyUpdate', 'User', 'UserSession', 'Topic', 'CampusPost', 'Assessment', 'AssessmentResult', 'SupportCase', 'EnrollmentRequest']) {
       await mongoose.model(name).createIndexes();
     }
   } catch (error) {

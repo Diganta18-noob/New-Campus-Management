@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User.model');
 const { auditLogger } = require('../utils/logger');
+const { startSession, recordHeartbeat, endSession, revokeOtherSessions } = require('../services/sessionActivity.service');
 
 // Generate JWT Token
-const generateToken = (id, version = 0) => {
-  return jwt.sign({ id, v: version }, process.env.JWT_SECRET, {
+const generateToken = (id, version = 0, sessionId) => {
+  return jwt.sign({ id, v: version, ...(sessionId && { sid: String(sessionId) }) }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE
   });
 };
@@ -71,7 +72,8 @@ const login = async (req, res) => {
     await user.resetLoginAttempts();
 
     // Generate token
-    const token = generateToken(user._id, user.tokenVersion || 0);
+    const session = await startSession(user);
+    const token = generateToken(user._id, user.tokenVersion || 0, session._id);
 
     // Audit log
     auditLogger.info('User logged in', {
@@ -149,11 +151,13 @@ const register = async (req, res) => {
       firstName,
       lastName,
       phone,
-      role: 'LEARNER'
+      role: 'LEARNER',
+      lastLogin: new Date(),
     });
 
     // Generate token
-    const token = generateToken(user._id, user.tokenVersion || 0);
+    const session = await startSession(user);
+    const token = generateToken(user._id, user.tokenVersion || 0, session._id);
 
     // Audit log
     auditLogger.info('New user registered', {
@@ -220,7 +224,10 @@ const getMe = async (req, res) => {
 // @access  Private
 const logout = async (req, res) => {
   try {
+    await recordHeartbeat(req.user._id, req.sessionId);
+    await endSession(req.user._id, req.sessionId, 'LOGOUT');
     await User.findByIdAndUpdate(req.user._id, { $inc: { tokenVersion: 1 } });
+    await revokeOtherSessions(req.user._id);
     auditLogger.info('User logged out', {
       userId: req.user._id,
       email: req.user.email
@@ -237,6 +244,13 @@ const logout = async (req, res) => {
       message: 'Server error'
     });
   }
+};
+
+const heartbeat = async (req, res, next) => {
+  try {
+    const tracked = await recordHeartbeat(req.user._id, req.sessionId);
+    res.json({ success: true, tracked });
+  } catch (error) { next(error); }
 };
 
 // @desc    Change password
@@ -276,6 +290,10 @@ const changePassword = async (req, res) => {
     user.requiresPasswordReset = false;
     user.tokenVersion = (user.tokenVersion || 0) + 1;
     await user.save();
+    await recordHeartbeat(user._id, req.sessionId);
+    await endSession(user._id, req.sessionId, 'PASSWORD_CHANGE');
+    await revokeOtherSessions(user._id);
+    const session = await startSession(user);
 
     auditLogger.info('Password changed', {
       userId: user._id,
@@ -285,7 +303,7 @@ const changePassword = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Password changed successfully',
-      token: generateToken(user._id, user.tokenVersion)
+      token: generateToken(user._id, user.tokenVersion, session._id)
     });
   } catch (error) {
     console.error('Change password error:', error);
@@ -301,5 +319,6 @@ module.exports = {
   register,
   getMe,
   logout,
+  heartbeat,
   changePassword
 };

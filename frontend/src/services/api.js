@@ -52,6 +52,7 @@ export const authAPI = {
   register: (userData) => api.post("/auth/register", userData),
   getMe: () => api.get("/auth/me"),
   logout: () => api.post("/auth/logout"),
+  heartbeat: () => api.post("/auth/heartbeat"),
   changePassword: (passwords) => api.put("/auth/change-password", passwords),
 };
 
@@ -137,6 +138,7 @@ export const dashboardAPI = {
   getStats: () => api.get("/dashboard/stats"),
   getInsights: (params = {}) => api.get("/dashboard/insights", { params }),
   getOperations: (params = {}) => api.get("/dashboard/operations", { params }),
+  getEngagement: (params = {}) => api.get("/dashboard/engagement", { params }),
 };
 
 // Topics/Courses API

@@ -9,6 +9,7 @@ import { store } from "./store";
 import { queryClient } from "./utils/queryClient";
 import { ThemeContext } from "./context/ThemeContext";
 import AppInitializer from "./components/AppInitializer";
+import SessionPulse from "./components/SessionPulse";
 import App from "./App.jsx";
 import "@fontsource-variable/dm-sans";
 import { createCampusTheme } from "./theme";
@@ -79,6 +80,7 @@ function Root() {
             <ThemeProvider theme={theme}>
               <CssBaseline />
               <AppInitializer>
+                <SessionPulse />
                 <App />
               </AppInitializer>
             </ThemeProvider>

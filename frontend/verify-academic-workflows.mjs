@@ -16,18 +16,21 @@ async function visit(role, width, routes) {
     if (request.url().includes('/auth/me')) data = { _id: `${role}-fixture`, role, firstName: 'Test', lastName: role, email: 'test@example.local', isActive: true, requiresPasswordReset: false };
     if (request.url().includes('/settings/me')) data = { announcements: true, calendar: true };
     if (request.url().endsWith('/settings')) data = { name: 'Test Campus', retentionDays: 365, contactEmail: '', timeZone: 'UTC' };
+    if (request.url().includes('/dashboard/engagement')) data = { range: { days: 30, startDate: '2026-10-09', endDate: '2026-11-07' }, summary: { people: 1, logins: 2, observedSeconds: 4200, onlineSessions: 1 }, daily: [{ date: '2026-11-07', logins: 2, observedSeconds: 4200 }], roles: [{ role: 'ADMIN', logins: 2, observedSeconds: 4200 }], people: [{ _id: 'fixture', firstName: 'Test', lastName: 'Admin', email: 'test@example.local', role: 'ADMIN', isActive: true, online: true, sessions: 2, observedSeconds: 4200, lastSeenAt: '2026-11-07T08:00:00Z' }], pagination: { page: 1, pageSize: 20, total: 1 }, measurement: 'Observed foreground time from activity heartbeats.' };
     request.respond({ status: 200, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, OPTIONS' }, body: JSON.stringify({ success: true, data, total: 0, unread: 0 }) });
   });
   try {
     for (const [route, heading] of routes) {
       await page.goto(`${base}${route}`);
-      await page.waitForFunction(expected => document.querySelector('h4')?.textContent.includes(expected), {}, heading);
+      try { await page.waitForFunction(expected => document.querySelector('h1,h4')?.textContent.includes(expected), { timeout: 10000 }, heading); }
+      catch (error) { throw new Error(`${role} ${route} failed to render: ${(await page.evaluate(() => document.body.textContent)).slice(0, 250)}; ${errors.join('; ')}`, { cause: error }); }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${role} ${route} overflows at ${width}px`);
     }
   } finally { await page.close(); }
 }
 try {
-  await visit('ADMIN', 320, [['/calendar', 'Campus calendar'], ['/assessments', 'Assessments'], ['/course-progress', 'Course progress'], ['/support', 'Learner support'], ['/enrollments', 'Enrollment'], ['/institution-settings', 'Institution settings']]);
+  await visit('ADMIN', 320, [['/calendar', 'Campus calendar'], ['/assessments', 'Assessments'], ['/course-progress', 'Course progress'], ['/support', 'Learner support'], ['/enrollments', 'Enrollment'], ['/institution-settings', 'Institution settings'], ['/engagement', 'Engagement analytics']]);
+  await visit('ADMIN', 1440, [['/engagement', 'Engagement analytics']]);
   await visit('LEARNER', 390, [['/calendar', 'Campus calendar'], ['/assessments', 'Assessments'], ['/course-progress', 'Course progress'], ['/support', 'Learner support'], ['/enrollments', 'Enrollment']]);
   await visit('TRAINER', 1024, [['/calendar', 'Campus calendar'], ['/assessments', 'Assessments'], ['/course-progress', 'Course progress'], ['/support', 'Learner support']]);
   for (const route of ['/departments', '/classrooms', '/batches', '/trainers', '/tas']) {

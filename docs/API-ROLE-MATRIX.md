@@ -4,9 +4,10 @@ All routes under `/api` except registration, login and health require a valid JW
 
 | Area | Screen(s) | API prefix | Read | Write |
 |---|---|---|---|---|
-| Identity | Login, Signup, Reset password, Profile | `/auth` | Own profile | Public learner signup; own password/logout |
+| Identity | Login, Signup, Reset password, Profile | `/auth` | Own profile | Public learner signup; own password/logout; authenticated activity heartbeat |
 | Overview | Dashboard | `/dashboard/stats` | All roles, scoped by role | — |
 | Campus insights | Insights | `/dashboard/insights`, `/dashboard/operations` | ADMIN | — |
+| Engagement analytics | Engagement analytics | `/dashboard/engagement` | ADMIN; per-person session metrics | — |
 | People | People directory, Trainers, TAs | `/users` | ADMIN | ADMIN |
 | Departments | Departments | `/departments` | Authenticated | ADMIN |
 | Batches | Batches | `/batches` | Authenticated, assignment scoped | ADMIN |
@@ -21,6 +22,6 @@ All routes under `/api` except registration, login and health require a valid JW
 | Admissions | Enrollment | `/enrollments` | ADMIN or own learner | Learner requests; ADMIN decides |
 | Settings | Profile, Institution settings | `/settings` | ADMIN institution; own preferences | ADMIN institution; own preferences |
 
-Models: `User`, `Department`, `Batch`, `Classroom`, `Topic`, `Attendance`, `DailyUpdate`, `Assessment`, `AssessmentResult`, `SupportCase`, `EnrollmentRequest`, `CampusPost`, `InstitutionSetting`, `AuditLog`. The `Topic` API now backs the previously broken Courses & topics screen. Payments are excluded.
+Models: `User`, `UserSession`, `Department`, `Batch`, `Classroom`, `Topic`, `Attendance`, `DailyUpdate`, `Assessment`, `AssessmentResult`, `SupportCase`, `EnrollmentRequest`, `CampusPost`, `InstitutionSetting`, `AuditLog`. The `Topic` API now backs the previously broken Courses & topics screen. Payments are excluded.
 
 `tests/phase2-reliability.test.cjs` covers six-role legacy access fixtures. `tests/integration/academic-workflows.test.cjs` checks real MongoDB scope, result publication, support privacy, capacity, concurrent approval, settings, and one-time credentials. It does not replace a staging acceptance test with real deployment configuration.

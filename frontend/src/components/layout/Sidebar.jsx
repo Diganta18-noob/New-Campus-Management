@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Avatar, Box, ButtonBase, Divider, IconButton, ListItemIcon, Menu, MenuItem, Tooltip, Typography } from '@mui/material'
-import { BookOpen, LayoutDashboard, Landmark, DoorOpen, Layers3, UsersRound, GraduationCap, ContactRound, CalendarCheck2, CalendarDays, NotebookPen, ChartNoAxesCombined, History, Settings2, Sun, Moon, Monitor, PanelLeftClose, PanelLeftOpen, ChevronsUpDown, LogOut, UserRound } from 'lucide-react'
+import { Activity, BookOpen, LayoutDashboard, Landmark, DoorOpen, Layers3, UsersRound, GraduationCap, ContactRound, CalendarCheck2, CalendarDays, NotebookPen, ChartNoAxesCombined, History, Settings2, Sun, Moon, Monitor, PanelLeftClose, PanelLeftOpen, ChevronsUpDown, LogOut, UserRound } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { selectUser, logout } from '../../store/slices/authSlice'
 import { useThemeMode } from '../../context/ThemeContext'
@@ -24,6 +24,7 @@ const links = [
     { path: '/daily-updates', label: 'Daily updates', icon: NotebookPen, group: 'Workspace', roles: ['TRAINER', 'TA'] },
     { path: '/attendance/history', label: 'Attendance reports', icon: ChartNoAxesCombined, group: 'Insights', roles: ['ADMIN', 'MANAGER', 'TEAM_LEADER'] },
     { path: '/insights', label: 'Campus insights', icon: ChartNoAxesCombined, group: 'Insights', roles: ['ADMIN'] },
+    { path: '/engagement', label: 'Engagement analytics', icon: Activity, group: 'Insights', roles: ['ADMIN'] },
     { path: '/daily-updates/review', label: 'Review updates', icon: NotebookPen, group: 'Insights', roles: ['MANAGER', 'TEAM_LEADER'] },
     { path: '/my-attendance', label: 'My attendance', icon: CalendarCheck2, group: 'Workspace', roles: ['LEARNER'] },
     { path: '/performance', label: 'My performance', icon: ChartNoAxesCombined, group: 'Insights', roles: ['LEARNER'] },
