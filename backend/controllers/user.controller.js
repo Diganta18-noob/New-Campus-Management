@@ -27,15 +27,15 @@ const getUsers = async (req, res) => {
     }
 
     const skip = (page - 1) * limit;
-    
-    const users = await User.find(query)
-      .select('-password')
-      .populate('assignedBatches', 'name code')
+    const directoryView = req.query.view === 'directory' && req.user.role === 'ADMIN';
+    let usersQuery = User.find(query)
+      .select(directoryView ? 'firstName lastName email username role rollNumber cohortId phone isActive department createdAt' : '-password')
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
-
-    const total = await User.countDocuments(query);
+    if (directoryView) usersQuery = usersQuery.lean();
+    else usersQuery = usersQuery.populate('assignedBatches', 'name code');
+    const [users, total] = await Promise.all([usersQuery, User.countDocuments(query)]);
 
     res.status(200).json({
       success: true,

@@ -27,6 +27,11 @@ test('calendar, assessments, support and enrollment enforce scope and capacity',
       return { status: response.status, body: await response.json() };
     };
     try {
+      const directory = await call(admin, 'GET', '/users?view=directory&role=LEARNER&limit=10');
+      assert.equal(directory.status, 200);
+      assert.equal(directory.body.data.length, 2);
+      assert.equal('assignedBatches' in directory.body.data[0], false);
+      assert.equal('tokenVersion' in directory.body.data[0], false);
       const post = await call(admin, 'POST', '/campus-posts', { kind: 'ANNOUNCEMENT', title: 'Batch notice', body: 'Hello', batch: String(batchA) });
       assert.equal(post.status, 201);
       assert.equal((await call(learnerA, 'GET', '/campus-posts')).body.data.length, 1);

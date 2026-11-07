@@ -5,6 +5,27 @@ import { Activity, BookOpen, LayoutDashboard, Landmark, DoorOpen, Layers3, Users
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { selectUser, logout } from '../../store/slices/authSlice'
 import { useThemeMode } from '../../context/ThemeContext'
+import { queryClient } from '../../utils/queryClient'
+import { directoryOptions } from '../../utils/peopleDirectoryQuery'
+
+const pagePreloaders = {
+    '/students': () => import('../../pages/Admin/UsersManagement'),
+    '/dashboard': () => import('../../pages/RoleBasedDashboard'),
+    '/engagement': () => import('../../pages/Admin/EngagementAnalytics'),
+    '/insights': () => import('../../pages/Admin/Insights'),
+    '/departments': () => import('../../pages/Admin/Departments'),
+    '/batches': () => import('../../pages/Admin/Batches'),
+    '/topics': () => import('../../pages/Admin/TopicsManagement'),
+    '/classrooms': () => import('../../pages/Admin/Classrooms'),
+    '/trainers': () => import('../../pages/Admin/Trainers'),
+    '/tas': () => import('../../pages/Admin/TAs'),
+    '/calendar': () => import('../../pages/CampusCalendar'),
+    '/assessments': () => import('../../pages/Assessments'),
+    '/support': () => import('../../pages/SupportCases'),
+    '/enrollments': () => import('../../pages/Enrollments'),
+    '/institution-settings': () => import('../../pages/InstitutionSettings'),
+    '/course-progress': () => import('../../pages/CourseProgress'),
+};
 
 const links = [
     { path: '/dashboard', label: 'Overview', icon: LayoutDashboard, group: 'Workspace' },
@@ -42,6 +63,12 @@ export default function Sidebar({ collapsed, onToggle, onNavigate }) {
     const ThemeIcon = { light: Sun, dark: Moon, system: Monitor }[themeMode] || Monitor
     const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Your account'
     const role = { ADMIN: 'Administrator', TA: 'Teaching assistant', TEAM_LEADER: 'Team leader' }[user?.role] || user?.role?.toLowerCase() || 'Member'
+    const preload = path => {
+        pagePreloaders[path]?.().catch(() => {});
+        if (path === '/students' && user?.role === 'ADMIN') {
+            queryClient.prefetchQuery(directoryOptions({ role: 'LEARNER', search: '', page: 1, limit: 10 })).catch(() => {});
+        }
+    }
     const visible = links.filter(item => !item.roles || item.roles.includes(user?.role))
     return <Box component="aside" className={`campus-sidebar ${collapsed ? 'is-collapsed' : ''}`} sx={{ width: collapsed ? 80 : 256 }}>
         <div className="sidebar-brand">
@@ -62,7 +89,7 @@ export default function Sidebar({ collapsed, onToggle, onNavigate }) {
                 return <section className="nav-group" key={group} aria-label={group}>
                     {!collapsed && <p className="nav-group-label">{group}</p>}
                     {items.map(({ path, label, icon: Icon }) => <Tooltip key={path} title={collapsed ? label : ''} placement="right"><span className="sidebar-link-wrap">
-                        <NavLink to={path} end aria-label={label} onClick={onNavigate} className={({ isActive }) => `sidebar-link ${isActive ? 'is-active' : ''}`}>
+                        <NavLink to={path} end aria-label={label} onPointerEnter={() => preload(path)} onFocus={() => preload(path)} onTouchStart={() => preload(path)} onClick={onNavigate} className={({ isActive }) => `sidebar-link ${isActive ? 'is-active' : ''}`}>
                             <Icon size={18} strokeWidth={1.7} aria-hidden="true" />
                             {!collapsed && <span>{label}</span>}
                             {!collapsed && path === '/dashboard' && <span className="nav-active-dot" aria-hidden="true" />}

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authAPI } from '../../services/api';
+import { queryClient } from '../../utils/queryClient';
 
 // Async thunks
 export const login = createAsyncThunk(
@@ -8,6 +9,7 @@ export const login = createAsyncThunk(
         try {
             const response = await authAPI.login(credentials);
             if (response.token) {
+                queryClient.clear();
                 localStorage.setItem('token', response.token);
                 return response.data || response.user;
             }
@@ -24,6 +26,7 @@ export const register = createAsyncThunk(
         try {
             const response = await authAPI.register(userData);
             if (response.token) {
+                queryClient.clear();
                 localStorage.setItem('token', response.token);
                 return response.user;
             }
@@ -46,6 +49,7 @@ export const checkAuth = createAsyncThunk(
             return response.user || response.data;
         } catch (error) {
             localStorage.removeItem('token');
+            queryClient.clear();
             return rejectWithValue(error.message || error);
         }
     }
@@ -60,6 +64,7 @@ export const logout = createAsyncThunk(
             console.error('Logout error:', error);
         } finally {
             localStorage.removeItem('token');
+            queryClient.clear();
         }
     }
 );
@@ -69,7 +74,7 @@ export const changePassword = createAsyncThunk(
     async (passwords, { rejectWithValue }) => {
         try {
             const response = await authAPI.changePassword(passwords);
-            if (response.token) localStorage.setItem('token', response.token);
+            if (response.token) { queryClient.clear(); localStorage.setItem('token', response.token); }
             return response.message;
         } catch (error) {
             return rejectWithValue(error.message || error);

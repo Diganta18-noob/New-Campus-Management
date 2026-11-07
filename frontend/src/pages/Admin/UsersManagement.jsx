@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Typography,
   Button,
@@ -20,6 +21,14 @@ import {
   Select,
   MenuItem,
   InputAdornment,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -31,17 +40,16 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
-import { DataGrid } from "@mui/x-data-grid";
-import { usersAPI, departmentsAPI } from "../../services/api";
+import { usersAPI } from "../../services/api";
 import { parseCsv } from "../../utils/csvImport";
+import { directoryOptions } from "../../utils/peopleDirectoryQuery";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 
 const ROLES = ["ADMIN", "MANAGER", "TEAM_LEADER", "TRAINER", "TA", "LEARNER"];
 
 const UsersManagement = () => {
-  const [users, setUsers] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const [importing, setImporting] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -51,17 +59,22 @@ const UsersManagement = () => {
     message: "",
     severity: "success",
   });
-  const [totalUsers, setTotalUsers] = useState(0);
   const [temporaryCredentials, setTemporaryCredentials] = useState([]);
-  const [cohortOptions, setCohortOptions] = useState([]);
 
   // Filter states
   const [selectedRole, setSelectedRole] = useState("LEARNER");
   const [searchText, setSearchText] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 10,
     page: 0,
   });
+  useEffect(() => { const timer = setTimeout(() => setDebouncedSearch(searchText.trim()), 300); return () => clearTimeout(timer); }, [searchText]);
+  const directoryQuery = useQuery(directoryOptions({ role: selectedRole, search: debouncedSearch, page: paginationModel.page + 1, limit: paginationModel.pageSize }));
+  const users = directoryQuery.data?.data || [];
+  const totalUsers = directoryQuery.data?.total || 0;
+  const cohortOptions = [...new Set(users.map(user => user.cohortId).filter(Boolean))].sort();
+  const fetchData = () => queryClient.invalidateQueries({ queryKey: ['people-directory'] });
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -74,127 +87,6 @@ const UsersManagement = () => {
     department: "",
     role: "LEARNER",
   });
-
-  const columns = [
-    {
-      field: "name",
-      headerName: "Name",
-      width: 180,
-      renderCell: (params) => `${params.row.firstName} ${params.row.lastName}`,
-    },
-    { field: "email", headerName: "Email", width: 200 },
-    { field: "username", headerName: "Username", width: 130 },
-    {
-      field: "role",
-      headerName: "Role",
-      width: 130,
-      renderCell: (params) => (
-        <Chip
-          label={params.row.role}
-          size="small"
-          color={
-            params.row.role === "ADMIN"
-              ? "error"
-              : params.row.role === "MANAGER"
-                ? "warning"
-                : "default"
-          }
-        />
-      ),
-    },
-    {
-      field: "rollNumber",
-      headerName: "Roll Number",
-      width: 130,
-    },
-    {
-      field: "cohortId",
-      headerName: "Cohort",
-      width: 150,
-      renderCell: (params) => (
-        <Chip
-          label={params.row.cohortId || "N/A"}
-          size="small"
-          variant={params.row.cohortId ? "filled" : "outlined"}
-          className={params.row.cohortId ? "bg-cyan-100 text-cyan-700" : ""}
-        />
-      ),
-    },
-    { field: "phone", headerName: "Phone", width: 130 },
-    {
-      field: "isActive",
-      headerName: "Status",
-      width: 120,
-      renderCell: (params) => (
-        <Chip
-          label={params.row.isActive ? "Active" : "Inactive"}
-          size="small"
-          color={params.row.isActive ? "success" : "default"}
-        />
-      ),
-    },
-    {
-      field: "actions",
-      headerName: "Actions",
-      width: 120,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => (
-        <Box className="flex gap-2">
-          <IconButton
-            size="small"
-            onClick={() => handleEdit(params.row)}
-            title="Edit"
-          >
-            <EditIcon fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => handleDelete(params.row)}
-            title="Deactivate"
-            color="error"
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        </Box>
-      ),
-    },
-  ];
-
-  useEffect(() => { const timer = setTimeout(fetchData, 250); return () => clearTimeout(timer); }, [selectedRole, searchText, paginationModel.page, paginationModel.pageSize]);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const [usersRes, deptsRes] = await Promise.all([
-        usersAPI.getAll({ page: paginationModel.page + 1, limit: paginationModel.pageSize, ...(selectedRole !== 'ALL' && { role: selectedRole }), search: searchText }),
-        departmentsAPI.getAll(),
-      ]);
-
-      const allUsers = (usersRes.data || []).map((user, index) => ({
-        ...user,
-        id: user._id,
-      }));
-
-      setUsers(allUsers);
-      setTotalUsers(usersRes.total || 0);
-      setDepartments(deptsRes.data || []);
-
-      // Extract unique cohorts
-      const cohorts = new Set();
-      allUsers.forEach((user) => {
-        if (user.cohortId) {
-          cohorts.add(user.cohortId);
-        }
-      });
-      setCohortOptions(Array.from(cohorts).sort());
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      showSnackbar(error.message || "Error fetching data", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Filter users based on role and search text
   const downloadCredentials = credentials => {
@@ -338,7 +230,7 @@ const UsersManagement = () => {
       return;
     }
     try {
-      setLoading(true);
+      setImporting(true);
       const res = await usersAPI.bulkCreate({ users: usersToImport });
       if (res.data?.temporaryCredentials?.length) setTemporaryCredentials(res.data.temporaryCredentials);
       const cohortInfo =
@@ -354,7 +246,7 @@ const UsersManagement = () => {
       console.error("Import error:", error);
       showSnackbar(error.message || "Error importing users", "error");
     } finally {
-      setLoading(false);
+      setImporting(false);
     }
   };
 
@@ -378,16 +270,6 @@ const UsersManagement = () => {
     const link = document.createElement('a'); link.href = url; link.download = 'users_bulk_import_template.csv'; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-
-  if (loading && !users.length) {
-    return (
-      <Box className="min-h-96 flex items-center justify-center">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  const filteredUsers = users;
 
   return (
     <div className="space-y-6">
@@ -451,9 +333,9 @@ const UsersManagement = () => {
           </Typography>
         </Alert>
 
-        <Button component="label" variant="outlined" startIcon={<UploadIcon />} fullWidth sx={{ minHeight: 96, borderStyle: 'dashed' }}>
-          Select learner CSV file
-          <input type="file" accept=".csv,text/csv" onChange={handleFileUpload} hidden />
+        <Button component="label" variant="outlined" startIcon={importing ? <CircularProgress size={18} /> : <UploadIcon />} disabled={importing} fullWidth sx={{ minHeight: 96, borderStyle: 'dashed' }}>
+          {importing ? 'Importing learners…' : 'Select learner CSV file'}
+          <input type="file" accept=".csv,text/csv" onChange={handleFileUpload} disabled={importing} hidden />
         </Button>
       </Paper>
 
@@ -482,7 +364,8 @@ const UsersManagement = () => {
           </FormControl>
 
           <TextField
-            placeholder="Search by name, email, or cohort ID..."
+            label="Search people"
+            placeholder="Name, email, or username"
             value={searchText}
             onChange={(e) => { setSearchText(e.target.value); setPaginationModel(model => ({ ...model, page: 0 })); }}
             size="small"
@@ -497,34 +380,26 @@ const UsersManagement = () => {
           />
         </div>
 
-        {/* Data Grid */}
-        <div style={{ height: 600, width: "100%" }}>
-          <DataGrid
-            rows={filteredUsers}
-            rowCount={totalUsers}
-            paginationMode="server"
-            columns={columns}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            pageSizeOptions={[5, 10, 25, 50]}
-            disableSelectionOnClick
-            disableColumnMenu
-            sx={{
-              "& .MuiDataGrid-root": {
-                border: "1px solid #e0e0e0",
-                borderRadius: "12px",
-              },
-              "& .MuiDataGrid-cell": {
-                borderColor: "#f0f0f0",
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: "#f5f5f5",
-                fontWeight: 600,
-                borderColor: "#e0e0e0",
-              },
-            }}
-          />
-        </div>
+        {directoryQuery.isFetching && <Typography variant="body2" role="status" sx={{ mb: 1, color: 'text.secondary' }}>{directoryQuery.isPending ? 'Loading people…' : 'Updating directory…'}</Typography>}
+        {directoryQuery.isError && <Alert severity="error" sx={{ mb: 2 }} action={<Button onClick={() => directoryQuery.refetch()}>Retry</Button>}>Could not load the people directory.</Alert>}
+        <TableContainer sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflowX: 'auto' }}>
+          <Table size="small" sx={{ minWidth: 1120 }}>
+            <TableHead><TableRow><TableCell>Name</TableCell><TableCell>Email</TableCell><TableCell>Username</TableCell><TableCell>Role</TableCell><TableCell>Roll number</TableCell><TableCell>Cohort</TableCell><TableCell>Phone</TableCell><TableCell>Status</TableCell><TableCell>Actions</TableCell></TableRow></TableHead>
+            <TableBody>
+              {users.map(row => <TableRow key={row._id} hover>
+                <TableCell sx={{ fontWeight: 650 }}>{row.firstName} {row.lastName}</TableCell>
+                <TableCell>{row.email}</TableCell><TableCell>{row.username}</TableCell>
+                <TableCell><Chip size="small" label={row.role} color={row.role === 'ADMIN' ? 'error' : row.role === 'MANAGER' ? 'warning' : 'default'} /></TableCell>
+                <TableCell>{row.rollNumber || '—'}</TableCell><TableCell><Chip size="small" label={row.cohortId || 'N/A'} variant={row.cohortId ? 'filled' : 'outlined'} /></TableCell>
+                <TableCell>{row.phone || '—'}</TableCell><TableCell><Chip size="small" label={row.isActive ? 'Active' : 'Inactive'} color={row.isActive ? 'success' : 'default'} /></TableCell>
+                <TableCell><Stack direction="row" gap={0.5}><IconButton size="small" aria-label={`Edit ${row.firstName} ${row.lastName}`} onClick={() => handleEdit(row)}><EditIcon fontSize="small" /></IconButton><IconButton size="small" color="error" aria-label={`Deactivate ${row.firstName} ${row.lastName}`} onClick={() => handleDelete(row)}><DeleteIcon fontSize="small" /></IconButton></Stack></TableCell>
+              </TableRow>)}
+              {!users.length && !directoryQuery.isPending && <TableRow><TableCell colSpan={9} align="center" sx={{ py: 5, color: 'text.secondary' }}>{directoryQuery.isError ? 'Directory unavailable.' : 'No people match these filters.'}</TableCell></TableRow>}
+              {directoryQuery.isPending && <TableRow><TableCell colSpan={9} align="center" sx={{ py: 5 }}><CircularProgress size={22} aria-label="Loading people" /></TableCell></TableRow>}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination component="div" count={totalUsers} page={paginationModel.page} rowsPerPage={paginationModel.pageSize} rowsPerPageOptions={[5, 10, 25, 50]} onPageChange={(_, page) => setPaginationModel(model => ({ ...model, page }))} onRowsPerPageChange={event => setPaginationModel({ page: 0, pageSize: Number(event.target.value) })} />
       </Paper>
 
       {/* Add/Edit User Modal */}
